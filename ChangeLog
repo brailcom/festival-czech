@@ -1,5 +1,28 @@
 2004-03-12  Milan Zamazal  <pdm@brailcom.org>
 
+	* czech.scm (czech-stress-units): When testing for an FF unit,
+	match any punctuation containing an FF termination character.
+
+2004-03-12  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-pos-last-in-phrase?): Extended and improved.
+
+2004-03-12  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-duration): Set dur_factor on non-syllabic
+	stress units too.
+
+2004-03-12  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-phoneme-durations): Pause length increased.
+	(czech-silence-duration-factors): B and SB lengths decreased.
+
+2004-03-12  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-phoneset-translation): Long vowels removed.
+
+2004-03-12  Milan Zamazal  <pdm@brailcom.org>
+
 	* czech.scm (czech-int-targets): Don't ignore entries with
 	contourval 0 present.
 

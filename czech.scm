@@ -124,7 +124,7 @@
 (PhoneSet.silences '(#))
 
 (defvar czech-phoneset-translation
-  '(("a:" "a") ("e:" "e") ("o:" "o") ("u:" "u") ("_" "#")))
+  '(("_" "#")))
 (defvar czech-phoneset-translation* nil)
 
 ;;; Text to phones
@@ -734,8 +734,13 @@
 
 (define (czech-pos-last-in-phrase? word)
   (or (not (item.next word))
-      (string-matches (item.feat word "n.name")
-                      (string-append "^[^" czech-chars "0-9]+$"))))
+      (and (string-matches (item.feat word "R:Token.n.name") "0?")
+           (or (not (string-matches
+                     (item.feat word "R:Token.parent.punc") "0?"))
+               (not (string-matches
+                     (item.feat word "R:Token.parent.n.prepunctuation") "0?"))
+               (string-matches (item.feat word "n.name")
+                               (string-append "^[^" czech-chars "0-9]+$"))))))
 
 (define (czech-pos utt)
   (mapcar
@@ -1102,7 +1107,7 @@
        (if (string-matches
             (item.feat int-unit
                        "daughtern.R:SylStructure.parent.R:Token.parent.punc")
-            ".*[.!?;:]")
+            ".*[.!?;:].*")
            (if (czech-yes-no-question int-unit) "FF-IT" "FF-KKL")
            "F"))
       ;; Special case: F-1 positions overriding I and M
@@ -1294,7 +1299,6 @@
               (set! contour (cdr contour)))))
       (set! unit (item.next unit)))))
 
-;; The f0_std parameter is ignored
 (defvar czech-int-simple-params '((f0_mean 100) (f0_std 10)))
 
 (define (czech-int-targets utt syl)
@@ -1334,7 +1338,7 @@
 
 (defvar czech-phoneme-durations
   '(
-    (#   0.15)
+    (#   0.50)
     (_   0.01)
     (@   0.02)
     (a   0.09)
@@ -1379,7 +1383,7 @@
     (dz~ 0.07)
     ))
 
-(defvar czech-silence-duration-factors '(("BB" 1.0) ("B" 0.5) ("SB" 0.1)))
+(defvar czech-silence-duration-factors '(("BB" 1.0) ("B" 0.25) ("SB" 0.05)))
 
 (defvar czech-stress-duration-factors
   '((1  1.03)
@@ -1411,11 +1415,15 @@
                                czech-duration-random-factor))))))
       (set! word (item.next word))))
   ;; Set general duration factors
+  (set! u utt)
   (let ((sunit (utt.relation.first utt 'StressUnit)))
     (while sunit
       (let ((nsyls (czech-unit-syllable-count sunit)))
-        (if (> nsyls 12)
-            (set! nsyls 12))
+        (cond
+         ((> nsyls 12)
+          (set! nsyls 12))
+         ((< nsyls 1)                   ; can happen if there's no vowel etc.
+          (set! nsyls 1)))
         (let ((factor (cadr (assoc nsyls czech-stress-duration-factors))))
           (mapcar (lambda (syl)
                     (mapcar (lambda (seg)
