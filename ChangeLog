@@ -1,8 +1,17 @@
+2003-08-29  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int_simple_params): Removed.
+	(voice_czech): Don't set czech-int_simple_params.  Set
+	Int_Targets.  Set Int_Method to Intonation_Tree.
+
 2003-08-28  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-pos): New function.
 	(voice_czech): Set it as POS_Method.
 	(lex.add.entry): Punctuation entries defined properly.
+	(lex.add.entry): Pauses removed from the lexicon words.
+	(czech-token_to_words): Don't consider `s' being syllabic.
+	(lex.add.entry): New words.
 
 2003-08-27  Milan Zamazal  <pdm@brailcom.org>
 
