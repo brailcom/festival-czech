@@ -1,6 +1,14 @@
 2003-09-18  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (lts.ruleset): Bug fixes, additions, improvements.
+	(czech-number): Handle introducing + and -; handle commas.
+	(czech-tokenize-on-nonalphas): Handle numbers too.
+	(czech-token_to_words): Don't fail on numbers containing
+	punctuation; handle numbers with +, -, and comma.
+	(lex.add.entry): Numerical punctuation added; `range' - added.
+	(czech-number): Use lexicon lookup for + and -.
+	(czech-token_to_words): `punctype' token feature introduced.
+	(czech-pos): Consider it.
 
 2003-09-17  Milan Zamazal  <pdm@brailcom.org>
 
