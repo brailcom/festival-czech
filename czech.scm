@@ -22,6 +22,11 @@
 
 
 (define (czech-default-synthesis-init)
+  (set! us_abs_offset 0.0)
+  (set! window_factor 1.0)
+  (set! us_rel_offset 0.0)
+  (set! us_gain 0.9)
+  (Parameter.set 'Synth_Method 'UniSyn)
   (Parameter.set 'us_sigpr 'lpc)
   (us_db_select 'czech)
   nil)
@@ -714,6 +719,8 @@
 
 ;;; Intonation
 
+(set! czech-int_simple_params '((f0_mean 110) (f0_std 25)))
+
 (set! czech-accent_cart_tree
       '((R:SylStructure.parent.gpos is content)
 	((stress is 1)
@@ -811,9 +818,10 @@
   ;; Pauses
   (Parameter.set 'Pause_Method czech-pause_method)
   ;; Accent prediction and intonation
+  (set! int_simple_params czech-int_simple_params)
   (set! int_accent_cart_tree czech-accent_cart_tree)
-  (Parameter.set 'Int_Method Intonation_Tree)
-  (Parameter.set 'Int_Targets Int_Targets_LR)
+  (Parameter.set 'Int_Method 'simple)
+  (Parameter.set 'Int_Target_Method Int_Targets_Simple)
   ;; Duration prediction
   (set! phoneme_durations czech-phoneme_durations)
   (Parameter.set 'Duration_Method 'Averages)
