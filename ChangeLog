@@ -1,3 +1,20 @@
+2003-12-01  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech): Phoneset made compatible with the
+	radio_phones phoneset.
+	(czech-phoneme_durations): Changed to defvar.  i: shortened, u:
+	lenghtened.
+	(lex.add.entry): New words added.
+	(czech-duration_cart_tree, czech-duration_ph_info): New variables.
+	(voice_czech): Use Tree_ZScores duration method.
+	(czech-int_tone_cart_tree, czech-int_lr_params): New variables.
+	(voice_czech): Use Intonation_Tree intonation method.
+	(czech-int_simple_params, czech-accent_cart_tree): Changed to
+	defvar.
+	(czech-f0_lr_start, czech-f0_lr_mid, czech-f2b_f0_lr_end): New
+	variables.
+	(voice_czech): Use them.
+
 2003-11-28  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (lex.add.entry): m/s and km/h added.
