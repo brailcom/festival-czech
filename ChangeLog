@@ -1,3 +1,8 @@
+2005-02-17  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-next-punc, czech-prev-punc): Ensure that nil is
+	never returned.
+
 2005-02-14  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-token-end-punc): Removed, no longer needed with
