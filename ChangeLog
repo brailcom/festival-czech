@@ -1,3 +1,7 @@
+2004-02-02  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech-mbrola.scm (mbrola_cz2): Set czech-volume-scale*.
+
 2004-01-30  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-int-lr-params): Removed, use
