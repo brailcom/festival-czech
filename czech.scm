@@ -415,13 +415,15 @@
 (define (czech-lts word features)
   (list word
         nil
-        (czech-syllabify-phstress
-          (let ((transformed (czech-basic-lts word))
-                (rules czech-lts-extra-rules*))
-            (while rules
-              (set! transformed (lts.apply transformed (car rules)))
-              (set! rules (cdr rules)))
-            transformed))))
+        (if (string-equal word "")
+            '()
+            (czech-syllabify-phstress
+              (let ((transformed (czech-basic-lts word))
+                    (rules czech-lts-extra-rules*))
+                (while rules
+                  (set! transformed (lts.apply transformed (car rules)))
+                  (set! rules (cdr rules)))
+                transformed)))))
 
 (define (czech-downcase word)
   (if (lts.in.alphabet word 'czech-normalize)
@@ -1620,11 +1622,19 @@
                   (item.relation.leafs sunit 'StressUnit))))
       (set! sunit (item.next sunit))))
   ;; Adjust duration factors for initial single-syllabic word
-  ;; (Take it from Word, not just SylStructure, which may contain
+  ;; (Take the initial word from Word, not just SylStructure, which may contain
   ;; prepunctuation.)
   (let ((1st-word (utt.relation.first utt 'Word)))
+    (while (and 1st-word
+                (item.daughter1 1st-word)
+                (item.daughter1 (item.daughter1 1st-word)))
+      (set! 1st-word (item.next 1st-word)))
     (let ((phonemes (and 1st-word
-                         (item.leafs (item.relation 1st-word 'SylStructure)))))
+                         (apply append
+                                (mapcar item.daughters
+                                        (item.daughters
+                                         (item.relation 1st-word
+                                                        'SylStructure)))))))
       (if (eqv? (czech-syllable-count phonemes) 1)
           (let ((durfact (cadr (assoc (length phonemes)
                                       czech-stress-duration-factors))))

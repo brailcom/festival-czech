@@ -1,3 +1,9 @@
+2004-03-29  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-lts): Handle empty word correctly.
+	(czech-duration): Don't look at word leafs, look at its
+	granddaughters.
+
 2004-03-24  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-duration): When checking first word, start from
