@@ -1,3 +1,7 @@
+2003-11-27  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech): proclaim_voice added.
+
 2003-11-26  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-int_simple_params): New variable.
