@@ -836,4 +836,15 @@
   ;; Set current voice
   (set! current-voice 'czech))
 
+;; We proclaim a fallback Czech voice with the default settings.  There's
+;; nothing better to do right now as there is no free Czech voice for Festival.
+(proclaim_voice
+ 'czech
+ '((language czech)
+   (dialect nil)
+   (gender nil)
+   (coding ISO-8859-2)
+   (description
+    "Default Czech voice.")))
+
 (provide 'czech)
