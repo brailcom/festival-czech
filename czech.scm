@@ -23,6 +23,12 @@
 
 ;;; Utility functions
 
+(define (czech-min x y)
+  (if (<= x y) x y))
+
+(define (czech-max x y)
+  (if (>= x y) x y))
+
 (define (czech-item.has-feat item feat)
   (assoc feat (item.features item)))
 
@@ -1648,7 +1654,7 @@
                                          (item.relation 1st-word
                                                         'SylStructure)))))))
       (if (eqv? (czech-syllable-count phonemes) 1)
-          (let ((durfact (cadr (assoc (length phonemes)
+          (let ((durfact (cadr (assoc (czech-min (length phonemes) 12)
                                       czech-stress-duration-factors))))
             (mapcar (lambda (ph) (item.set_feat ph 'dur_factor durfact))
                     phonemes)))))

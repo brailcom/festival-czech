@@ -1,3 +1,9 @@
+2004-04-01  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-min, czech-max): New functions.
+	(czech-duration): Don't fail on initial single-syllabic words with
+	more than 12 phonemes.
+
 2004-03-31  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-token-to-words): Handle multiple punctuation as
