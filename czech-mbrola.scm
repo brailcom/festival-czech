@@ -38,6 +38,49 @@
     ("t~"  "t'")
     ("z~"  "Z")))
 
+(defvar czech-mbrola-phoneme_durations
+  '(
+    (#   0.25)
+    (##  0.05)
+    (a   0.05)
+    (a:  0.125)
+    (b   0.0752)
+    (c   0.095)
+    (c~  0.096)
+    (ch  0.08)
+    (d   0.05)
+    (d~  0.07)
+    (e   0.05)
+    (e:  0.13)
+    (f   0.08)
+    (g   0.05)
+    (h   0.05)
+    (i   0.06)
+    (i:  0.10)
+    (j   0.06)
+    (k   0.07)
+    (l   0.05)
+    (m   0.05)
+    (n   0.05)
+    (n~  0.05)
+    (o   0.05)
+    (o:  0.1)
+    (p   0.05)
+    (r   0.05)
+    (r~  0.05)
+    (s   0.05)
+    (s~  0.05)
+    (t   0.08)
+    (t~  0.062)
+    (u   0.06)
+    (u:  0.12)
+    (v   0.05)
+    (z   0.07)
+    (z~  0.05)
+    (dz  0.05)
+    (dz~ 0.07)
+    ))
+
 (defvar czech-mbrola_database nil)
 
 (define (czech-mbrola-init)
@@ -54,6 +97,7 @@
 (czech-proclaim-voice
  mbrola_cz2
  "Czech voice provided by the Mbrola cz2 database."
- (set! czech-description czech-mbrola-description))
+ (set! czech-description czech-mbrola-description)
+ (set! czech-phoneme_durations czech-mbrola-phoneme_durations))
 
 (provide 'czech-mbrola)
