@@ -591,7 +591,7 @@
 (lex.add.entry '(","  nil (((c~ a: r) 1) ((k a) 0))))
 (lex.add.entry '("-"  nil (((p o) 1) ((m l c~) 0) ((k a) 0))))
 (lex.add.entry '("?"  nil (((o) 1) ((t a) 0) ((z n i: k) 0))))
-(lex.add.entry '("!"  nil (((v y) 1) ((k r~ i) 0) ((c~ n i: k) 0))))
+(lex.add.entry '("!"  nil (((v i) 1) ((k r~ i) 0) ((c~ n i: k) 0))))
 (lex.add.entry '("`"  nil (((o) 1) ((b r a:) 0) ((c e) 0) ((n i:) 0) ((a) 1) ((p o) 0) ((s t r o f) 0))))
 (lex.add.entry '("'"  nil (((a) 1) ((p o) 0) ((s t r o f) 0))))
 (lex.add.entry '("\"" nil (((u) 1) ((v o) 0) ((z o f) 0) ((k i) 0))))
@@ -618,7 +618,7 @@
 (lex.add.entry '(")"  nil (((p r a) 1) ((v a:) 0) ((k u) 1) ((l a) 0) ((t a:) 0))))
 (lex.add.entry '(" "  nil (((m e) 1) ((z e) 0) ((r a) 0))))
 (lex.add.entry '("\t" nil (((t a) 1) ((b u) 0) ((l a:) 0) ((t o r) 0))))
-(lex.add.entry '("\n" nil (((n o) 1) ((v y:) 0) ((r~ a:) 1) ((d e k) 0))))
+(lex.add.entry '("\n" nil (((n o) 1) ((v i:) 0) ((r~ a:) 1) ((d e k) 0))))
 
 (lex.add.entry '("pst" nil (((p s t) 1))))
 
@@ -650,14 +650,7 @@
               (string-matches name
                               "^[^a-zA-Z·ËÔÈÏÌÚÛ¯πª˙˘˝æ¡»œ…ÃÕ“”ÿ©´⁄Ÿ›Æ0-9]+$"))
          (item.set_feat w "pos" (item.feat token 'punctype)))
-        ((and (member (item.name w)
-                      '("\"" "'" "`" "-" "." "," ":" ";" "!" "?"))
-              ;; eq? doesn't work below, for an unknown reason
-              (or (equal? (item.name w) "-")
-                  (not (item.next w))
-                  (not (equal? (item.root (item.relation w 'Token))
-                               (item.root (item.relation (item.next w)
-                                                         'Token))))))
+        ((member (item.name w) '("\"" "'" "`" "-" "." "," ":" ";" "!" "?"))
          (item.set_feat w "pos" "punc")))))
    (utt.relation.items utt 'Word))
   utt)
