@@ -1137,12 +1137,13 @@
            ;; Insert _ between vowels on word boundaries
            (and (czech-item.feat? i "daughter1.daughter1.ph_vc" '+)
                 (czech-item.feat? i "p.daughtern.daughtern.ph_vc" '+)
-                (czech-item.feat? i "daughter1.daughter1.R:Segment.p.name" '#))
+                (not (czech-item.feat? i "daughter1.daughter1.R:Segment.p.name"
+                                       '#)))
            ;; Insert _ between a non-syllabic preposition and a vowel
            (and (czech-item.feat? i "p.pos" 'prep0)
                 (czech-item.feat? i "daughter1.daughter1.ph_vc" '+)
-                (czech-item.feat? i "daughter1.daughter1.R:Segment.p.name"
-                                  '#)))
+                (not (czech-item.feat? i "daughter1.daughter1.R:Segment.p.name"
+                                       '#))))
           (item.insert
            (item.relation (item.daughter1 (item.daughter1 i)) 'Segment)
            stroke 'before))
