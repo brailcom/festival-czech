@@ -1434,7 +1434,8 @@
   ;; Compute durations
   (mapcar
    (lambda (seg)
-     (let ((factor (item.feat seg "dur_factor")))
+     (let ((factor (* (item.feat seg "dur_factor")
+                      (Param.get 'Duration_Stretch))))
        (item.set_feat seg "end"
                       (+ (item.feat seg "start")
                          (* (if (<= factor 0) 1 factor)
