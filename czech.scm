@@ -1802,6 +1802,7 @@
   ;; Duration prediction
   (Param.set 'Duration_Method czech-duration)
   ;; Postlex rules
+  (set! postlex_rules_hooks '())
   (set! after_analysis_hooks czech-after-analysis-hooks*)
   ;; Final voice adjustment
   (set! after_synth_hooks (list czech-adjust-volume))
