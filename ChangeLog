@@ -1,3 +1,11 @@
+2003-10-27  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-pause_method): New function.
+	(voice_czech): Set it as the pause method.
+	(defPhoneSet): New phone `##'.
+	(PhoneSet.silences): Added.
+	(czech-phoneme_durations): Added.
+
 2003-10-17  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (lex.add.entry): "shift" and "control" added.
