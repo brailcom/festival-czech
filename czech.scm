@@ -599,13 +599,15 @@
            (not (string-matches (item.feat token "p.next") capitals))
            (<= (length name) 3) ; longer pronouncable acronyms are not spelled
            ))
-    (lts.apply name 'czech-normalize))
+    (mapcar (lambda (phoneme) `((name ,phoneme) (pos sym)))
+            (lts.apply name 'czech-normalize)))
    ;; Abbreviations and other unpronouncable words
    ((and (string-matches
           name
           "^[bcdfghjklmnpqrstvwxzBCDFGHJKLMNPQSTVWXZèïòø¹»¾ÈÏÒØ©«®][bcdfghjkmnpqstvwxzBCDFGHJKMNPQSTVWXZèïòø¹»¾ÈÏÒØ©«®]+$")
          (not (lex.lookup_all name)))
-    (lts.apply name 'czech-normalize))
+    (mapcar (lambda (phoneme) `((name ,phoneme) (pos sym)))
+            (lts.apply name 'czech-normalize)))
    ;; Separators
    ((and (string-matches name (string-append "^[^" czech-chars "0-9]+$"))
          (>= (length name) 4)
@@ -940,7 +942,7 @@
                 (if (and (<= (czech-unit-syllable-count last-unit) 1)
                          (not (member (unit-word-name last-unit)
                                       czech-special-final-words)))
-                    (set-cdr! (nth_cdr (- (length units) 1) units) '())
+                    (set-cdr! (nth_cdr (- (length units) 2) units) '())
                     (set! last-unit '()))
                 ;; Initial single-syllabic words
                 (let ((units* units)
@@ -966,7 +968,7 @@
                             (n (/ (+ len 1) 2))
                             (i 0))
                         (while (< i n)
-                          (set! (first-unit (cons (car singles) first-unit)))
+                          (set! first-unit (cons (car singles) first-unit))
                           (set! singles (cdr singles))
                           (set! i (+ i 1)))
                         (set! units (cons (reverse first-unit)
@@ -1046,7 +1048,7 @@
                               (merge-n 1 (cddr units*))))))
                           (set! units* next-units*)))))
                   ;; That's all
-                  units)))))))
+                  (append units (list last-unit)))))))))
 
 (define (czech-stress-units utt)
   (utt.relation.create utt 'IntStress)
