@@ -8,46 +8,11 @@ Skládá se ze dvou èástí:
 
 Momentální stav balíku je experimentální.
 
-Jak se balík pou¾ívá:
+Struèný návod k pou¾ití naleznete v souboru INSTALL.cs.
 
-- Po startu Festivalu je nutno natáhnout podporu èe¹tiny, napøíklad:
-
-    (load ".../czech.scm")
-
-- Chcete-li èe¹tinu pou¾ívat se standardní festivalovou syntézou (UniSyn),
-  nastavte je¹tì pøed nata¾ením souboru czech.scm promìnnou czech-index_file na
-  cestu k pou¾itým vzorkùm:
-
-    (set! czech-index_file ".../festival/voice/czech.index")
-
-  Bohu¾el toho èasu neexistují ¾ádné svobodné vzorky pro Festival, musíte mít
-  nìjaké z vlastních zdrojù.  Máte-li zájem o spolupráci na vytvoøení
-  svobodných èeských vzorkù pro Festival, prosíme, kontaktujte nás!
-
-- Chcete-li èe¹tinu pou¾ívat se syntézou systému Mbrola, musíte navíc:
-
-  * Nastavit promìnnou czech-mbrola_database:
-
-      (set! czech-mbrola_database ".../cz2")
-
-  * Nastavit jméno binárky mbrola:
-
-      (set! mbrola_progname ".../mbrola")
-
-  * Natáhnout soubor czech-mbrola.scm:
-
-      (load ".../czech-mbrola.scm")
-
-  * Nastavit èeskou syntézu na Mbrola:
-
-      (set! czech-description czech-mbrola-description)
-
-  Prosím uvìdomte si, ¾e Mbrola není svobodný software a mù¾ete jej pou¾ívat
-  jen do míry svolení a podpory jeho výrobce.
-
-- Nyní je ji¾ mo¾no zapnout èe¹tinu:
-
-    (voice_czech)
+Soubor czech-words je seznam èeských slov v základních tvarech.  Soubor
+czech-words-all je seznam èeských slov vèetnì jejich skloòovaných a èasovaných
+tvarù.  Seznamy slov byly poøízeny z dat a s pomocí nástrojù ispellové èe¹tiny
+distribuované na ftp://ftp.vslib.cz/pub/unix/ispell/czech pod GPL.
 
 S pøípadnými dotazy, námìty a pomocí se lze obracet na adresu pdm@brailcom.org.
-
