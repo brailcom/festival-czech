@@ -1,5 +1,16 @@
 2004-01-15  Milan Zamazal  <pdm@brailcom.org>
 
+	* czech-unisyn.scm: Completely rewritten.
+	* czech-mbrola.scm (czech-mbrola-init, czech-mbrola-description):
+	Removed.
+	* czech.scm (czech-description, czech-parameter): Removed.
+	(czech-phoneset-translation*): New variable.
+	(czech-reset-parameters): Reset synthesis-method and
+	czech-phoneset-translation.
+	(czech-phone-adjustment, voice-czech-common): Honor the previous
+	changes.
+	(voice-czech-common): Don't initialize synthesizer.
+
 	* czech.scm (czech): Starting dz and dz~ fix in the ruleset.
 
 2004-01-07  Milan Zamazal  <pdm@brailcom.org>
