@@ -9,6 +9,13 @@
 	(czech-number): Use lexicon lookup for + and -.
 	(czech-token_to_words): `punctype' token feature introduced.
 	(czech-pos): Consider it.
+	(czech-number): Use the comma character directly, not its spoken
+	form.
+	(czech-token_to_words): Don't accept final `,' or `.' as comma.
+	Handle dot just after dot in a very special way,
+	(lex.add.entry): Pronounce ("." num) as dot.
+	(czech-token_to_words, czech-pos): `punctype' token feature
+	handling cosmetic changes.
 
 2003-09-17  Milan Zamazal  <pdm@brailcom.org>
 
