@@ -1,3 +1,13 @@
+2003-09-17  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-token_to_words): Spell numbers starting with 0.
+	(czech-token_to_words): Exclude R from the list of spell-only
+	letters.
+	(czech-token_to_words): Don't split non-syllable words that are in
+	lexicon.  Let starting L or R doesn't make syllable.
+	(lex.add.entry): Duplicate backslash definition removed, double
+	quote definition added.
+
 2003-08-29  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-int_simple_params): Removed.
