@@ -1,3 +1,12 @@
+2003-12-22  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-proclaim-voice): Set current voice.  Voice name
+	in voice proclamation fixed.
+
+	* czech-mbrola.scm (czech-mbrola-phoneme_durations): New variable.
+	(mbrola_cz2): Set czech-phoneme_durations.
+	* czech.scm (czech-phoneme_durations): Completely changed.
+
 2003-12-17  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech-unisyn.scm: New file.
