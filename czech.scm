@@ -78,13 +78,13 @@
 
 (define (czech-next-punc word)
   (let ((token (item.next (item.parent (item.relation word 'Token)))))
-    (while (and token (not (string-matches (item.feat token 'punc) ".+")))
+    (while (and token (not (string-matches (item.feat token 'punc) "[^0]+")))
       (set! token (item.next token)))
     (and token (item.feat token 'punc))))
 
 (define (czech-prev-punc word)
   (let ((token (item.prev (item.parent (item.relation word 'Token)))))
-    (while (and token (not (string-matches (item.feat token 'punc) ".+")))
+    (while (and token (not (string-matches (item.feat token 'punc) "[^0]+")))
       (set! token (item.prev token)))
     (and token (item.feat token 'punc))))
 
