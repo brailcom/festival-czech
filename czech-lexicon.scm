@@ -114,6 +114,7 @@
 ("#"  nil (((m r~ i: z~ k a) 0)))
 ("@"  nil (((z a v i n a: c~) 0)))
 ("+"  nil (((p l u s) 0)))
+("="  nil (((r o v n a:) 0) ((s e) 0)))
 ("^"  nil (((s t r~ i: s~ k a) 0)))
 ("~"  nil (((v l n k a) 0)))
 ("/"  nil (((l o m e n o) 0)))
