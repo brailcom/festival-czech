@@ -729,13 +729,14 @@
 ;; Final phonem translation
 
 (define (czech-phone-adjustment utt)
-  (let ((table (czech-parameter 'phoneset-translation)))
-    (if table
-        (mapcar (lambda (item)
-                  (let ((tr (assoc (item.name item) table)))
-                    (if tr
-                        (item.set_name item (cadr tr)))))
-                (utt.relation.items utt 'Segment)))))
+  (if (eq? (Parameter.get 'Language) 'czech)
+      (let ((table (czech-parameter 'phoneset-translation)))
+        (if table
+            (mapcar (lambda (item)
+                      (let ((tr (assoc (item.name item) table)))
+                        (if tr
+                            (item.set_name item (cadr tr)))))
+                    (utt.relation.items utt 'Segment))))))
 
 ;; Finally, the language definition itself
 
