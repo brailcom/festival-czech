@@ -1,3 +1,7 @@
+2004-04-20  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (voice-czech-common): Let after_synth_hooks is a list.
+
 2004-04-07  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-translate-split-diphthongs): Insert the new

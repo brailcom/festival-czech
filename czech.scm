@@ -1804,7 +1804,7 @@
   ;; Postlex rules
   (set! after_analysis_hooks czech-after-analysis-hooks*)
   ;; Final voice adjustment
-  (set! after_synth_hooks czech-adjust-volume)
+  (set! after_synth_hooks (list czech-adjust-volume))
   ;; Set current voice
   (set! current-voice 'czech))
 
