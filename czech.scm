@@ -59,6 +59,11 @@
 (define (czech-item.has_feat item feat)
   (assoc feat (item.features item)))
 
+(define (czech-all-same lst)
+  (or (<= (length lst) 1)
+      (and (string-equal (car lst) (cadr lst))
+           (czech-all-same (cdr lst)))))
+
 ;;; Phone set
 
 (defPhoneSet czech
@@ -607,8 +612,8 @@
     (lts.apply name 'czech-normalize))
    ;; Separators
    ((and (string-matches name (string-append "^[^" czech-chars "0-9]+$"))
-         (let ((char (substring name 0 1)))
-           (string-matches name (string-append char char char char "+"))))
+         (>= (length name) 4)
+         (czech-all-same (symbolexplode name)))
     (list czech-token.separator_word_name))
    ;; Dashes
    ((string-matches name "^-+$")
@@ -795,6 +800,7 @@
 
 (lex.add.entry '("Kè"  nil (((k o) 1) ((r u n) 0))))
 
+(lex.add.entry '("festival" nil (((f e s) 1) ((t i) 0) ((v a l) 0))))
 (lex.add.entry '("GNU" nil (((g n u:) 1))))
 (lex.add.entry '("Emacs" nil (((i:) 1) ((m e k s) 0))))
 (lex.add.entry '("Emacsu" nil (((i:) 1) ((m e) 0) ((k s u) 0))))
@@ -809,6 +815,7 @@
 (lex.add.entry '("shift" nil (((s~ i f t) 1))))
 (lex.add.entry '("control" nil (((k o n) 1) ((t r o l) 0))))
 (lex.add.entry '("escape" nil (((i s ) 1) ((k e j p) 0))))
+(lex.add.entry '("czech" nil (((c~ e k) 1))))
 
 ;;; Part of Speech
 
