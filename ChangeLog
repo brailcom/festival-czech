@@ -1,5 +1,10 @@
 2004-03-23  Milan Zamazal  <pdm@brailcom.org>
 
+	* czech.scm (lts.ruleset): Some vowel-vowel stroke insertion
+	disabled.
+
+2004-03-23  Milan Zamazal  <pdm@brailcom.org>
+
 	* czech.scm (lts.ruleset): Typo in phoneme names fixed.
 	(czech-normalize): Sharp S added.
 

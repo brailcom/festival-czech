@@ -329,11 +329,11 @@
   ;; Some vowel-vowel pairs
   ( m i m [ o ] Vowel = o _ )
   ( # m n o h [ o ] Vowel = o _ )
-  ( Vowel-I [ a ] = _ a )
-  ( Vowel-I [ e ] = _ e )
-  ( Vowel-I [ é ] = _ e: )
-  ( Vowel-I [ o ] = _ o )
-  ( Vowel-I [ ó ] = _ o: )
+;   ( Vowel-I [ a ] = _ a )
+;   ( Vowel-I [ e ] = _ e )
+;   ( Vowel-I [ é ] = _ e: )
+;   ( Vowel-I [ o ] = _ o )
+;   ( Vowel-I [ ó ] = _ o: )
   ;; Other two-letter phonemes
   ( [ d ¾ ] = dz~ )
   ( [ d z ] = dz )
