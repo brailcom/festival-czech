@@ -355,10 +355,20 @@
    (t (cons (car list) (czech-remove element (cdr list))))))
 
 (define (czech-number name)
-  (if (string-equal name "0")
-      (list "nula")
-      (czech-number-from-digits (czech-remove (car (symbolexplode " "))
-					      (symbolexplode name)))))
+  (cond
+   ((string-matches name "^[-+].*")
+    (cons (substring name 0 1)
+          (czech-number (substring name 1 (- (length name) 1)))))
+   ((string-matches name ".*[,.].*")
+    (let ((comma (if (string-matches name ".*,.*") "," ".")))
+      (append (czech-number (string-before name comma))
+              (list "celıch")
+              (czech-number (string-after name comma)))))
+   ((string-equal name "0")
+    (list "nula"))
+   (t
+    (czech-number-from-digits (czech-remove (car (symbolexplode " "))
+                                            (symbolexplode name))))))
 
 (define (czech-number-from-digits digits)
   (let ((len (length digits)))
@@ -461,13 +471,21 @@
     nil)
    ((string-matches string "^[a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®]*$")
     (list string))
+   ((string-matches string "^[0-9]+$")
+    (symbolexplode string))
    (t
     (let ((i 0))
       (while (string-matches (substring string i 1)
                              "[a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®]")
         (set! i (+ i 1)))
+      (if (eq? i 0)
+          (while (string-matches (substring string i 1) "[0-9]")
+                 (set! i (+ i 1))))
       (append (if (> i 0)
-                  (list (substring string 0 i))
+                  (let ((s (substring string 0 i)))
+                    (if (string-matches s "[0-9]+")
+                        (symbolexplode s)
+                        (list s)))
                   nil)
               (list (substring string i 1))
               (czech-tokenize-on-nonalphas
@@ -478,7 +496,8 @@
   (cond
    ((string-matches name "^0[0-9]*")
     (apply append (mapcar czech-number (symbolexplode name))))
-   ((string-matches name "[0-9][0-9 ]*")
+   ((string-matches name "^[-+]*[0-9][0-9 ]*[.,]?[0-9 ]*")
+    (item.set_feat token "punctype" "num")
     (czech-number name))
    ((and (string-matches
           name
@@ -486,9 +505,12 @@
          (not (lex.lookup_all name)))
     (symbolexplode name))
    ((or (string-matches name "^[a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®]+$")
-        (string-matches name "^[^a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®]+$"))
+        (string-matches name "^[^a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®0-9]+$"))
     (list name))
    (t
+    (if (not (string-matches name
+                             "^[-a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®]+$"))
+        (item.set_feat token "punctype" "default"))
     (apply
      append
      (mapcar (lambda (name) (czech-token_to_words token name))
@@ -532,6 +554,13 @@
 (lex.add.entry '("y"  nil (((i) 1) ((p s i) 0) ((l o n) 0))))
 (lex.add.entry '("ı"  nil (((d l o u) 1) ((h e:) 0) ((i) 1) ((p s i) 0) ((l o n) 0))))
 (lex.add.entry '("¾"  nil (((z~ e t) 1))))
+
+(lex.add.entry '("+"  num (((p l u s) 1))))
+(lex.add.entry '("-"  num (((m i) 1) ((n u s) 0))))
+(lex.add.entry '("."  num (((c e) 1) ((l i: ch) 0))))
+(lex.add.entry '(","  num (((c e) 1) ((l i: ch) 0))))
+
+(lex.add.entry '("-"  range (((a z~) 1))))
 
 (lex.add.entry '("."  punc ()))
 (lex.add.entry '(":"  punc ()))
@@ -602,7 +631,16 @@
 (define (czech-pos utt)
   (mapcar
    (lambda (w)
-     (if (and (member (item.name w)
+     (let ((name (item.name w))
+           (token-pos (item.feat (item.root (item.relation w 'Token))
+                                 "punctype")))
+       (cond
+        ((and (not (eq token-pos 0))
+              (string-matches name
+                              "^[^a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®0-9]+$"))
+         (item.set_feat w "pos"
+                        (if (string-equal token-pos "default") nil token-pos)))
+        ((and (member (item.name w)
                       '("\"" "'" "`" "-" "." "," ":" ";" "!" "?"))
               ;; eq? doesn't work below, for an unknown reason
               (or (equal? (item.name w) "-")
@@ -610,7 +648,7 @@
                   (not (equal? (item.root (item.relation w 'Token))
                                (item.root (item.relation (item.next w)
                                                          'Token))))))
-         (item.set_feat w "pos" "punc")))
+         (item.set_feat w "pos" "punc")))))
    (utt.relation.items utt 'Word))
   utt)
 
