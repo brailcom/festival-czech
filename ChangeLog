@@ -1,3 +1,7 @@
+2004-01-28  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-f2b-f0-lr-end): Renamed to czech-f0-lr-end.
+
 2004-01-15  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech-unisyn.scm: Completely rewritten.
