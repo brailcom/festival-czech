@@ -1,3 +1,10 @@
+2005-02-05  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-silence-duration-factors): Replaced by
+	czech-silence-durations.
+	(czech-phoneme-durations): Pause duration changed to 1.00.
+	(czech-duration): Compute durations in the given range.
+
 2005-01-07  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-insert-filling-vowels): New variable.

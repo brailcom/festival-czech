@@ -1555,7 +1555,7 @@
 
 (defvar czech-phoneme-durations
   '(
-    (#   0.50)
+    (#   1.00)
     (_   0.01)
     (@   0.02)
     (a   0.09)
@@ -1600,7 +1600,8 @@
     (dz~ 0.07)
     ))
 
-(defvar czech-silence-duration-factors '(("BB" 1.0) ("B" 0.25) ("SB" 0.05)))
+(defvar czech-silence-durations
+  '(("BB" 0.206 0.238) ("B" 0.082 0.095) ("SB" 0.008 0.010)))
 
 (defvar czech-stress-duration-factors
   '((1  1.03)
@@ -1622,17 +1623,17 @@
   ;; Distinguish silence lengths
   (let ((word (utt.relation.first utt 'Word)))
     (while word
-      (let ((factor (cadr (assoc_string (item.feat word "pbreak")
-                                        czech-silence-duration-factors))))
-        (if factor
-            (let ((seg (find_last_seg word)))
+      (let ((durspec (assoc_string (item.feat word "pbreak")
+                                   czech-silence-durations)))
+        (if durspec
+            (let ((min (nth 1 durspec))
+                  (max (nth 2 durspec))
+                  (seg (find_last_seg word)))
               (if seg
                   (item.set_feat
                    (item.next (item.relation seg 'Segment))
                    'dur_factor
-                   (* factor (+ 1 (- (* 2 (czech-rand)
-                                        czech-duration-random-factor)
-                                     czech-duration-random-factor))))))))
+                   (+ min (* (- max min) (czech-rand))))))))
       (set! word (item.next word))))
   ;; Set general duration factors
   (let ((sunit (utt.relation.first utt 'StressUnit)))
