@@ -2,18 +2,15 @@ Jak se balík pou¾ívá:
 
 - Po startu Festivalu je nutno natáhnout podporu èe¹tiny, napøíklad:
 
-    (load ".../czech.scm")
+    (set! load-path (cons ".../festival-czech" load-path))
+    (require 'czech)
 
-- Chcete-li èe¹tinu pou¾ívat se standardní festivalovou syntézou (UniSyn),
-  pou¾ijte jako vzor pro definici hlasu soubor czech-unisyn.scm.
+- Balík je momentálnì pou¾itelný pouze se syntetizárom Mbrola.  Není to stav,
+  se kterým bychom byli spokojeni, a proto pracujeme na jeho nápravì.
+  S ohledem na na¹e omezené zdroje v¹ak zatím není databáze difonù pro
+  festivalový syntetizér k dispozici.
 
-    (set! czech-index_file ".../festival/voice/czech.index")
-
-  Bohu¾el toho èasu neexistují ¾ádné svobodné vzorky pro Festival, musíte mít
-  nìjaké z vlastních zdrojù.  Máte-li zájem o spolupráci na vytvoøení
-  svobodných èeských vzorkù pro Festival, prosíme, kontaktujte nás!
-
-- Chcete-li èe¹tinu pou¾ívat se syntézou systému Mbrola, musíte navíc:
+  Chcete-li èe¹tinu pou¾ívat se syntézou systému Mbrola, musíte:
 
   * Nastavit promìnnou czech-mbrola_database:
 
@@ -25,7 +22,7 @@ Jak se balík pou¾ívá:
 
   * Natáhnout soubor czech-mbrola.scm:
 
-      (load ".../czech-mbrola.scm")
+      (require 'czech-mbrola)
 
   * Nastavit èeský hlas z Mbrola:
 
