@@ -127,22 +127,15 @@
 
 (defvar czech-mbrola_database nil)
 
-(define (czech-mbrola-init)
-  (if (not czech-mbrola_database)
-      (error "czech-mbrola_database variable not set"))
-  (set! mbrola_database czech-mbrola_database)
-  nil)
-
-(defvar czech-mbrola-description
-  (list (list 'phoneset-translation czech-mbrola-translations)
-        (list 'synthesis-method 'MBROLA_Synth)
-        (list 'synthesis-init czech-mbrola-init)))
-
 (czech-proclaim-voice
  mbrola_cz2
  "Czech voice provided by the Mbrola cz2 database."
- (set! czech-description* czech-mbrola-description)
+ (set! czech-phoneset-translation* czech-mbrola-translations)
  (set! czech-phoneme-durations* czech-mbrola-phoneme-durations)
- (set! czech-lts-extra-rules* '(czech-mbrola-lts)))
+ (set! czech-lts-extra-rules* '(czech-mbrola-lts))
+ (if czech-mbrola_database
+     (set! mbrola_database czech-mbrola_database)
+     (error "czech-mbrola_database variable not set"))
+ (Parameter.set 'Synth_Method 'MBROLA_Synth))
 
 (provide 'czech-mbrola)

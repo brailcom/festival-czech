@@ -1,6 +1,6 @@
 ;;; Czech UniSyn based voice example definition
 
-;; Copyright (C) 2003 Brailcom, o.p.s.
+;; Copyright (C) 2003, 2004 Brailcom, o.p.s.
 
 ;; Author: Milan Zamazal <pdm@brailcom.org>
 
@@ -28,35 +28,42 @@
 (require 'czech)
 
 
-(define (czech-default-synthesis-init)
+(define (czech-unisyn-dirname name)
+  (substring name 0 (- (length name) (+ 1 (length (basename name))))))
+
+(define (czech-unisyn-db-init name index-file)
+  (if (not (member name (us_list_dbs)))
+      (let ((lpc-dir (path-append (czech-unisyn-dirname
+                                   (czech-unisyn-dirname index-file))
+                                  "lpc")))
+        (us_diphone_init
+          (list (list 'name name)
+                (list 'index_file index-file)
+                (list 'grouped "false")
+                (list 'coef_dir lpc-dir)
+                (list 'sig_dir lpc-dir)
+                (list 'coef_ext ".lpc")
+                (list 'sig_ext ".res")
+                (list 'default_diphone "#-#"))))))
+
+(define (czech-unisyn-param-init)
   (set! us_abs_offset 0.0)
   (set! window_factor 1.0)
   (set! us_rel_offset 0.0)
   (set! us_gain 0.9)
-  (Parameter.set 'Synth_Method 'UniSyn)
-  (Parameter.set 'us_sigpr 'lpc)
-  (us_db_select 'czech)
-  nil)
+  (Parameter.set 'us_sigpr 'lpc))
+  
+(define (czech-unisyn-init name index-file)
+  (czech-unisyn-db-init name index-file)
+  (czech-unisyn-param-init)
+  (us_db_select name))
 
-(defvar czech-index_file nil)
 
-(if czech-index_file
-    (us_diphone_init
-     (list (list 'name "czech")
-           (list 'index_file czech-index_file)
-           (list 'grouped "false")
-           (list 'coef_ext ".lpc")
-           (list 'sig_ext ".res")
-           (list 'default_diphone "#-#"))))
+;; Example definition
+; (czech-proclaim-voice
+;   foo
+;   "Foo Czech voice."
+;   (czech-unisyn-init 'czech_foo "/path/to/the/index/file"))
 
-(defvar czech-default-unisyn-description
-  '((phoneset-translation nil)
-    (synthesis-method UniSyn)
-    (synthesis-init czech-default-synthesis-init)))
-
-(czech-proclaim-voice
- unisyn_default
- "Default Czech UniSyn voice."
- (set! czech-description czech-default-unisyn-description))
 
 (provide 'czech-unisyn)

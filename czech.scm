@@ -25,12 +25,7 @@
 ;; ftp://ftp.vslib.cz/pub/unix/ispell/czech.
 
 
-(defvar czech-description nil)
-
 ;;; Utility functions
-
-(define (czech-parameter parameter)
-  (cadr (assoc parameter czech-description*)))
 
 (define (czech-item.has_feat item feat)
   (assoc feat (item.features item)))
@@ -111,6 +106,8 @@
   )
 )
 (PhoneSet.silences '(# ##))
+
+(defvar czech-phoneset-translation* nil)
 
 ;;; Text to phones
 
@@ -978,21 +975,22 @@
                   (if (equal? (item.name item) "##")
                       (item.set_name item "#")))
                 (utt.relation.items utt 'Segment))
-        (let ((table (czech-parameter 'phoneset-translation)))
-          (if table
-              (mapcar (lambda (item)
-                        (let ((tr (assoc (item.name item) table)))
-                          (if tr
-                              (item.set_name item (cadr tr)))))
-                      (utt.relation.items utt 'Segment)))))))
+        (if czech-phoneset-translation*
+            (mapcar (lambda (item)
+                      (let ((tr (assoc (item.name item)
+                                       czech-phoneset-translation*)))
+                        (if tr
+                            (item.set_name item (cadr tr)))))
+                    (utt.relation.items utt 'Segment))))))
 
 ;; Finally, the language definition itself
 
 (define (czech-reset-parameters)
-  (set! czech-description* czech-description)
   (set! czech-lts-extra-rules* czech-lts-extra-rules)
   (set! czech-int-lr-params* czech-int-lr-params)
-  (set! czech-phoneme-durations* czech-phoneme-durations))
+  (set! czech-phoneme-durations* czech-phoneme-durations)
+  (set! czech-phoneset-translation* nil)
+  (Parameter.set 'Synth_Method 'UniSyn))
 
 (define (voice-czech-common)
   (voice_reset)
@@ -1033,11 +1031,6 @@
   ;; Postlex rules
   (set! postlex_rules_hooks (list))
   (set! after_analysis_hooks (list czech-phone-adjustment))
-  ;; Waveform synthesizer
-  (Parameter.set 'Synth_Method (czech-parameter 'synthesis-method))
-  (let ((synthesis-init (czech-parameter 'synthesis-init)))
-    (if synthesis-init
-        (synthesis-init)))
   ;; Set current voice
   (set! current-voice 'czech))
 
