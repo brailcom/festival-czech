@@ -1,3 +1,13 @@
+2004-03-08  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int-targets): Use int_general_params, not
+	czech-int-simple-params; value computation fixed.
+	(czech-int-contours): Values converted to from +-1 to +-0.
+
+2004-03-05  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-add-segments): Don't perform schwa insertion.
+
 2004-03-05  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-guess-pos): New words added to question.
