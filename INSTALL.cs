@@ -5,7 +5,7 @@ Jak se balík pou¾ívá:
     (set! load-path (cons ".../festival-czech" load-path))
     (require 'czech)
 
-- Balík je momentálnì pou¾itelný pouze se syntetizátorem Mbrola.  Není to stav,
+- Balík je momentálnì pou¾itelný pouze se syntetizérem Mbrola.  Není to stav,
   se kterým bychom byli spokojeni, a proto pracujeme na jeho nápravì.
   S ohledem na na¹e omezené zdroje v¹ak zatím není databáze difonù pro
   festivalový syntetizér k dispozici.
