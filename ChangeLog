@@ -1,3 +1,14 @@
+2004-03-30  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-token-to-words): Downcase `name' before
+	checking it in czech-multiword-abbrevs.
+	(czech-multiword-abbrevs): Honor the previous change.
+
+2004-03-30  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-duration): Don't crash on initial empty words
+	carrying phrase breaks.
+
 2004-03-29  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-lts): Handle empty word correctly.

@@ -465,7 +465,7 @@
     (")" ("pravá" "kulatá"))
     ("=" ("rovná" "se"))
     ("\n" ("nový" "øádek"))
-    ("OS/2" ("OS" "2"))
+    ("os/2" ("OS" "2"))
     ("km/h" ("kilometrù" "za" "hodinu"))
     ("m/s" ("metrù" "za" "sekundu"))
     ))
@@ -643,9 +643,10 @@
 (define (czech-token-to-words token name)
   (cond
    ;; Special terms
-   ((assoc_string name czech-multiword-abbrevs)
+   ((assoc_string (czech-downcase name) czech-multiword-abbrevs)
     (apply append (mapcar (lambda (w) (czech-token-to-words token w))
-                          (cadr (assoc_string name czech-multiword-abbrevs)))))
+                          (cadr (assoc_string (czech-downcase name)
+                                              czech-multiword-abbrevs)))))
    ((and (string-matches name "[ckm]m")
          (item.prev token)
          (czech-item.feat*? token "p.name" "[-+]?[0-9]+[.,]?[0-9]*"))
@@ -1599,11 +1600,14 @@
       (let ((factor (cadr (assoc_string (item.feat word "pbreak")
                                         czech-silence-duration-factors))))
         (if factor
-            (item.set_feat
-             (item.next (item.relation (find_last_seg word) 'Segment))
-             'dur_factor
-             (* factor (+ 1 (- (* 2 (czech-rand) czech-duration-random-factor)
-                               czech-duration-random-factor))))))
+            (let ((seg (find_last_seg word)))
+              (if seg
+                  (item.set_feat
+                   (item.next (item.relation seg 'Segment))
+                   'dur_factor
+                   (* factor (+ 1 (- (* 2 (czech-rand)
+                                        czech-duration-random-factor)
+                                     czech-duration-random-factor))))))))
       (set! word (item.next word))))
   ;; Set general duration factors
   (let ((sunit (utt.relation.first utt 'StressUnit)))
