@@ -67,67 +67,71 @@
 ;;; Phone set
 
 (defPhoneSet czech
-  (;; vowel or consonant: vowel consonant
-   ;; (it's necessary to use exactly this symbol with the defined values, so
-   ;;  that the default rules identify vowels and consonants correctly)
+  (;; The properties try to be as much close as possible to the phone
+   ;; properties defined in radio_phones.scm; so that they work with English
+   ;; prosody rules.  Also, there should be no two phones with the same
+   ;; properties present.  Correspondence to real phone properties is less
+   ;; important in the context of the previous rules.
+   
+   ;; vowel or consonant: vowel consonant
    (vc + - 0)
-   ;; vowel length: short long
-   (vl 1 2 0)
+   ;; vowel length: short long dipthong schwa
+   (vlng s l d a 0)
    ;; vowel height: low mid high
-   (vh 1 2 3 0)
-   ;; vowel lip rounding: yes no
-   (vr + - 0)
+   (vheight 1 2 3 0)
+   ;; vowel frontness: front mid back
+   (vfront 1 2 3 0)
+   ;; vowellip rounding: yes no
+   (vrnd + - 0)
+   ;; consonant type: stop fricative affricate nasal lateral approximant
+   (ctype s f a n l r 0)
+   ;; place of articulation: labial alveolar palatal labio-dental dental velar
+   ;;                        glottal other
+   (cplace l a p b d v g o 0)
    ;; consonant voicing: yes no
-   (cv + - 0)
-   ;; consonant able to create sylable: yes no
-   (cs + - 0)
-   ;; consonant hardness: hard soft
-   (cf + - 0)
-   ;; consonant can be lengthen: short limited unlimited
-   (cl 1 2 3 0)
-   ;; consonant place of articulation: lips tongue sibilant nasal neck
-   (ca l t s g n 0)
+   (cvox + - 0)
    )
   (
-   (#   0 0 0 0 0 0 0 0 0)
-   (##  0 0 0 0 0 0 0 0 0)
-   (a   + 1 3 - 0 0 0 0 0)
-   (a:  + 2 3 - 0 0 0 0 0)
-   (b   - 0 0 0 + - 0 1 l)
-   (c   - 0 0 0 - - + 1 s)
-   (ch  - 0 0 0 - - 0 2 n)
-   (c~  - 0 0 0 - - - 1 s)
-   (d   - 0 0 0 + - + 1 t)
-   (d~  - 0 0 0 + - - 1 t)
-   (dz  - 0 0 0 + - + 2 s)
-   (dz~ - 0 0 0 + - - 2 s)
-   (e   + 1 2 - 0 0 0 0 0)
-   (e:  + 2 2 - 0 0 0 0 0)
-   (f   - 0 0 0 - - 0 2 l)
-   (g   - 0 0 0 + - 0 1 g)
-   (h   - 0 0 0 + - 0 2 n)
-   (i   + 1 1 - 0 0 0 0 0)
-   (i:  + 2 1 - 0 0 0 0 0)
-   (j   - 0 0 0 0 - 0 1 t)
-   (k   - 0 0 0 - - 0 1 n)
-   (l   - 0 0 0 0 + + 1 t)
-   (m   - 0 0 0 0 - 0 1 l)
-   (n   - 0 0 0 0 - + 1 g)
-   (n~  - 0 0 0 0 - - 1 g)
-   (o   + 1 2 + 0 0 0 0 0)
-   (o:  + 2 2 + 0 0 0 0 0)
-   (p   - 0 0 0 - - 0 1 l)
-   (r   - 0 0 0 0 + + 3 t)
-   (r~  - 0 0 0 0 - - 3 t)
-   (s   - 0 0 0 - - + 3 s)
-   (s~  - 0 0 0 - - - 3 s)
-   (t   - 0 0 0 - - + 1 t)
-   (t~  - 0 0 0 - - - 1 t)
-   (u   + 1 1 + 0 0 0 0 0)
-   (u:  + 2 1 + 0 0 0 0 0)
-   (v   - 0 0 0 + - 0 2 l)
-   (z   - 0 0 0 + - + 3 s)
-   (z~  - 0 0 0 + - - 3 s)
+   ;;   c l h f r t p v
+   (#   0 0 0 0 0 0 0 0)
+   (##  0 0 0 0 0 0 0 0)
+   (a   + s 3 2 - 0 0 0)
+   (a:  + l 3 2 - 0 0 0)
+   (b   - 0 0 0 0 s l +)
+   (c   - 0 0 0 0 a a -)
+   (ch  - 0 0 0 0 f g -)
+   (c~  - 0 0 0 0 a p -)
+   (d   - 0 0 0 0 s a +)
+   (d~  - 0 0 0 0 a o +)
+   (dz  - 0 0 0 0 a a +)
+   (dz~ - 0 0 0 0 a p +)
+   (e   + s 2 1 - 0 0 0)
+   (e:  + l 2 1 - 0 0 0)
+   (f   - 0 0 0 0 f b -)
+   (g   - 0 0 0 0 s v +)
+   (h   - 0 0 0 0 f g +)
+   (i   + s 1 1 - 0 0 0)
+   (i:  + l 1 1 - 0 0 0)
+   (j   - 0 0 0 0 r p +)
+   (k   - 0 0 0 0 s v -)
+   (l   - 0 0 0 0 l a +)
+   (m   - 0 0 0 0 n l +)
+   (n   - 0 0 0 0 n a +)
+   (n~  - 0 0 0 0 n p +)
+   (o   + s 2 3 + 0 0 0)
+   (o:  + l 2 3 + 0 0 0)
+   (p   - 0 0 0 0 s l -)
+   (r   - 0 0 0 0 r a +)
+   (r~  - 0 0 0 0 r o +)
+   (s   - 0 0 0 0 f a -)
+   (s~  - 0 0 0 0 f p -)
+   (t   - 0 0 0 0 s a -)
+   (t~  - 0 0 0 0 a o -)
+   (u   + s 1 3 + 0 0 0)
+   (u:  + l 1 3 + 0 0 0)
+   (v   - 0 0 0 0 f b +)
+   (z   - 0 0 0 0 f a +)
+   (z~  - 0 0 0 0 f p +)
   )
 )
 (PhoneSet.silences '(# ##))
@@ -816,6 +820,8 @@
 (lex.add.entry '("control" nil (((k o n) 1) ((t r o l) 0))))
 (lex.add.entry '("escape" nil (((i s ) 1) ((k e j p) 0))))
 (lex.add.entry '("czech" nil (((c~ e k) 1))))
+(lex.add.entry '("softwaru" nil (((s o f t) 1) ((v e:) 0) ((r u) 0))))
+(lex.add.entry '("dispozici" nil (((d i s) 1) ((p o) 0) ((z i) 0) ((c i) 0))))
 
 ;;; Part of Speech
 
@@ -902,63 +908,83 @@
 
 ;;; Intonation
 
-(set! czech-int_simple_params '((f0_mean 100) (f0_std 5)))
+(defvar czech-int_simple_params '((f0_mean 100) (f0_std 5)))
 
-(set! czech-accent_cart_tree
-      '((R:SylStructure.parent.gpos is prep0)
-        ((NONE))
-        ((p.R:SylStructure.parent.gpos is prep)
-         ((NONE))
-         ((position_type in (initial single))
-          ((Accented))
-          ((stress is 1)
-           ((Accented))
-           ((NONE)))))))
+(defvar czech-int_lr_params '((target_f0_mean 85) (target_f0_std 5)
+                              (model_f0_mean 110) (model_f0_std 10)))
+
+(defvar czech-accent_cart_tree
+  '((R:SylStructure.parent.gpos is prep0)
+    ((NONE))
+    ((p.R:SylStructure.parent.gpos is prep)
+     ((NONE))
+     ((position_type in (initial single))
+      ((Accented))
+      ((stress is 1)
+       ((Accented))
+       ((NONE)))))))
+
+;; We use English tone tree, since we have nothing better right now and maybe
+;; it's slightly better than just using Simple intonation method, especially as
+;; for questions, etc.
+(require 'tobi)
+(defvar czech-int_tone_cart_tree f2b_int_tone_cart_tree)
+(require 'f2bf0lr)
+(defvar czech-f0_lr_start f2b_f0_lr_start)
+(defvar czech-f0_lr_mid f2b_f0_lr_mid)
+(defvar czech-f2b_f0_lr_end f2b_f0_lr_end)
 
 ;;; Duration
 
-(set! czech-phoneme_durations
-      '(
-	(# 0.25)
-        (## 0.05)
-	(a 0.05)
-	(a: 0.125)
-	(b 0.0752)
-	(c 0.095)
-	(c~ 0.096)
-	(ch 0.08)
-	(d 0.05)
-	(d~ 0.07)
-	(e 0.05)
-	(e: 0.13)
-	(f 0.08)
-	(g 0.05)
-	(h 0.05)
-	(i 0.06)
-	(i: 0.12)
-	(j 0.06)
-	(k 0.07)
-	(l 0.05)
-	(m 0.05)
-	(n 0.05)
-	(n~ 0.05)
-	(o 0.05)
-	(o: 0.1)
-	(p 0.05)
-	(r 0.05)
-	(r~ 0.05)
-	(s 0.05)
-	(s~ 0.05)
-	(t 0.08)
-	(t~ 0.062)
-	(u 0.06)
-	(u: 0.09)
-	(v 0.05)
-	(z 0.07)
-	(z~ 0.05)
-	(dz 0.05)
-	(dz~ 0.07)
-	))
+(defvar czech-phoneme_durations
+  '(
+    (#   0.25)
+    (##  0.05)
+    (a   0.05)
+    (a:  0.125)
+    (b   0.0752)
+    (c   0.095)
+    (c~  0.096)
+    (ch  0.08)
+    (d   0.05)
+    (d~  0.07)
+    (e   0.05)
+    (e:  0.13)
+    (f   0.08)
+    (g   0.05)
+    (h   0.05)
+    (i   0.06)
+    (i:  0.10)
+    (j   0.06)
+    (k   0.07)
+    (l   0.05)
+    (m   0.05)
+    (n   0.05)
+    (n~  0.05)
+    (o   0.05)
+    (o:  0.1)
+    (p   0.05)
+    (r   0.05)
+    (r~  0.05)
+    (s   0.05)
+    (s~  0.05)
+    (t   0.08)
+    (t~  0.062)
+    (u   0.06)
+    (u:  0.12)
+    (v   0.05)
+    (z   0.07)
+    (z~  0.05)
+    (dz  0.05)
+    (dz~ 0.07)
+    ))
+
+;; We use English duration tree, since we have nothing better right now and
+;; maybe it's slightly better than just using Averages duration method.
+(require 'gswdurtreeZ)
+(defvar czech-duration_cart_tree gsw_duration_cart_tree)
+(defvar czech-duration_ph_info
+  (mapcar (lambda (i) (list (car i) (cadr i) 0.03)) czech-phoneme_durations))
 
 ;; Final phonem translation
 
@@ -1004,13 +1030,18 @@
   ;; Pauses
   (Parameter.set 'Pause_Method czech-pause_method)
   ;; Accent prediction and intonation
-  (set! int_simple_params czech-int_simple_params)
+  (set! int_lr_params czech-int_lr_params)
   (set! int_accent_cart_tree czech-accent_cart_tree)
-  (Parameter.set 'Int_Method Intonation_Simple)
-  (Parameter.set 'Int_Target_Method Int_Targets_Simple)
+  (set! int_tone_cart_tree czech-int_tone_cart_tree)
+  (set! f0_lr_start czech-f0_lr_start)
+  (set! f0_lr_mid czech-f0_lr_mid)
+  (set! f0_lr_end czech-f2b_f0_lr_end)
+  (Parameter.set 'Int_Method Intonation_Tree)
+  (Parameter.set 'Int_Target_Method Int_Targets_LR)
   ;; Duration prediction
-  (set! phoneme_durations czech-phoneme_durations)
-  (Parameter.set 'Duration_Method 'Averages)
+  (set! duration_cart_tree czech-duration_cart_tree)
+  (set! duration_ph_info czech-duration_ph_info)
+  (Parameter.set 'Duration_Method 'Tree_ZScores)
   ;; Postlex rules
   (set! postlex_rules_hooks (list))
   (set! after_analysis_hooks (list czech-phone-adjustment))
