@@ -1,3 +1,8 @@
+2003-12-31  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-phoneme_durations): `e' and `e:' durations
+	increased.
+
 2003-12-22  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-proclaim-voice): Set current voice.  Voice name
