@@ -719,7 +719,7 @@
 
 ;;; Intonation
 
-(set! czech-int_simple_params '((f0_mean 110) (f0_std 25)))
+(set! czech-int_simple_params '((f0_mean 80) (f0_std 25)))
 
 (set! czech-accent_cart_tree
       '((R:SylStructure.parent.gpos is content)
