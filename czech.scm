@@ -1016,11 +1016,14 @@
       (let ((token (item.prev (item.parent (item.relation word 'Token)))))
         (while (and token (not (string-matches (item.feat token 'punc) ".+")))
           (set! token (item.prev token)))
-        (if (czech-item.feat? (czech-word-stress-unit
-                               (item.daughter1 (item.next token)))
-                              'preelement 1)
-            (item.feat token 'punc)
-            0))))))
+        (let ((pword (and token
+                          (item.next token)
+                          (item.daughter1 (item.next token)))))
+          (if (and pword
+                   (czech-item.feat? (czech-word-stress-unit pword)
+                                     'preelement 1))
+              (item.feat token 'punc)
+              0)))))))
 
 (defvar czech-phrase-cart-tree
   ;; Note: Additional corrections are applied in czech-adjust-phrase-breaks
