@@ -1,3 +1,8 @@
+2003-10-01  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-phone-adjustment): Run only if the current
+	language is Czech.
+
 2003-09-23  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (lex.add.entry): Braces added.
