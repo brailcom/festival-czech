@@ -97,14 +97,6 @@
   (and unit
        (item.feat unit "daughtern.R:SylStructure.parent.R:Token.parent.punc")))
 
-(define (czech-token-end-punc word)
-  (if (and (item.relation.next word 'SylStructure)
-           (eq? (item.relation.parent word 'Token)
-                (item.relation.parent (item.relation.next word 'SylStructure)
-                                      'Token)))
-      0
-      (item.feat word "R:Token.parent.punc")))
-
 ;;; Phone set
 
 (defPhoneSet czech
@@ -1039,20 +1031,20 @@
       ((R:Token.n.name is 0)
        ((B))
        ((NB)))
-      ((lisp_czech-token-end-punc matches ".*)")
+      ((lisp_token_end_punc matches ".*)")
        ((B))
        ;;
        ;; phonetic rules
        ;;
        ;; "big" punctuations
-       ((lisp_czech-token-end-punc matches ".*[.?!;]\"")
+       ((lisp_token_end_punc matches ".*[.?!;]\"")
         ((BB))
-        ((lisp_czech-token-end-punc matches ".*[.?!;]")
+        ((lisp_token_end_punc matches ".*[.?!;]")
          ((lisp_czech-next-token-punc matches "\".*")
           ((BB))
           ((XB1)))                       ; for following adjustments
          ;; "smaller" punctuations
-         ((lisp_czech-token-end-punc matches ".*[:-]")
+         ((lisp_token_end_punc matches ".*[:-]")
           ;; dashes are treated as pbreaks only if separated by whitespaces
           ((R:Token.parent.n.daughter1.name is "-")
            ((R:Token.n.name is 0)
@@ -1060,7 +1052,7 @@
             ((NB)))
            ((B)))
           ;; "comma" punctuations
-          ((lisp_czech-token-end-punc matches ".*,")
+          ((lisp_token_end_punc matches ".*,")
            ((XB2))                      ; for following adjustments
            ;; nothing applies -- no break by default
            ((NB)))))))))))

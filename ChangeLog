@@ -1,5 +1,12 @@
 2005-02-14  Milan Zamazal  <pdm@brailcom.org>
 
+	* czech.scm (czech-token-end-punc): Removed, no longer needed with
+	the right tokenization method.
+	(czech-phrase-cart-tree): Use token_end_punc instead of
+	czech-token-end-punc.
+
+2005-02-14  Milan Zamazal  <pdm@brailcom.org>
+
 	* czech.scm (czech-prev-simple-punc): Don't crash on non-existent
 	utterance elements.
 
