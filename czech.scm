@@ -644,6 +644,7 @@
 (lex.add.entry '("freebsoftem" nil (((f r i:) 1) ((b s o f ) 0) ((t e m) 0))))
 (lex.add.entry '("shift" nil (((s~ i f t) 1))))
 (lex.add.entry '("control" nil (((k o n) 1) ((t r o l) 0))))
+(lex.add.entry '("escape" nil (((i s ) 1) ((k e j p) 0))))
 
 ;;; Part of Speech
 
