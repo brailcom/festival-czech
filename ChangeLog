@@ -1,5 +1,28 @@
 2004-03-16  Milan Zamazal  <pdm@brailcom.org>
 
+	* czech.scm (czech-identify-stress-units): Don't append last-unit
+	if it is nil.
+
+2004-03-16  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-translate-split-diphthongs): make-item
+	undefined.
+	(czech-translate-add-vowels): make-item replaced by insert-item.
+
+2004-03-16  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int-select-contours): Bug in long contour
+	handling fixed.
+
+2004-03-16  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-duration): Compute duration factor from the
+	number of phonemes, not syllables.
+	(czech-duration): Attach special durations to initial
+	single-syllabic words.
+
+2004-03-16  Milan Zamazal  <pdm@brailcom.org>
+
 	* czech.scm (czech-add-strokes): Pause testing condition fixed.
 
 2004-03-16  Milan Zamazal  <pdm@brailcom.org>

@@ -1067,7 +1067,9 @@
                               (merge-n 1 (cddr units*))))))
                           (set! units* next-units*)))))
                   ;; That's all
-                  (append units (list last-unit)))))))))
+                  (if last-unit
+                      (append units (list last-unit))
+                      units))))))))
 
 (define (czech-stress-units utt)
   (utt.relation.create utt 'IntStress)
@@ -1273,7 +1275,7 @@
                           (while (not (consp (car contour*)))
                             (set! prefix (cons (car contour*) prefix))
                             (set! contour* (cdr contour*)))
-                          (let ((val (car contour*)))
+                          (let ((val (caar contour*)))
                             (set! contour* (cdr contour*))
                             (while (> n 0)
                               (set! contour* (cons val contour*))
@@ -1425,19 +1427,27 @@
   ;; Set general duration factors
   (let ((sunit (utt.relation.first utt 'StressUnit)))
     (while sunit
-      (let ((nsyls (czech-unit-syllable-count sunit)))
+      (let ((nphones (length (czech-stress-unit-phonemes sunit))))
         (cond
-         ((> nsyls 12)
-          (set! nsyls 12))
-         ((< nsyls 1)                   ; can happen if there's no vowel etc.
-          (set! nsyls 1)))
-        (let ((factor (cadr (assoc nsyls czech-stress-duration-factors))))
+         ((> nphones 12)
+          (set! nphones 12))
+         ((< nphones 1)
+          (set! nphones 1)))
+        (let ((factor (cadr (assoc nphones czech-stress-duration-factors))))
           (mapcar (lambda (syl)
                     (mapcar (lambda (seg)
                               (item.set_feat seg "dur_factor" factor))
                             (item.relation.daughters syl 'SylStructure)))
                   (item.relation.leafs sunit 'StressUnit))))
       (set! sunit (item.next sunit))))
+  ;; Adjust duration factors for initial single-syllabic word
+  (let ((1st-word (utt.relation.first utt 'SylStructure)))
+    (let ((phonemes (and 1st-word (item.leafs 1st-word))))
+      (if (eqv? (czech-syllable-count phonemes) 1)
+          (let ((durfact (cadr (assoc (length phonemes)
+                                      czech-stress-duration-factors))))
+            (mapcar (lambda (ph) (item.set_feat ph 'dur_factor durfact))
+                    phonemes)))))
   ;; Compute durations
   (mapcar
    (lambda (seg)
@@ -1465,7 +1475,6 @@
   (if (string-equal (Param.get 'Language) 'czech)
       (let ((i (utt.relation.first utt 'Segment))
             (diphthong-vowels '((au a u) (eu e u) (ou o u)))
-            (make-item (lambda (ph feats) (cons ph (list feats))))
             (last-end 0.0))
         (while i
           (let ((end (item.feat i 'end)))
@@ -1485,7 +1494,16 @@
   (if (string-equal (Param.get 'Language) 'czech)
       (let ((i (utt.relation.first utt 'Segment))
             (diphthong-vowels '((au a) (eu e) (ou o)))
-            (make-item (lambda (ph end) `(,ph ((name ,ph) (end ,end)))))
+            (insert-item (lambda (name orig-ph end pos)
+                           (let ((feats (item.features orig-ph))
+                                 (new-feats `((name ,name) (end ,end))))
+                             (while feats
+                               (if (not (member (caar feats) '(id name end)))
+                                   (set! new-feats (cons (car feats)
+                                                         new-feats)))
+                               (set! feats (cdr feats)))
+                             (item.insert orig-ph (cons name (list new-feats))
+                                          pos))))
             (vowel? (lambda (ph) (czech-item.feat? ph 'ph_vc '+)))
             (last-end 0.0))
         (while i
@@ -1496,15 +1514,13 @@
               (let ((vowel (cadr
                             (assoc_string (item.name i) diphthong-vowels)))
                     (total-len (- end last-end)))
-                (item.insert i (make-item vowel (+ last-end (* total-len 0.3)))
-                             'before)
-                (item.insert i (make-item 'u end) 'after)
+                (insert-item vowel i (+ last-end (* total-len 0.3)) 'before)
+                (insert-item 'u i end 'after)
                 (item.set_feat i 'end (+ last-end (* total-len 0.7))))
               (set! i (item.next i)))
              ;; Duplicate vowels
              ((vowel? i)
-              (item.insert i (make-item (item.name i) (/ (+ last-end end) 2))
-                           'before)))
+              (insert-item (item.name i) i (/ (+ last-end end) 2) 'before)))
             (set! last-end end))
           (set! i (item.next i)))))
   utt)
