@@ -526,7 +526,7 @@
 (lex.add.entry '("!"  nil (((v y) 1) ((k r~ i) 0) ((c~ n i: k) 0))))
 (lex.add.entry '("`"  nil (((o) 1) ((b r a:) 0) ((c e) 0) ((n i:) 0) ((a) 1) ((p o) 0) ((s t r o f) 0))))
 (lex.add.entry '("'"  nil (((a) 1) ((p o) 0) ((s t r o f) 0))))
-(lex.add.entry '("\" nil (((z p j e) 1) ((t n e:) 0) ((l o) 1) ((m i: t) 0) ((k o) 0))))
+(lex.add.entry '("\\" nil (((z p j e) 1) ((t n e:) 0) ((l o) 1) ((m i: t) 0) ((k o) 0))))
 
 (lex.add.entry '("*"  nil (((h v j e) 1) ((z d~ i) 0) ((c~ k a) 0))))
 (lex.add.entry '("%"  nil (((p r o) 1) ((c e n t) 0))))
