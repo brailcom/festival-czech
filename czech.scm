@@ -1308,7 +1308,8 @@
                       (* f0-base (+ 1 (* f0-std contourval))))))
       (while segments
         (let ((s (car segments)))
-          (let ((contourval (item.feat s 'contourval))
+          (let ((contourval (and (czech-item.has_feat s 'contourval)
+                                 (item.feat s 'contourval)))
                 (seg-end (item.feat s 'end)))
             (cond
              ((consp contourval)
@@ -1321,7 +1322,7 @@
                              (list (+ last-seg-end (* place tlen))
                                    (f0-value (car contourval))))
                        times-values))))
-             ((not (eqv? contourval 0))
+             (contourval
               (let ((time (/ (+ last-seg-end seg-end) 2.0))
                     (value (f0-value contourval)))
                 (set! times-values (cons (list time value) times-values)))))
@@ -1338,7 +1339,7 @@
     (@   0.02)
     (a   0.09)
     (a:  0.12)
-    (au  0.04)
+    (au  0.10)
     (b   0.07)
     (c   0.07)
     (c~  0.07)
@@ -1347,7 +1348,7 @@
     (d~  0.07)
     (e   0.08)
     (e:  0.11)
-    (eu  0.04)
+    (eu  0.10)
     (f   0.07)
     (g   0.07)
     (h   0.07)
@@ -1361,7 +1362,7 @@
     (n~  0.07)
     (o   0.09)
     (o:  0.12)
-    (ou  0.04)
+    (ou  0.10)
     (p   0.07)
     (r   0.07)
     (r~  0.07)
@@ -1444,35 +1445,55 @@
 
 ;;; Final phoneme translation
 
-(define (czech-add-segments utt)
-  (let ((i (utt.relation.first utt 'Segment))
-        (diphthong-vowels '((au a) (eu e) (ou o)))
-        (make-item (lambda (ph end) `(,ph (("name" ,ph) ("end" ,end)))))
-        (vowel? (lambda (ph) (czech-item.feat? ph "ph_vc" '+)))
-        (schwa-consonant? (lambda (ph)
-                            (member (item.feat ph "ph_ctype") '("p" "n" "s"))))
-        (last-end 0.0))
-    (while i
-      (let ((end (item.feat i "end")))
-        (cond
-         ;; Duplicate both vowels of a diphthong
-         ((czech-item.feat? i "ph_vlng" 'd)
-          (let ((vowel (cadr (assoc_string (item.name i) diphthong-vowels)))
-                (total-len (- end last-end)))
-            (item.insert i (make-item vowel (+ last-end (* total-len 0.3)))
-                         'before)
-            (item.insert i (make-item 'u end) 'after)
-            (item.set_feat i "end" (+ last-end (* total-len 0.7))))
-          (set! i (item.next i)))
-         ;; Duplicate vowels
-         ((vowel? i)
-          (item.insert i (make-item (item.name i) (/ (+ last-end end) 2))
-                       'before)))
-        (set! last-end end))
-      (set! i (item.next i))))
+(define (czech-translate-split-diphthongs utt)
+  (if (string-equal (Param.get 'Language) 'czech)
+      (let ((i (utt.relation.first utt 'Segment))
+            (diphthong-vowels '((au a u) (eu e u) (ou o u)))
+            (make-item (lambda (ph feats) (cons ph (list feats))))
+            (last-end 0.0))
+        (while i
+          (let ((end (item.feat i 'end)))
+            (if (czech-item.feat? i 'ph_vlng 'd)
+                (let ((vowels
+                       (cdr (assoc_string (item.name i) diphthong-vowels))))
+                  (item.insert i (cons (car vowels) (list (item.features i)))
+                               'before)
+                  (item.set_name (item.prev i) (car vowels))
+                  (item.set_feat (item.prev i) 'end (/ (+ last-end end) 2))
+                  (item.set_name i (cadr vowels))))
+            (set! last-end end))
+          (set! i (item.next i)))))
   utt)
 
-(define (czech-phone-adjustment utt)
+(define (czech-translate-add-vowels utt)
+  (if (string-equal (Param.get 'Language) 'czech)
+      (let ((i (utt.relation.first utt 'Segment))
+            (diphthong-vowels '((au a) (eu e) (ou o)))
+            (make-item (lambda (ph end) `(,ph ((name ,ph) (end ,end)))))
+            (vowel? (lambda (ph) (czech-item.feat? ph 'ph_vc '+)))
+            (last-end 0.0))
+        (while i
+          (let ((end (item.feat i 'end)))
+            (cond
+             ;; Duplicate both vowels of a diphthong
+             ((czech-item.feat? i 'ph_vlng 'd)
+              (let ((vowel (cadr
+                            (assoc_string (item.name i) diphthong-vowels)))
+                    (total-len (- end last-end)))
+                (item.insert i (make-item vowel (+ last-end (* total-len 0.3)))
+                             'before)
+                (item.insert i (make-item 'u end) 'after)
+                (item.set_feat i 'end (+ last-end (* total-len 0.7))))
+              (set! i (item.next i)))
+             ;; Duplicate vowels
+             ((vowel? i)
+              (item.insert i (make-item (item.name i) (/ (+ last-end end) 2))
+                           'before)))
+            (set! last-end end))
+          (set! i (item.next i)))))
+  utt)
+
+(define (czech-translate-phonemes utt)
   (if (and (string-equal (Param.get 'Language) 'czech)
            czech-phoneset-translation*)
       (mapcar
@@ -1482,8 +1503,8 @@
        (utt.relation.items utt 'Segment)))
   utt)
 
-(define czech-after-analysis-hooks
-  (list czech-add-segments czech-phone-adjustment))
+(defvar czech-after-analysis-hooks
+  (list czech-translate-split-diphthongs czech-translate-add-vowels czech-translate-phonemes))
 
 ;;; Finally, the language definition itself
 

@@ -1,3 +1,24 @@
+2004-03-12  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int-targets): Don't ignore entries with
+	contourval 0 present.
+
+2004-03-12  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech-mbrola.scm (mbrola_cz2): Adjust
+	czech-after-analysis-hooks*; use Param.Set for setting the
+	synthesis method.
+	(czech-mbrola-lts): Diphthongs added.
+	(czech-mbrola-phoneme-durations): Updated to the new phoneset.
+
+	* czech.scm (czech-translate-split-diphthongs): New function.
+	(czech-add-segments): Renamed to czech-translate-add-vowels; run
+	only when the current language is Czech.
+	(czech-phone-adjustment): Renamed to czech-translate-phonemes.
+	(czech-after-analysis-hooks): Honor previous changes; turned into
+	defvar.
+	(czech-phoneme-durations): Diphthong lengths increased.
+
 2004-03-11  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech-lexicon.scm (lex.add.entry): Pronounciation of angle
