@@ -343,6 +343,7 @@
 ;;; Tokenization
 
 (defvar czech-token.unknown_word_name "neznámé")
+(defvar czech-token.whitespace "  \t\n\r")
 (defvar czech-token.punctuation "\"'`-.,:;!?(){}[]<>")
 (defvar czech-token.prepunctuation "\"'`({[<")
 
@@ -749,6 +750,7 @@
   (set! pos_lex_name nil)
   ;; Tokenization
   (set! token.unknown_word_name czech-token.unknown_word_name)
+  (set! token.whitespace czech-token.whitespace)
   (set! token.punctuation czech-token.punctuation)
   (set! token.prepunctuation czech-token.prepunctuation)
   (set! token_to_words czech-token_to_words)
