@@ -1,6 +1,6 @@
 ;;; Czech support for Festival
 
-;; Copyright (C) 2003, 2004 Brailcom, o.p.s.
+;; Copyright (C) 2003, 2004, 2005 Brailcom, o.p.s.
 
 ;; Author: Milan Zamazal <pdm@brailcom.org>
 
@@ -1728,8 +1728,10 @@
                              (let ((new ((if (eq? pos 'after)
                                              item.next item.prev)
                                          orig-ph)))
-                               (item.relation.insert orig-ph 'SylStructure
-                                                     new pos)))))
+                               (if (member 'SylStructure
+                                           (item.relations orig-ph))
+                                   (item.relation.insert orig-ph 'SylStructure
+                                                         new pos))))))
             (vowel? (lambda (ph) (czech-item.feat? ph 'ph_vc '+)))
             (last-end 0.0))
         (while i
