@@ -1013,11 +1013,10 @@
         (set! sylwords (cdr sylwords))
         ;; If `w' is a last syllable before a relevant phrase break, make new
         ;; intonation unit
-        (if (or (string-matches (item.feat w "R:SylStructure.sentence_break")
-                                1)
+        (if (or (czech-item.feat*? w "sentence_break" 1)
                 ;; This is the very last syllable (we reach this point when the
                 ;; last token generates no words for whatever reason)
-                (string-matches (item.feat w "R:SylStructure.n.name") 0))
+                (not (item.next w)))
             (begin
               (utt.relation.append
                utt 'IntUnit
