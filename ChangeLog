@@ -1,3 +1,8 @@
+2004-04-07  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-translate-split-diphthongs): Insert the new
+	item into the SylStructure relation too.
+
 2004-04-04  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-token-to-words): Don't crash in separator
