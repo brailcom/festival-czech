@@ -452,11 +452,14 @@
 
 (define (czech-token_to_words token name)
   (cond
+   ((string-matches name "^0[0-9]*")
+    (apply append (mapcar czech-number (symbolexplode name))))
    ((string-matches name "[0-9][0-9 ]*")
     (czech-number name))
-   ((string-matches
-     name
-     "^[bcdfghjkmnpqrstvwxzBCDFGHJKMNPQRSTVWXZèïòø¹»¾ÈÏÒØ©«®]+$")
+   ((and (string-matches
+          name
+          "^[bcdfghjklmnpqrstvwxzBCDFGHJKLMNPQSTVWXZèïòø¹»¾ÈÏÒØ©«®][bcdfghjkmnpqstvwxzBCDFGHJKMNPQSTVWXZèïòø¹»¾ÈÏÒØ©«®]+$")
+         (not (lex.lookup_all name)))
     (symbolexplode name))
    ((or (string-matches name "^[a-zA-Záèïéìíòóø¹»úùý¾ÁÈÏÉÌÍÒÓØ©«ÚÙÝ®]+$")
         (string-matches name "^[^a-zA-Záèïéìíòóø¹»úùý¾ÁÈÏÉÌÍÒÓØ©«ÚÙÝ®]+$"))
@@ -526,7 +529,7 @@
 (lex.add.entry '("!"  nil (((v y) 1) ((k r~ i) 0) ((c~ n i: k) 0))))
 (lex.add.entry '("`"  nil (((o) 1) ((b r a:) 0) ((c e) 0) ((n i:) 0) ((a) 1) ((p o) 0) ((s t r o f) 0))))
 (lex.add.entry '("'"  nil (((a) 1) ((p o) 0) ((s t r o f) 0))))
-(lex.add.entry '("\\" nil (((z p j e) 1) ((t n e:) 0) ((l o) 1) ((m i: t) 0) ((k o) 0))))
+(lex.add.entry '("\"" nil (((u) 1) ((v o) 0) ((z o f) 0) ((k i) 0))))
 
 (lex.add.entry '("*"  nil (((h v j e) 1) ((z d~ i) 0) ((c~ k a) 0))))
 (lex.add.entry '("%"  nil (((p r o) 1) ((c e n t) 0))))
@@ -539,7 +542,7 @@
 (lex.add.entry '("~"  nil (((v l n) 1) ((k a) 0))))
 (lex.add.entry '("="  nil (((r o) 1) ((v n a:) 0) ((s e) 0))))
 (lex.add.entry '("/"  nil (((l o) 1) ((m e) 0) ((n o) 0))))
-(lex.add.entry '("\\" nil (((b e k) 1) ((s l e s~) 0))))
+(lex.add.entry '("\\" nil (((z p j e) 1) ((t n e:) 0) ((l o) 1) ((m i: t) 0) ((k o) 0))))
 (lex.add.entry '("_"  nil (((p o d) 1) ((t r) 0) ((z~ i: t) 0) ((k o) 0))))
 (lex.add.entry '("|"  nil (((s v i) 1) ((s l i: t) 0) ((k o) 0))))
 (lex.add.entry '(">"  nil (((v j e) 1) ((t s~ i:) 0) ((n e s~) 0))))
