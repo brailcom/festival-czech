@@ -1,3 +1,9 @@
+2003-09-23  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (lex.add.entry): Braces added.
+	(lex.add.entry): `punc' parentheses added.
+	(czech-pos): Handle parentheses as punctuation.
+
 2003-09-22  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (lex.add.entry): Mistakenly used y's replaced by i's.
