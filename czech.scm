@@ -362,7 +362,7 @@
    ((string-matches name ".*[,.].*")
     (let ((comma (if (string-matches name ".*,.*") "," ".")))
       (append (czech-number (string-before name comma))
-              (list "celıch")
+              (list comma)
               (czech-number (string-after name comma)))))
    ((string-equal name "0")
     (list "nula"))
@@ -494,10 +494,21 @@
 
 (define (czech-token_to_words token name)
   (cond
-   ((string-matches name "^0[0-9]*")
+   ((and (string-matches name "^[0-9]+$")
+         (string-equal (item.feat token 'punc) ".")
+         (or (not (item.next token))
+             (not (string-matches (item.feat (item.next token) 'whitespace)
+                                  "  +"))))
+    (if (not (assoc 'punctype (item.features token)))
+        (item.set_feat token 'punctype 'num))
+    (append (czech-number name)
+            (list ".")))
+   ((string-matches name "^0[0-9]*$")
     (apply append (mapcar czech-number (symbolexplode name))))
-   ((string-matches name "^[-+]*[0-9][0-9 ]*[.,]?[0-9 ]*")
-    (item.set_feat token "punctype" "num")
+   ((or (string-matches name "^[-+]*[0-9][0-9 ]*$")
+        (string-matches name "^[-+]*[0-9][0-9 ]*[.,] *[0-9][0-9]*$"))
+    (if (not (assoc 'punctype (item.features token)))
+        (item.set_feat token 'punctype 'num))
     (czech-number name))
    ((and (string-matches
           name
@@ -510,7 +521,7 @@
    (t
     (if (not (string-matches name
                              "^[-a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®]+$"))
-        (item.set_feat token "punctype" "default"))
+        (item.set_feat token 'punctype nil))
     (apply
      append
      (mapcar (lambda (name) (czech-token_to_words token name))
@@ -557,7 +568,7 @@
 
 (lex.add.entry '("+"  num (((p l u s) 1))))
 (lex.add.entry '("-"  num (((m i) 1) ((n u s) 0))))
-(lex.add.entry '("."  num (((c e) 1) ((l i: ch) 0))))
+(lex.add.entry '("."  num (((t e c~) 1) ((k a) 0))))
 (lex.add.entry '(","  num (((c e) 1) ((l i: ch) 0))))
 
 (lex.add.entry '("-"  range (((a z~) 1))))
@@ -632,14 +643,12 @@
   (mapcar
    (lambda (w)
      (let ((name (item.name w))
-           (token-pos (item.feat (item.root (item.relation w 'Token))
-                                 "punctype")))
+           (token (item.root (item.relation w 'Token))))
        (cond
-        ((and (not (eq token-pos 0))
+        ((and (assoc 'punctype (item.features token))
               (string-matches name
                               "^[^a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®0-9]+$"))
-         (item.set_feat w "pos"
-                        (if (string-equal token-pos "default") nil token-pos)))
+         (item.set_feat w "pos" (item.feat token 'punctype)))
         ((and (member (item.name w)
                       '("\"" "'" "`" "-" "." "," ":" ";" "!" "?"))
               ;; eq? doesn't work below, for an unknown reason
