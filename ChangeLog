@@ -1,3 +1,8 @@
+2004-02-10  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-proclaim-voice): Introduce voice options,
+	support dialect and gender settings.
+
 2004-02-03  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (lts.ruleset): Infinite loop bug fixed; special words
