@@ -1,3 +1,24 @@
+2004-01-07  Milan Zamazal  <pdm@brailcom.org>
+	
+	* czech.scm (czech-reset-parameters): New function.
+	(czech-proclaim-voice): Call it.
+	(czech-guess_pos): Renamed to czech-guess-pos.
+	(czech-phrase_cart_tree): Renamed to czech-phrase-cart-tree.
+	(czech-int_simple_params, czech-int_lr_params)
+	(czech-accent_cart_tree, czech-int-tone-cart-tree)
+	(czech-f0-lr-start, czech-f0-lr-mid, czech-f2b-f0-lr-end)
+	(czech-phoneme-durations): Likewise.
+	(czech-parameter): Use czech-description* instead of
+	czech-description.
+	(voice-czech-common): Use parameter variables.
+
+	* czech-mbrola.scm (czech-mbrola-lts): New ruleset.
+	(mbrola_cz2): Enable it.
+	* czech.scm (czech-basic-lts): New function.
+	(czech-lts-extra-rules): New variable.
+	(czech-lts): Apply czech-lts-extra-rules.
+	(voice-czech-common): Initialize czech-lts-extra-rules.	
+
 2003-12-31  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-phoneme_durations): `e' and `e:' durations
