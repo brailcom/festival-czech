@@ -1,3 +1,12 @@
+2004-02-28  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-phone-adjustment): Typo in string-equal fixed.
+
+2004-02-25  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm: Use Param.get and Param.set instead of Parameter.get
+	and Parameter.set.
+
 2004-02-23  Milan Zamazal  <pdm@brailcom.org>
 
 	* README.Czech.cs: New file.

@@ -20,10 +20,6 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 
-;; Some data were created using the data files and tools contained in the
-;; ispell-czech package available under GPL at
-;; ftp://ftp.vslib.cz/pub/unix/ispell/czech.
-
 
 ;;; Utility functions
 
@@ -931,7 +927,7 @@
 ;;; Final phoneme translation
 
 (define (czech-phone-adjustment utt)
-  (if (and (eq? (Parameter.get 'Language) 'czech)
+  (if (and (string-equal (Param.get 'Language) 'czech)
            czech-phoneset-translation*)
       (mapcar
        (lambda (item)
@@ -947,13 +943,13 @@
   (set! czech-phoneme-durations* czech-phoneme-durations)
   (set! czech-volume-scale* czech-volume-scale)
   (set! czech-phoneset-translation* nil)
-  (Parameter.set 'Synth_Method 'UniSyn))
+  (Param.set 'Synth_Method 'UniSyn))
 
 (define (voice-czech-common)
   (voice_reset)
-  (Parameter.set 'Language 'czech)
+  (Param.set 'Language 'czech)
   ;; Phone set
-  (Parameter.set 'PhoneSet 'czech)
+  (Param.set 'PhoneSet 'czech)
   (PhoneSet.select 'czech)
   (set! pos_lex_name nil)
   ;; Tokenization
@@ -966,25 +962,25 @@
   (lex.select "czech")
   ;; Part of speech
   (set! guess_pos czech-guess-pos)
-  (Parameter.set 'POS_Method czech-pos)
+  (Param.set 'POS_Method czech-pos)
   ;; Simple phrase break prediction by punctuation
   (set! pos_supported nil)
   (set! phrase_cart_tree czech-phrase-cart-tree)
-  (Parameter.set 'Phrase_Method 'cart_tree)
+  (Param.set 'Phrase_Method 'cart_tree)
   ;; Pauses
-  (Parameter.set 'Pause_Method czech-pause-method)
+  (Param.set 'Pause_Method czech-pause-method)
   ;; Accent prediction and intonation
   (set! int_accent_cart_tree czech-accent-cart-tree)
-  (Parameter.set 'Int_Method 'General)
+  (Param.set 'Int_Method 'General)
   (set! int_general_params (cons (list 'targ_func czech-intonation-targets)
                                  czech-int-simple-params*))
-  (Parameter.set 'Int_Target_Method Int_Targets_General)
+  (Param.set 'Int_Target_Method Int_Targets_General)
   ;; Duration prediction
   (set! duration_cart_tree czech-duration-cart-tree)
   (set! duration_ph_info (mapcar
                           (lambda (spec) (list (car spec) 0.0 (cadr spec)))
                           czech-phoneme-durations*))
-  (Parameter.set 'Duration_Method 'Tree_ZScores)
+  (Param.set 'Duration_Method 'Tree_ZScores)
   ;; Postlex rules
   (set! postlex_rules_hooks (list))
   (set! after_analysis_hooks (list czech-phone-adjustment))
