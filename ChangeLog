@@ -28,6 +28,8 @@
 	(czech-accent_cart_tree): Completely rewritten.
 	(czech-int_simple_params): f0_mean increased to 100.
 	(lex.add.entry): "GNU" added.
+	(czech-all-same): New function.
+	(czech-token_to_words): Use it, for separator matching fix.
 
 2003-11-27  Milan Zamazal  <pdm@brailcom.org>
 
