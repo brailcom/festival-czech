@@ -445,7 +445,7 @@
   ( [ ch* ] Voiced-Cons = ch* )
   ( [ ch* ] = ch )
   ;; r~*
-  ( [ r~ ] Non-Voiced-Cons = r~* )
+  ( [ r~ ] Non-Voiced-Cons+# = r~* )
   ( ch [ r~ ] = r~ )
   ( Non-Voiced-Cons [ r~ ] = r~* )
   ;; voiced consonant -> unvoiced consonant
