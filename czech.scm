@@ -584,6 +584,8 @@
 (lex.add.entry '("`"  punc ()))
 (lex.add.entry '("'"  punc ()))
 (lex.add.entry '("\"" punc ()))
+(lex.add.entry '("("  punc ()))
+(lex.add.entry '(")"  punc ()))
 
 (lex.add.entry '("."  nil (((t e c~) 1) ((k a) 0))))
 (lex.add.entry '(":"  nil (((d v o j) 1) ((t e c~) 0) ((k a) 0))))
@@ -614,6 +616,8 @@
 (lex.add.entry '("<"  nil (((m e n) 1) ((s~ i:) 0) ((n e s~) 0))))
 (lex.add.entry '("["  nil (((l e) 1) ((v a:) 0) ((h r a) 1) ((n a) 0) ((t a:) 0))))
 (lex.add.entry '("]"  nil (((p r a) 1) ((v a:) 0) ((h r a) 1) ((n a) 0) ((t a:) 0))))
+(lex.add.entry '("{"  nil (((l e) 1) ((v a:) 0) ((s l o) 1) ((z~ e) 0) ((n a:) 0))))
+(lex.add.entry '("}"  nil (((p r a) 1) ((v a:) 0) ((s l o) 1) ((z~ e) 0) ((n a:) 0))))
 (lex.add.entry '("("  nil (((l e) 1) ((v a:) 0) ((k u) 1) ((l a) 0) ((t a:) 0))))
 (lex.add.entry '(")"  nil (((p r a) 1) ((v a:) 0) ((k u) 1) ((l a) 0) ((t a:) 0))))
 (lex.add.entry '(" "  nil (((m e) 1) ((z e) 0) ((r a) 0))))
@@ -650,7 +654,8 @@
               (string-matches name
                               "^[^a-zA-Záèïéìíòóø¹»úùý¾ÁÈÏÉÌÍÒÓØ©«ÚÙÝ®0-9]+$"))
          (item.set_feat w "pos" (item.feat token 'punctype)))
-        ((member (item.name w) '("\"" "'" "`" "-" "." "," ":" ";" "!" "?"))
+        ((member (item.name w) '("\"" "'" "`" "-" "." "," ":" ";" "!" "?"
+                                 "(" ")"))
          (item.set_feat w "pos" "punc")))))
    (utt.relation.items utt 'Word))
   utt)
