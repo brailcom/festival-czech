@@ -24,11 +24,10 @@ festival-czech øe¹í dvì úlohy:
 
 Struèný návod k pou¾ití naleznete v souboru INSTALL.cs.
 
-Soubor czech-words je seznam èeských slov v základních tvarech.  Soubor
-czech-words-all je (prozatím nekompletní) seznam èeských slov vèetnì jejich
-skloòovaných a èasovaných tvarù.  Seznamy slov byly poøízeny z dat a s pomocí
-nástrojù velmi kvalitní ispellové èe¹tiny distribuované na
-ftp://ftp.vslib.cz/pub/unix/ispell/czech pod GPL.
+Soubor czech-words je seznam èeských slov v základních tvarech spolu s pravidly
+pro ispell.  Seznam slov byl poøízen z dat velmi kvalitní ispellové èe¹tiny
+distribuované na ftp://ftp.vslib.cz/pub/unix/ispell/czech pod GPL (díky Petru
+Koláøovi za tuto úctyhodnou aktivitu!).
 
 Momentální stav festival-czech je experimentální.  Pøevod textu do fonetického
 popisu má zatím vytvoøeny pouze technické základy a musí být naplnìn jazykovými

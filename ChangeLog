@@ -1,5 +1,16 @@
 2004-03-18  Milan Zamazal  <pdm@brailcom.org>
 
+	* czech-words: Updated.
+	* czech-words-all: Removed.
+
+2004-03-18  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-item.has_feat, czech-token.unknown_word_name)
+	(czech-token.separator_word_name, czech-token.garbage_word_name)
+	(czech-token_to_words): Underscores in names replaced by hyphens.
+
+2004-03-18  Milan Zamazal  <pdm@brailcom.org>
+
 	* czech.scm (czech-int-select-contours): First syllable adjustment
 	of final contours fixed.
 

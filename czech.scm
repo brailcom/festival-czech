@@ -23,7 +23,7 @@
 
 ;;; Utility functions
 
-(define (czech-item.has_feat item feat)
+(define (czech-item.has-feat item feat)
   (assoc feat (item.features item)))
 
 (define (czech-item.feat? item feat value)
@@ -361,9 +361,9 @@
 
 ;;; Tokenization
 
-(defvar czech-token.unknown_word_name "neznámé")
-(defvar czech-token.separator_word_name "oddìlovaè") ; our own variable
-(defvar czech-token.garbage_word_name "smetí")       ; our own variable
+(defvar czech-token.unknown-word-name "neznámé")
+(defvar czech-token.separator-word-name "oddìlovaè") ; our own variable
+(defvar czech-token.garbage-word-name "smetí")       ; our own variable
 (defvar czech-token.whitespace "  \t\n\r")
 (defvar czech-token.punctuation "\"'`.,:;!?-(){}[]<>")
 (defvar czech-token.prepunctuation "\"'`({[<")
@@ -396,7 +396,7 @@
                                             (symbolexplode name))))))
 
 (define (czech-prepend-numprefix token name)
-  (if (czech-item.has_feat token 'numprefix)
+  (if (czech-item.has-feat token 'numprefix)
       (string-append (item.feat token 'numprefix) name)
       name))
 
@@ -543,11 +543,11 @@
                (substring string (+ i 1)
                           (- (length string) (+ i 1)))))))))
 
-(define (czech-token_to_words token name)
+(define (czech-token-to-words token name)
   (cond
    ;; Special terms
    ((assoc_string name czech-multiword-abbrevs)
-    (apply append (mapcar (lambda (w) (czech-token_to_words token w))
+    (apply append (mapcar (lambda (w) (czech-token-to-words token w))
                           (cadr (assoc_string name czech-multiword-abbrevs)))))
    ((and (string-matches name "[ckm]m")
          (item.prev token)
@@ -556,8 +556,8 @@
                                      ("mm" "milimetrù"))))))
    ;; Spaced numbers
    ((and (or (string-matches name "^[-+]?[1-9][0-9]?[0-9]?$")
-             (czech-item.has_feat token 'numprefix))
-         (not (czech-item.has_feat token 'punc))
+             (czech-item.has-feat token 'numprefix))
+         (not (czech-item.has-feat token 'punc))
          (item.feat token "n.whitespace" " ")
          (string-matches (item.feat token "n.name") "^[0-9][0-9][0-9]$"))
     (item.set_feat (item.next token) 'numprefix
@@ -568,20 +568,20 @@
          (czech-item.feat? token 'punc ".")
          (item.next token)
          (not (string-matches (item.feat token "n.whitespace") "  +")))
-    (if (not (czech-item.has_feat token 'punctype))
+    (if (not (czech-item.has-feat token 'punctype))
         (item.set_feat token 'punctype 'num))
     (append (czech-number* token name)
             (list ".")))
    ;; Numbers beginning with the zero digit
    ((and (string-matches name "^0[0-9]*$")
-         (not (czech-item.has_feat token 'numprefix)))
+         (not (czech-item.has-feat token 'numprefix)))
     (apply append (mapcar czech-number (symbolexplode name))))
    ;; Any other numbers
    ((let ((nname (czech-prepend-numprefix token name)))
       (or (string-matches nname "^[-+]?[0-9]+$")
           (string-matches nname "^[-+]?[0-9]+[.,][0-9]+$")
           (string-matches nname "^[-+]?[0-9]+,-$")))
-    (if (not (czech-item.has_feat token 'punctype))
+    (if (not (czech-item.has-feat token 'punctype))
         (item.set_feat token 'punctype 'num))
     (let ((nname (czech-prepend-numprefix token name)))
       (if (and (czech-item.feat? token "n.name" "Kè")
@@ -620,7 +620,7 @@
    ((and (string-matches name (string-append "^[^" czech-chars "0-9]+$"))
          (>= (length name) 4)
          (czech-all-same (symbolexplode name)))
-    (list czech-token.separator_word_name))
+    (list czech-token.separator-word-name))
    ;; Time (just a few of many possible forms)
    ((and (string-matches name "^[0-9]+:[0-9][0-9]$")
          ;; try to identify ratios -- should be better done in POS tagging
@@ -646,18 +646,18 @@
     ;; we don't include signs here not to break phone numbers and such a
     ;; written form is incorrect anyway
     (append
-     (czech-token_to_words token (string-append
+     (czech-token-to-words token (string-append
                                   (substring name 0 1)
                                   (string-before (substring name 1 1000) "-")))
      '(((name "-") (pos range)))
-     (czech-token_to_words token (string-after (substring name 1 1000) "-"))))
+     (czech-token-to-words token (string-after (substring name 1 1000) "-"))))
    ;; Homogenous tokens
    ((string-matches name (string-append "^" czech-char-regexp "+$"))
     (list name))
    ((string-matches name (string-append "^[^" czech-chars "0-9]+$"))
     (cond
      ((> (length name) 10)
-      (list czech-token.garbage_word_name))
+      (list czech-token.garbage-word-name))
      ((and (eqv? (length name) 1)
            (string-equal (item.name token) name)
            (or (not (string-matches (item.feat token 'prepunctuation) "0?"))
@@ -673,13 +673,13 @@
       (symbolexplode name))))
    ;; Hyphens
    ((string-matches name (string-append "^" czech-char-regexp "+-$"))
-    (czech-token_to_words token (string-before name "-")))
+    (czech-token-to-words token (string-before name "-")))
    ((string-matches name
       (string-append "^" czech-char-regexp "+-[-" czech-chars "]+$"))
     (append
-     (czech-token_to_words token (string-before name "-"))
+     (czech-token-to-words token (string-before name "-"))
      '(((name "-") (pos punc)))       ; necessary for punctuation reading modes
-     (czech-token_to_words token (string-after name "-"))))
+     (czech-token-to-words token (string-after name "-"))))
    ;; Lexicon words
    ((lex.lookup_all name)
     (list name))
@@ -691,7 +691,7 @@
         (item.set_feat token 'punctype nil))
     (apply
      append
-     (mapcar (lambda (name) (czech-token_to_words token name))
+     (mapcar (lambda (name) (czech-token-to-words token name))
              (czech-tokenize-on-nonalphas name))))))
 
 ;;; Lexicon
@@ -778,10 +778,10 @@
            (token (item.parent (item.relation w 'Token))))
        (cond
         ;; Feature already assigned
-        ((czech-item.has_feat w 'pos)
+        ((czech-item.has-feat w 'pos)
          nil)
         ;; Word followed by a punctuation
-        ((and (czech-item.has_feat token 'punctype)
+        ((and (czech-item.has-feat token 'punctype)
               (string-matches name (string-append "^[^" czech-chars "0-9]+$")))
          (item.set_feat w 'pos (item.feat token 'punctype)))
         ;; Punctuation
@@ -1391,7 +1391,7 @@
                       (* f0-base (+ 1 (* f0-std contourval))))))
       (while segments
         (let ((s (car segments)))
-          (let ((contourval (and (czech-item.has_feat s 'contourval)
+          (let ((contourval (and (czech-item.has-feat s 'contourval)
                                  (item.feat s 'contourval)))
                 (seg-end (item.feat s 'end)))
             (cond
@@ -1626,11 +1626,11 @@
   (PhoneSet.select 'czech)
   (set! pos_lex_name nil)
   ;; Tokenization
-  (set! token.unknown_word_name czech-token.unknown_word_name)
+  (set! token.unknown_word_name czech-token.unknown-word-name)
   (set! token.whitespace czech-token.whitespace)
   (set! token.punctuation czech-token.punctuation)
   (set! token.prepunctuation czech-token.prepunctuation)
-  (set! token_to_words czech-token_to_words)
+  (set! token_to_words czech-token-to-words)
   ;; Lexicon selection
   (lex.select "czech")
   ;; Segmentation
