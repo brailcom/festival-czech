@@ -913,7 +913,12 @@
          (item.set_feat w 'pos (item.feat token 'punctype)))
         ;; Punctuation
         ((member name '("\"" "'" "`" "-" "." "," ":" ";" "!" "?" "(" ")"))
-         (item.set_feat w 'pos 'punc))
+         ;; Is it a separate punctuation character?
+         (if (eqv? (length
+                    (item.daughters (item.parent (item.relation w 'Token))))
+                   1)
+             (item.set_feat w 'pos nil)
+             (item.set_feat w 'pos 'punc)))
         ;; Single letter, not in the role of a word
         ((and (eq? (string-length name) 1)
               (czech-pos-last-in-phrase? w))
@@ -1006,7 +1011,11 @@
         (set! sylwords (cdr sylwords))
         ;; If `w' is a last syllable before a relevant phrase break, make new
         ;; intonation unit
-        (if (string-matches (item.feat w "R:SylStructure.sentence_break") 1)
+        (if (or (string-matches (item.feat w "R:SylStructure.sentence_break")
+                                1)
+                ;; This is the very last syllable (we reach this point when the
+                ;; last token generates no words for whatever reason)
+                (string-matches (item.feat w "R:SylStructure.n.name") 0))
             (begin
               (utt.relation.append
                utt 'IntUnit

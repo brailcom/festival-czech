@@ -1,3 +1,13 @@
+2004-05-20  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-pos): Set `pos' of separate punctuation
+	characters to `nil'.
+
+2004-05-20  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-intonation-units): Ensure the last syllable
+	always makes a new unit.
+
 2004-05-03  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (voice-czech-common): Reset postlex_rules_hooks.
