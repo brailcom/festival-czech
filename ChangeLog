@@ -1,3 +1,34 @@
+2003-11-28  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (lex.add.entry): m/s and km/h added.
+	(czech-token_to_words): Check for presence of the token name in
+	lexicon at the proper place.
+	(czech-prepend-numprefix, czech-number*): New functions.
+	(czech-token_to_words): Support spaced numbers.
+	(czech-number-from-digits): Don't read thousands etc. when they
+	are zero.
+	(czech-item.has_feat): New function.
+	(czech-prepend-numprefix, czech-token_to_words, czech-pos): Use
+	it.
+	(czech-token_to_words): Time and ratio support added.
+	(czech-number@): New function.
+	(czech-downcase): Renamed to czech-normalize; some German
+	characters added.
+	(czech-char-regexp, czech-chars): New variables.
+	(czech-tokenize-on-nonalphas, czech-token_to_words, czech-pos):
+	Use them.
+	(czech-token_to_words): Missing argument to string-match added.
+	(czech-phrase_cart_tree): Make semicolon cause BB, exclude quote
+	from the rules.
+	(czech-guess_pos): New variable.
+	(voice_czech): Set guess_pos.
+	(czech-phrase_cart_tree): Insert B before some conjunctions.
+	(voice_czech): Int_Method value fixed.
+	(czech-int_simple_params): f0_std reduced to 5.
+	(czech-accent_cart_tree): Completely rewritten.
+	(czech-int_simple_params): f0_mean increased to 100.
+	(lex.add.entry): "GNU" added.
+
 2003-11-27  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech): proclaim_voice added.
