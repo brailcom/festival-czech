@@ -1,5 +1,9 @@
 2004-03-23  Milan Zamazal  <pdm@brailcom.org>
 
+	* czech-mbrola.scm (czech-mbrola-lts): `_' added.
+
+2004-03-23  Milan Zamazal  <pdm@brailcom.org>
+
 	* czech-lexicon.scm: Typo in e: transcription fixed.
 
 2004-03-22  Milan Zamazal  <pdm@brailcom.org>

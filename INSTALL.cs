@@ -6,14 +6,17 @@ Jak se balík pou¾ívá:
 
   pro vygenerování lexikonu.
 
+- Je tøeba nastavit cestu k lexikonu:
+
+    (set! czech-lexicon-file ".../festival-czech/czech-lexicon.out")
+
+  Toto nastavení musí být provedeno je¹tì pøed nata¾ením èe¹tiny popsaném
+  v následujícím kroku.
+
 - Po startu Festivalu je nutno natáhnout podporu èe¹tiny, napøíklad:
 
     (set! load-path (cons ".../festival-czech" load-path))
     (require 'czech)
-
-- Je tøeba nastavit cestu k lexikonu:
-
-    (set! czech-lexicon-file ".../festival-czech/czech-lexicon.out")
     
 - Balík je momentálnì pou¾itelný pouze se syntetizérem Mbrola.  Není to stav,
   se kterým bychom byli spokojeni, a proto pracujeme na jeho nápravì.
