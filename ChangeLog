@@ -16,6 +16,8 @@
 	(lex.add.entry): Pronounce ("." num) as dot.
 	(czech-token_to_words, czech-pos): `punctype' token feature
 	handling cosmetic changes.
+	(czech-token_to_words): Don't duplicate after-number dot at end of
+	string.
 
 2003-09-17  Milan Zamazal  <pdm@brailcom.org>
 
