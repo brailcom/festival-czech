@@ -919,7 +919,7 @@
 (require 'f2bf0lr)
 (defvar czech-f0-lr-start f2b_f0_lr_start)
 (defvar czech-f0-lr-mid f2b_f0_lr_mid)
-(defvar czech-f2b-f0-lr-end f2b_f0_lr_end)
+(defvar czech-f0-lr-end f2b_f0_lr_end)
 
 ;;; Duration
 
@@ -1022,7 +1022,7 @@
   (set! int_tone_cart_tree czech-int-tone-cart-tree)
   (set! f0_lr_start czech-f0-lr-start)
   (set! f0_lr_mid czech-f0-lr-mid)
-  (set! f0_lr_end czech-f2b-f0-lr-end)
+  (set! f0_lr_end czech-f0-lr-end)
   (Parameter.set 'Int_Method Intonation_Tree)
   (Parameter.set 'Int_Target_Method Int_Targets_LR)
   ;; Duration prediction
