@@ -14,6 +14,8 @@ nemají èas anebo zájem se vìnovat zdlouhavému a podrobnému studiu vý¹e
 uvedených dokumentù.  Nejedná se o *u¾ivatelský* úvod do Festivalu, znalost
 u¾ivatelské práce s Festivalem je pøedpokládána.
 
+Konkrétní postupy pou¾ité pro èe¹tiny jsou popsány v souboru README.czech.cs.
+
 
 * Základní principy Festivalu
 
@@ -223,3 +225,4 @@ festival> (set! utt (Utterance Text "Hello, world!  How are you?"))
 
 ... nutno dopsat ...
 
+-- Milan Zamazal <pdm@freebsoft.org>
