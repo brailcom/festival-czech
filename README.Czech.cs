@@ -12,7 +12,7 @@ Základní jednotky øeèi byly definovány dle [palková-ptáèek:94], sekce 2.
 K fonémùm z [palková-ptáèek:94] byly do èeské fonémové sady navíc pøidány
 fonémy odpovídající dlouhým samohláskám á, é, ó, ú.  Dále byl je¹tì pøidán
 foném pauzy a foném pro nárazový pøechod mezi samohláskami (napøíklad ve slovì
-"neefektivní" mezi dvìma `e').
+_neefektivní_ mezi dvìma `e').
 
 Vlastnosti fonémù ve fonémové sadì byly definovány dle potøeb èeské syntézy,
 bez pøímé návaznosti na konkrétní jazykové nebo fonetické poznatky.  Rùzné
@@ -158,7 +158,9 @@ souhlásek.  Na to není rozklad na slabiky zapotøebí.
 Urèování výslovnosti jednotlivých slov je øe¹eno primárnì LTS pravidly `czech'.
 Proto¾e je v¹ak pravopis v souèasné èe¹tinì pøíli¹ nepravidelný, je nutno si
 vypomáhat lexikonem.  Lexikon je pojatý jako seznam pøesnì tìch slov, která
-nejsou a ani rozumnì být nemohou pokryta LTS pravidly.
+nejsou a ani rozumnì být nemohou pokryta LTS pravidly nebo pro které by
+nesprávnì probìhl pøevod z tokenu na slovo (napøíklad v pøípadì slova _pst_,
+které by bylo hláskováno).
 
 Pro doplòování LTS pravidel a lexikonu je nezbytný seznam v¹ech èeských slov a
 mù¾e být u¾iteèná funkce dump-pronounciation.
@@ -212,6 +214,62 @@ aplikovat pouze na mno¾inu slov, které mohou být pøíslu¹ným pravidlem dotèeny.
 Je-li nové LTS pravidlo øádnì ovìøeno, mù¾e být pøidáno.  Volitelnì lze
 provìøit slova v lexikonu, zda se výslovnost nìkterých z nich neshoduje
 s výsledkem po aplikaci nových LTS pravidel, a taková slova z lexikonu vyøadit.
+
+** Tokeny, které se expandují na více slov
+
+Je-li zápis urèitého slova expandován na vícero slov, je nutno jeho expanzi
+definovat v promìnné czech-multiword-abbrevs.  Taková slova nepatøí do lexikonu
+-- lexikon definuje jen výslovnost jednotlivých slov.
+
+** Pravidla pro pøepis z textu do fonetické podoby
+
+Pøi pøepisu textu do fonetické podoby je v lexikonu dovoleno pou¾ívat ve¹keré
+fonémy definované v èeské fonémové sadì.  Pøitom musí být dodr¾ena následující
+pravidla.
+
+*** Konverze znìlých souhlásek na neznìlé a naopak
+
+Neprovádí se konverze znìlých souhlásek na neznìlé a naopak, kde to není
+vylo¾enì nutné.  Napøíklad správný (z hlediska festival-czech) fonetický pøepis
+slova _ovce_ je (o v c e), nikoliv (o f c e).  Výslovnost difonu v-c se toti¾
+jednak v tomto slovì neli¹í od výslovnosti tohoto difonu v jiných slovech a
+jednak se s opravdovou znìlou výslovností tohoto difonu v èe¹tinì nesetkáme
+(ani na hranicích slov a slovech pøejatých).  Jeho správná výslovnost tedy bude
+zaji¹tìna v difonové databázi nebo jejích konverzních pravidlech.
+
+Naproti správný pøepis slova _magnetismus_ je (m a g n e t i z m u s), proto¾e
+v nìm se skuteènì jedná o pozmìnìnou výslovnost slova pøejatého a v koncovce je
+èeský difon z-m, nikoliv èeský difon s-m.
+
+Toto pravidlo nedává z fonetického hlediska smysl.  Jeho cílem je v¹ak
+zjednodu¹ení tvorby polo¾ek lexikonu (pøispìvatel se mù¾e více dr¾et psané
+formy a nemusí se zabývat speciálními pøípady) a zamezení lidové tvoøivosti
+v nejednoznaèných pøípadech.
+
+*** Vkládání rázù
+
+Je nutno nezapomínat na vlo¾ení rázù mezi samohláskami.  Správný pøepis slova
+_neefektivní_ je (n e _ e f e k t i v n~ i:).  Naopak správný pøepis slova
+_poet_ je (p o e t).
+
+*** Dvojhlásky
+
+V èeské fonémové sadì jsou explicitnì obsa¾eny dvojhlásky `au', `eu' a `ou'.
+Motivací je jejich regulérní výskyt v èeských slovech.  Kdy¾ u¾ tyto fonémy
+zavádíme, vyu¾íváme je v pøepisu k odli¹ení tøech mo¾ných forem výslovnosti
+sousedních hlásek obsa¾ených v dvojhlásce: dvojhláska, ¹ev a ráz.
+
+Tak¾e slovo _pauza_ (dvojhláska) se pøepisuje (p au z a), slovo _nauka_ (¹ev)
+se pøepisuje (n a u k a) a slovo _nauèit_ (ráz) se pøepisuje (n a _ u k a).
+
+Speciálním pøípadem jsou dvojhlásky obsahující `i' nebo `i:'.  Mezi nì se
+vkládá `j', proto¾e se tam vyslovuje.  Správný pøepis slova _ekonomie_ je tedy
+(e k o n o m i j e).
+
+Ostatní dvojhláskové kombinace se pøepisují prostým zpùsobem, napøíklad správný
+pøepis slova _oleandr_ je (o l e a n d r).  Správnìj¹í by bylo pro v¹echny
+takové kombinace zavést samostatný foném, to by v¹ak bylo zbyteènì
+komplikované.
 
 
 * Prozodie
@@ -295,3 +353,7 @@ explicitnì generovat zmìnou dynamiky.  Pøízvuk je modelován intonaèní køivkou.
 
 
 -- Milan Zamazal <pdm@freebsoft.org>
+
+Local variables:
+mode: outline
+end:

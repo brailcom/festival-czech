@@ -9,28 +9,31 @@ v¹ak v urèitých smìrech neúplné a bez vý¹e uvedeného dokumentu se pøi
 serióznìj¹í práci na novém festivalovém jazyce a/nebo hlasu nelze obejít.
 
 Tento dokument je struèným popisem syntézy a dostupných nástrojù pro ty, kdo
-potøebují získat základní orientaci v postupu festivalové syntéz a pøitom
+potøebují získat základní orientaci v procesu festivalové syntézy a pøitom
 nemají èas anebo zájem se vìnovat zdlouhavému a podrobnému studiu vý¹e
 uvedených dokumentù.  Nejedná se o *u¾ivatelský* úvod do Festivalu, znalost
 u¾ivatelské práce s Festivalem je pøedpokládána.
 
-Konkrétní postupy pou¾ité pro èe¹tiny jsou popsány v souboru README.Czech.cs.
+Konkrétní postupy pou¾ité pro èe¹tinu jsou popsány ve zdrojovém kódu
+festival-czech (technické informace) a v souboru README.Czech.cs (jazykové
+informace).
 
 
 * Základní principy Festivalu
 
 Festival je systém modulární a celý proces se skládá z provedení libovolné
-sekvence modulù.  Ka¾dý modul má svùj úèely a pro nìkteré èásti zpracování si
+sekvence modulù.  Ka¾dý modul má svùj úèel a pro nìkteré èásti zpracování si
 lze vybrat z více alternativních modulù.  Lze té¾ pou¾ít libovolné moduly
 vlastní.
 
-Moduly se obvykle pí¹ou ve schemovém programovacím jazyce Festivalu SIOD.
-Tento jazyk je popsán v manuálu Festivalu.
+Moduly se obvykle pí¹ou ve schemovém programovacím jazyce Festivalu zvaném
+SIOD.  Tento jazyk je popsán v manuálu Festivalu.
 
 
 * Fáze zpracování
 
-Zpracování textu se skládá z následujících fází, definovaných v synthesis.scm:
+Zpracování textu se standardnì skládá z následujících fází, definovaných
+v synthesis.scm:
 
 (defUttType Text
   (Initialize utt)
@@ -62,24 +65,28 @@ napøíklad následujícím zpùsobem:
   (Utterance Text "nìjaký text")
 
 Funkce vrátí nezpracované utterance, které lze nechat plnì zanalyzovat voláním
-funkce `utt.synth'.  Pozor, ve festivalovém øádkovém nelze zadávat 8-bitové
-znaky, v pøípadì potøeby je nutno jít pøes *.scm soubor.
+funkce `utt.synth'.  Pozor, ve festivalovém øádkovém rozhraní nelze zadávat
+8-bitové znaky, v pøípadì potøeby je nutno syntézu provést pøes soubor.
 
-Utterance se skládá z relations, jejich¾ jména lze zjistit pomocí
+Utterance se skládá z tzv. relací, jejich¾ jména lze zjistit pomocí
 
   (utt.relationnames utterance)
 
-Obsah (seznam polo¾ek, items) ¾ádaného relation se vytáhne pomocí
+Obsah (seznam polo¾ek, items) ¾ádané relace se vytáhne pomocí
 
   (utt.relation.items utterance 'relation-name)
+
+Mnohé polo¾ky se vyskytují ve více relacích.  Relace má obecnì podobu stromu a
+prostøednictvím polo¾ek mohou být tyto stromy vzájemnì provázány.  Relace
+polo¾ky lze zjistit pomocí
+
+  (item.relations item)
 
 Základními vlastnostmi polo¾ky jsou její jméno a rysy:
 
   (item.name item)
 
-Mnohé polo¾ky se objevují na více místech, napøíklad konkrétní Word mù¾e mít
-pøiøazeno Phrase, takové Phrase je pak dostupno jako rys Word.  Rysy polo¾ky
-lze zjistit pomocí
+Rysy polo¾ky lze zjistit pomocí
 
   (item.features item)
 
@@ -95,8 +102,9 @@ Lze té¾ pou¾ít
 
   (utt.relation_tree utt 'SylStructure)
 
-Funkce vrací kompletnìj¹í informaci o dané relaci, utt.relation.print mù¾e
-nìkterá data zamlèet.
+Funkce utt.relation_tree vrací kompletnìj¹í informaci o dané relaci, obsahuje
+celý strom dat obsa¾ených v relaci, zatímco utt.relation.print vypisuje pouze
+prvky nejvy¹¹í úrovnì.
 
 Obèas nará¾íme na pojem globálního parametru.  Hodnotu globálního parametru lze
 získat voláním
@@ -112,7 +120,7 @@ Jen vytvoøí prázdné utterance.
 
 ** Text
 
-Provede rozdìlení textu na tokens.  Funkce `Text' je napsána v C++, vyu¾ívá
+Provede rozdìlení textu na tokeny.  Funkce `Text' je napsána v C++, vyu¾ívá
 v¹ak promìnné `token.*' definované v token.scm.
 
 Definovaná interpunkèní znaménka jsou oddìlena od výsledných tokenù a jsou
@@ -135,10 +143,10 @@ více slov.
 ** POS (POS == Part of Speech)
 
 Provádí tagování konkrétních slov dle jejich pozice v øeèi.  Nepovinná èást.
-Parametrizovatelné pomocí nìkolika promìnných.  Pro èe¹tinu pou¾íváme vlastní
-postup.  Tato fáze, na rozdíl od fáze Token_POS, urèuje význam jednotlivých
-slov ji¾ nikoliv pro urèení výslovnosti slov, nýbr¾ pro urèení jejich role ve
-vztahu k následnému urèení prozodie, tj. pomlk, délek, pøízvuku a intonace.
+Parametrizovatelné pomocí nìkolika promìnných.  Tato fáze, na rozdíl od fáze
+Token_POS, urèuje význam jednotlivých slov ji¾ nikoliv pro urèení výslovnosti
+slov, nýbr¾ pro urèení jejich role ve vztahu k následnému urèení prozodie,
+tj. pauz, délek, pøízvuku a intonace.
 
 ** Phrasify
 
@@ -180,7 +188,7 @@ zaøazené v seznamu postlex_rules_hooks.
 
 ** Duration
 
-Urèí délky trvání jednotlivých fonémù syntetizovaného textu.
+Urèí délky trvání jednotlivých segmentù (fonémù) syntetizovaného textu.
 
 ** Int_Targets
 
@@ -190,7 +198,7 @@ Urèí parametry intonaèní køivky, obvykle po slabikách.
 
 Samotné sestavení zvuku na základì ji¾ v¹ech dostupných anotací.  Funkce, která
 se pro syntézu zavolá, je definována globálním parametrem `Synth_Method'.
-Funkce Wave_Synth je ve Scheme a nachází se v synthesis.scm.
+Kostra funkce Wave_Synth je napsána ve Scheme a nachází se v synthesis.scm.
 
 
 * Praktické poznámky.
@@ -199,16 +207,5 @@ Docstringy umí vypsat funkce `doc'.
 
 Readline umí doplòovat jména funkcí, co¾ je èasto u¾iteèné.
 
-
-* Pøíklady
-
-** Angliètina
-
-Analýza textu "Hello, world! How are you?":
-
-festival> (set! utt (Utterance Text "Hello, world!  How are you?"))
-#<Utterance 0x40757ec8>
-
-... nutno dopsat ...
 
 -- Milan Zamazal <pdm@freebsoft.org>

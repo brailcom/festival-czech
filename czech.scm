@@ -80,8 +80,8 @@
   (
    ;;   c l t v s
    (#   0 0 0 0 0)                      ; pause
-   (_   0 0 0 0 0)                      ; vowel-vowel stroke
-   (@   + a 0 0 0)                      ; schwa
+   (_   0 0 0 0 -)                      ; vowel-vowel stroke
+   (@   + a 0 0 +)                      ; schwa
    (a   + s 0 0 +)
    (a:  + l 0 0 +)
    (au  + d 0 0 +)
@@ -243,21 +243,69 @@
   (ÌI ì i í)
   (I i y)
   (Í í ý)
-  (Vowel a á e é i í o ó u ú ù y ý)
+  (Vowel a á e é ì i í o ó u ú ù y ý)
   (SZ s z))
  (
-  ;; Special combinations
+  ;; Special rules
   ( [ d ] i SZ m u = d )
   ( [ n ] i SZ m u = n )
   ( [ t ] i SZ m u = t )
-  ( [ d ] i s t = d )
   ( [ n ] i s t = n )
   ( [ t ] i s t = t )
   ( [ t ] i c k = t )
   ( [ t ] i è t ì = t )
   ( # a n [ t ] i = t )
   ( # a n t [ i ] Vowel = i )
-  ( [ t ] i v n = t )
+  ( t e c h [ n ] i = n )
+  ( [ d ] i s p = d )
+
+  ( l i [ c ] o m = c )
+  ( [ c ] o m = k )
+  
+  ( [ c ] o p y = k )
+  ( f r [ e e ] = i: )
+  
+  ( m l a [ d ] i s t = d~ )
+  ( [ d ] i s t = d )
+  
+  ( # t r a [ t ] i v = t~ )
+  ( á [ t ] i v = t~ )
+  ( b o l e s [ t ] i v = t~ )
+  ( c [ t ] i v = t~ )
+  ( c e [ t ] i v = t~ )
+  ( c h [ t ] i v = t~ )
+  ( c h a m [ t ] i v = t~ )
+  ( c h r a p [ t ] i v = t~ )
+  ( c h r o p [ t ] i v = t~ )
+  ( è [ t ] i v = t~ )
+  ( d r [ t ] i v = t~ )
+  ( ì [ t ] i v = t~ )
+  ( f i n [ t ] i v = t~ )
+  ( h l [ t ] i v = t~ )
+  ( h o [ t ] i v = t~ )
+  ( h ø m o [ t ] i v = t~ )
+  ( í [ t ] i v = t~ )
+  ( k l e v e [ t ] i v = t~ )
+  ( k r o u [ t ] i v = t~ )
+  ( o s [ t ] i v = t~ )
+  ( p i [ t ] i v = t~ )
+  ( p l e [ t ] i v = t~ )
+  ( p o l [ t ] i v = t~ )
+  ( r o [ t ] i v = t~ )
+  ( s e [ t ] i v = t~ )
+  ( s m r [ t ] i v = t~ )
+  ( s o p [ t ] i v = t~ )
+  ( ¹ [ t ] i v = t~ )
+  ( v r [ t ] i v = t~ )
+  ( y [ t ] i v = t~ )
+  ( ¾ á d o s [ t ] i v = t~ )
+  ( d i g e s [ t ] i v = t )
+  ( f e s [ t ] i v = t )
+  ( k o n t r a s [ t ] i v = t )
+  ( r e z i s [ t ] i v = t )
+  ( s u g e s [ t ] i v = t )
+  ( s [ t ] i v = t~ )
+  ( [ t ] i v = t )
 
   ;; Special orthography rules
   ( [ d ] ÌI = d~ )
@@ -267,6 +315,7 @@
   ( BPV [ ì ] = j e )
   ( m [ ì ] = n~ e )
   ;; `i' handling
+  ( # m e z [ i ] Vowel = i _ )
   ( # [ I ] Vowel = j )
   ( [ I ] Vowel = i j )
   ( [ Í ] Vowel = i: j )
@@ -276,12 +325,31 @@
   ( [ a u ] = au )
   ( [ e u ] = eu )
   ( [ o u ] = ou )
+  ;; Some vowel-vowel pairs
+  ( m i m [ o ] Vowel = o _ )
+  ( # m n o h [ o ] Vowel = o _ )
+  ( Vowel [ a ] = _ a )
+  ( Vowel [ e ] = _ e )
+  ( Vowel [ é ] = _ é )
+  ( Vowel [ o ] = _ o )
+  ( Vowel [ ó ] = _ ó )
   ;; Other two-letter phonemes
   ( [ d ¾ ] = dz~ )
   ( [ d z ] = dz )
   ( [ c h ] = ch )
   ;; Special letters
   ( [ ì ] = j e )
+  ( # [ ú ] = u: )
+  ( b e z [ ú ] = _ u: )
+  ( o [ ú ] = _ u: )
+  ( [ ú ] h = _ u: )
+  ( [ ú ] è e = _ u: )
+  ( [ ú ] è t = _ u: )
+  ( [ ú ] d r ¾ = _ u: )
+  ( [ ú ] l o h = _ u: )
+  ( [ ú ] r o è = _ u: )
+  ( [ ú ] r o d = _ u: )
+  ( [ ú ] r o v ò = _ u: )
   ;; Simple letters
   ( [ a ] = a )
   ( [ á ] = a: )
@@ -392,6 +460,7 @@
     ("}" ("pravá" "slo¾ená"))
     ("(" ("levá" "kulatá"))
     (")" ("pravá" "kulatá"))
+    ("=" ("rovná" "se"))
     ("\n" ("nový" "øádek"))
     ("OS/2" ("OS" "2"))
     ("km/h" ("kilometrù" "za" "hodinu"))

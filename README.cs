@@ -27,7 +27,8 @@ Struèný návod k pou¾ití naleznete v souboru INSTALL.cs.
 Soubor czech-words je seznam èeských slov v základních tvarech spolu s pravidly
 pro ispell.  Seznam slov byl poøízen z dat velmi kvalitní ispellové èe¹tiny
 distribuované na ftp://ftp.vslib.cz/pub/unix/ispell/czech pod GPL (díky Petru
-Koláøovi za tuto úctyhodnou aktivitu!).
+Koláøovi za tuto úctyhodnou aktivitu!).  Ze stejného zdroje byl pøevzat soubor
+`munch'.
 
 Momentální stav festival-czech je experimentální.  Pøevod textu do fonetického
 popisu má zatím vytvoøeny pouze technické základy a musí být naplnìn jazykovými

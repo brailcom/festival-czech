@@ -30,7 +30,8 @@
         (print word)
         (if (consp word)                ; eof
             (set! done t)
-            (format out "(%l %l)\n" word (czech-basic-lts word nil)))))
+            (format out "(%l nil ((%l 0)))\n" word
+                    (czech-basic-lts word nil)))))
     (fclose out)
     (fclose in)))
 
