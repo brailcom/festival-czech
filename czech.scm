@@ -1620,8 +1620,11 @@
                   (item.relation.leafs sunit 'StressUnit))))
       (set! sunit (item.next sunit))))
   ;; Adjust duration factors for initial single-syllabic word
-  (let ((1st-word (utt.relation.first utt 'SylStructure)))
-    (let ((phonemes (and 1st-word (item.leafs 1st-word))))
+  ;; (Take it from Word, not just SylStructure, which may contain
+  ;; prepunctuation.)
+  (let ((1st-word (utt.relation.first utt 'Word)))
+    (let ((phonemes (and 1st-word
+                         (item.leafs (item.relation 1st-word 'SylStructure)))))
       (if (eqv? (czech-syllable-count phonemes) 1)
           (let ((durfact (cadr (assoc (length phonemes)
                                       czech-stress-duration-factors))))
