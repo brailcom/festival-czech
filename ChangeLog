@@ -5,8 +5,6 @@
 	(czech-phoneme_durations): Changed to defvar.  i: shortened, u:
 	lenghtened.
 	(lex.add.entry): New words added.
-	(czech-duration_cart_tree, czech-duration_ph_info): New variables.
-	(voice_czech): Use Tree_ZScores duration method.
 	(czech-int_tone_cart_tree, czech-int_lr_params): New variables.
 	(voice_czech): Use Intonation_Tree intonation method.
 	(czech-int_simple_params, czech-accent_cart_tree): Changed to
