@@ -637,10 +637,12 @@
 (lex.add.entry '("copyright" nil (((k o) 1) ((p i) 0) ((r a j t) 0))))
 (lex.add.entry '("Brailcom" nil (((b r a i l) 1) ((k o m) 0) )))
 (lex.add.entry '("Brailcomu" nil (((b r a i l) 1) ((k o) 0) ((m u) 0) )))
-(lex.add.entry '("Brailcomem" nil (((b r a i l) 1) ((k o) 0) ((m e m) 0) )))
-(lex.add.entry '("freebsoft" nil (((f r i:) 1) ((b s o f t) 0) )))
-(lex.add.entry '("freebsoftu" nil (((f r i:) 1) ((b s o f) 0) ((t u) 0) )))
-(lex.add.entry '("freebsoftem" nil (((f r i:) 1) ((b s o f ) 0) ((t e m) 0) )))
+(lex.add.entry '("Brailcomem" nil (((b r a i l) 1) ((k o) 0) ((m e m) 0))))
+(lex.add.entry '("freebsoft" nil (((f r i:) 1) ((b s o f t) 0))))
+(lex.add.entry '("freebsoftu" nil (((f r i:) 1) ((b s o f) 0) ((t u) 0))))
+(lex.add.entry '("freebsoftem" nil (((f r i:) 1) ((b s o f ) 0) ((t e m) 0))))
+(lex.add.entry '("shift" nil (((s~ i f t) 1))))
+(lex.add.entry '("control" nil (((k o n) 1) ((t r o l) 0))))
 
 ;;; Part of Speech
 
