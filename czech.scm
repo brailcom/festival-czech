@@ -349,8 +349,10 @@
 ;;; Tokenization
 
 (defvar czech-token.unknown_word_name "neznámé")
+(defvar czech-token.separator_word_name "oddìlovaè") ; our own variable
+(defvar czech-token.garbage_word_name "smetí")       ; our own variable
 (defvar czech-token.whitespace "  \t\n\r")
-(defvar czech-token.punctuation "\"'`-.,:;!?(){}[]<>")
+(defvar czech-token.punctuation "\"'`.,:;!?(){}[]<>")
 (defvar czech-token.prepunctuation "\"'`({[<")
 
 ;;; Token to words processing
@@ -501,30 +503,89 @@
 
 (define (czech-token_to_words token name)
   (cond
+   ;; Ordinal numbers
    ((and (string-matches name "^[0-9]+$")
          (string-equal (item.feat token 'punc) ".")
          (item.next token)
-         (not (string-matches (item.feat (item.next token) 'whitespace)
-                              "  +")))
+         (not (string-matches (item.feat token "n.whitespace") "  +")))
     (if (not (assoc 'punctype (item.features token)))
         (item.set_feat token 'punctype 'num))
     (append (czech-number name)
             (list ".")))
+   ;; Numbers begginning with the zero digit
    ((string-matches name "^0[0-9]*$")
     (apply append (mapcar czech-number (symbolexplode name))))
-   ((or (string-matches name "^[-+]*[0-9][0-9 ]*$")
-        (string-matches name "^[-+]*[0-9][0-9 ]*[.,] *[0-9][0-9]*$"))
+   ;; Any other numbers
+   ((or (string-matches name "^[-+]*[0-9]+$")
+        (string-matches name "^[-+]*[0-9]+[.,][0-9]+$")
+        (string-matches name "^[-+]*[0-9]+,-$"))
     (if (not (assoc 'punctype (item.features token)))
         (item.set_feat token 'punctype 'num))
-    (czech-number name))
+    (if (and (string-equal (item.feat token "n.name") "Kè")
+             (string-matches name "^[-+]*[0-9]+,[-0-9]+$"))
+        (append
+         (czech-number (string-before name ","))
+         (list "korun")
+         (let ((hellers (string-after name ",")))
+           (if (not (string-equal hellers "-"))
+               (append
+                (czech-number hellers)
+                (list "haléøù")))))
+        (czech-number name)))
+   ;; Monetary sign
+   ((and (string-equal name "Kè")
+         (string-matches (item.feat token "p.name") "^[-+]*[0-9]+,[-0-9]+$"))
+    nil)
+   ;; Acronyms
+   ((let ((capitals "^[A-ZÁÈÏÉÌÍÒÓØ©«ÚÙİ®]+$"))
+      (and (string-matches name capitals)
+           (not (lex.lookup_all name))
+           (not (string-matches (item.feat token "p.name") capitals))
+           (not (string-matches (item.feat token "p.next") capitals))
+           (<= (length name) 3) ; longer pronouncable acronyms are not spelled
+           ))
+    (lts.apply name 'czech-downcase))
+   ;; Abbreviations and other unpronouncable numbers
    ((and (string-matches
           name
           "^[bcdfghjklmnpqrstvwxzBCDFGHJKLMNPQSTVWXZèïòø¹»¾ÈÏÒØ©«®][bcdfghjkmnpqstvwxzBCDFGHJKMNPQSTVWXZèïòø¹»¾ÈÏÒØ©«®]+$")
          (not (lex.lookup_all name)))
-    (symbolexplode name))
-   ((or (string-matches name "^[a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®]+$")
-        (string-matches name "^[^a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®0-9]+$"))
+    (lts.apply name 'czech-downcase))
+   ;; Separators
+   ((and (string-matches name "^[^a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®0-9]+$")
+         (let ((char (substring name 0 1)))
+           (string-matches name (string-append char char char char "+"))))
+    (list czech-token.separator_word_name))
+   ;; Dashes
+   ((string-matches name "^-+$")
+    (if (item.prev token)
+        (item.set_feat (item.prev token) 'punc "-"))
+    nil)
+   ;; Numeric ranges (may be minus as well, but that's rare)
+   ((string-matches name "[0-9]+[.,]*[0-9]*-[0-9]+[.,]*[0-9]*$")
+    ;; we don't include signs here not to break phone numbers and such a
+    ;; written form is incorrect anyway
+    (append
+     (czech-token_to_words token (string-append
+                                  (substring name 0 1)
+                                  (string-before (substring name 1 1000) "-")))
+     '(((name "-") (pos range)))
+     (czech-token_to_words token (string-after (substring name 1 1000) "-"))))
+   ;; Homogenous tokens
+   ((string-matches name "^[a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®]+$")
     (list name))
+   ((string-matches name "^[^a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®0-9]+$")
+    (if (> (length name) 10)
+        (list czech-token.garbage_word_name)
+        (symbolexplode name)))
+   ;; Hyphens
+   ((string-matches "^[a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®]+-[-a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®]+$")
+    (append
+     (czech-token_to_words token (string-before name "-"))
+     (czech-token_to_words token (string-after name "-"))))
+   ;; TODO: time, romain numerals
+   ;; Heterogenous tokens -- mixed alpha, numeric and non-alphanumeric
+   ;; characters
    (t
     (if (not (string-matches name
                              "^[-a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®]+$"))
@@ -651,6 +712,8 @@
 (lex.add.entry '("cm"  nil (((c e n) 1) ((t i) 0) ((m e) 0) ((t r u:) 0))))
 (lex.add.entry '("km"  nil (((k i) 1) ((l o) 0) ((m e) 0) ((t r u:) 0))))
 
+(lex.add.entry '("Kè"  nil (((k o) 1) ((r u n) 0))))
+
 (lex.add.entry '("Emacs" nil (((i:) 1) ((m e k s) 0))))
 (lex.add.entry '("Emacsu" nil (((i:) 1) ((m e) 0) ((k s u) 0))))
 (lex.add.entry '("Emacsem" nil (((i:) 1) ((m e) 0) ((k s e m) 0))))
@@ -673,6 +736,8 @@
      (let ((name (item.name w))
            (token (item.root (item.relation w 'Token))))
        (cond
+        ((assoc 'pos (item.features w))
+         nil)
         ((and (assoc 'punctype (item.features token))
               (string-matches name
                               "^[^a-zA-Záèïéìíòóø¹»úùı¾ÁÈÏÉÌÍÒÓØ©«ÚÙİ®0-9]+$"))
