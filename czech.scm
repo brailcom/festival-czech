@@ -994,21 +994,28 @@
   (set! current-voice 'czech))
 
 (defmac (czech-proclaim-voice form)
-  (let ((name (intern (string-append 'czech_ (cadr form))))
-        (description (caddr form))
-        (body (cdddr form)))
-    `(begin
-       (define (,(intern (string-append 'voice_ name)))
-         (czech-reset-parameters)
-         ,@body
-         (voice-czech-common)
-         (set! current-voice (quote ,name)))
-       (proclaim_voice
-        (quote ,name)
-        (quote ((language czech)
-                (dialect nil)
-                (gender nil)
-                (coding ISO-8859-2)
-                (description ,description)))))))
+  (let ((name (nth 1 form))
+        (description (nth 2 form))
+        (body (nth_cdr 3 form))
+        (options ()))
+    (if (consp name)
+        (begin
+          (set! options (cdr name))
+          (set! name (car name))))
+    (set! name (intern (string-append 'czech_ name)))
+    (let ((parameters `((language czech)
+                        (dialect ,(cdr (assoc 'dialect options)))
+                        (gender ,(cadr (assoc 'gender options)))
+                        (coding ISO-8859-2)
+                        (description ,description))))
+      `(begin
+         (define (,(intern (string-append 'voice_ name)))
+           (czech-reset-parameters)
+           ,@body
+           (voice-czech-common)
+           (set! current-voice (quote ,name)))
+         (proclaim_voice
+          (quote ,name)
+          (quote ,parameters))))))
 
 (provide 'czech)
