@@ -65,7 +65,6 @@
   (
    ;;   c l h f r t p v
    (#   0 0 0 0 0 0 0 0)
-   (##  0 0 0 0 0 0 0 0)
    (a   + s 3 2 - 0 0 0)
    (a:  + l 3 2 - 0 0 0)
    (b   - 0 0 0 0 s l +)
@@ -105,7 +104,7 @@
    (z~  - 0 0 0 0 f p +)
   )
 )
-(PhoneSet.silences '(# ##))
+(PhoneSet.silences '(#))
 
 (defvar czech-phoneset-translation* nil)
 
@@ -340,10 +339,29 @@
     'czech-normalize)
    'czech))
 
+(define (czech-syllabify phones)
+  (if (null? phones)
+      ()
+      (let ((syl ()))
+        (while (and phones (eq? (phone_feature (car phones) 'vc) '-))
+          (set! syl (cons (car phones) syl))
+          (set! phones (cdr phones)))
+        (while (and phones (eq? (phone_feature (car phones) 'vc) '+))
+          (set! syl (cons (car phones) syl))
+          (set! phones (cdr phones)))
+        (cons (reverse syl) (czech-syllabify phones)))))
+
+(define (czech-syllabify-phstress phones)
+  (if (null? phones)
+      ()
+      (let ((syllables (czech-syllabify phones)))
+        (cons (list (car syllables) 1)
+              (mapcar (lambda (s) (list s 0)) (cdr syllables))))))
+
 (define (czech-lts word features)
   (list word
         nil
-        (lex.syllabify.phstress
+        (czech-syllabify-phstress
           (let ((transformed (czech-basic-lts word))
                 (rules czech-lts-extra-rules*))
             (while rules
@@ -861,44 +879,65 @@
 
 ;;; Phrase breaks
 
-(set! czech-phrase-cart-tree
-      '((lisp_token_end_punc in ("." "?" "!" ":" ";" "-"))
-	((BB))
-	((lisp_token_end_punc in ("," "\"" ")"))
-	 ((B))
-	 ((n.name is 0)  ; end of utterance
-	  ((BB))
-          ((n.gpos is conj)
-           ((R:Token.root.p.punc is ",")
-            ((B))
-            ((NB)))
-           ((NB)))))))
+(defvar czech-phrase-cart-tree
+  ;; SB = (very) short break
+  '(;; punctuation
+    (lisp_token_end_punc in ("." "?" "!" ":" ";" "-"))
+    ((BB))
+    ((lisp_token_end_punc in ("," "\"" ")"))
+     ((B))
+     ;; end of utterance
+     ((n.name is 0)
+      ((BB))
+      ;; list of items separated by commas, finished by a conjunction
+      ((n.gpos is conj)
+       ((R:Token.root.p.punc is ",")
+        ((B))
+        ;; not a list, but still a conjunction, possibly starting with a vowel
+        ((SB)))
+       ;; short breaks before words starting with vowels
+       ((n.name matches "[aeiou].*")
+        ((SB))
+        ;; nothing applies -- no break by default
+        ((NB))))))))
 
 ;;; Pauses
 
+(define (czech-non-pause-words w n)
+  (or (<= n 0)
+      (let ((next (item.next w)))
+        (or (not next)
+            (and (not (string-matches (item.feat next "pbreak") "BB?"))
+                 (czech-non-pause-words next (- n 1)))))))
+
 (define (czech-pause-method utt)
   (Classic_Pauses utt)
-  (let ((silence (list '##)))
-    (mapcar (lambda (w)
-              (let ((syl (item.relation.daughter1 w 'SylStructure)))
-                (let ((seg (and syl
-                                (item.relation.daughter1 syl 'SylStructure))))
-                  (if (and seg
-                           (string-matches (item.name seg) "[aeiou]:?")
-                           (or (not (item.relation.prev seg 'Segment))
-                               (not (equal? (item.name (item.relation.prev
-                                                        seg 'Segment))
-                                            "#"))))
-                      (item.relation.insert seg 'Segment silence 'before)))))
-            (utt.relation.items utt 'Word)))
+  (let ((words (utt.relation.items utt 'Word)))
+    ;; Handle SB -- Classic_Pauses doesn't know about it
+    (mapcar
+     (lambda (w)
+       (if (string-equal (item.feat w "pbreak") "SB")
+           (insert_pause utt w)))
+     words)
+    ;; Insert pauses into long non-breaking sequences
+    (let ((counter 0))
+      (mapcar
+       (lambda (w)
+         (if (string-matches (item.feat w "pbreak") "BB?") ; SBs don't apply
+             (set! counter 0)
+             (begin
+               (set! counter (+ counter 1))
+               (if (and (>= counter 8)
+                        (czech-non-pause-words w 3))
+                   (begin
+                     (insert_pause utt w)
+                     (set! counter 0))))))
+       words)))
   utt)
 
-;;; Intonation
+;;; Accents and intonation
 
-(defvar czech-int-simple-params '((f0_mean 100) (f0_std 5)))
-
-(defvar czech-int-lr-params '((target_f0_mean 105) (target_f0_std 5)
-                              (model_f0_mean 105) (model_f0_std 10)))
+(defvar czech-int-simple-params '((f0_mean 100) (f0_std 20)))
 
 (defvar czech-accent-cart-tree
   '((R:SylStructure.parent.gpos is prep0)
@@ -911,22 +950,57 @@
        ((Accented))
        ((NONE)))))))
 
-;; We use English tone tree, since we have nothing better right now and maybe
-;; it's slightly better than just using Simple intonation method, especially as
-;; for questions, etc.
-(require 'tobi)
-(defvar czech-int-tone-cart-tree f2b_int_tone_cart_tree)
-(require 'f2bf0lr)
-(defvar czech-f0-lr-start f2b_f0_lr_start)
-(defvar czech-f0-lr-mid f2b_f0_lr_mid)
-(defvar czech-f0-lr-end f2b_f0_lr_end)
+(define (czech-intonation-targets utt syl)
+  (let ((start (item.feat syl 'syllable_start))
+        (end (item.feat syl 'syllable_end))
+        (mean (cadr (assoc 'f0_mean int_general_params)))
+        (step (/ (cadr (assoc 'f0_std int_general_params)) 5)))
+    (let ((s_int mean)
+          (m_int mean)
+          (e_int mean))
+      ;; Accented syllables
+      (if (equal? (item.feat syl "R:Intonation.daughter1.name") "Accented")
+          (begin
+            (set! s_int (+ s_int step))
+            (set! m_int (+ m_int (* 2 step)))))
+      ;; First sylable of an utterance or sentence
+      (if (or (not (item.prev syl))
+              (and (equal? (item.feat syl "syl_in") 0)
+                   (equal? (item.feat syl
+                                      "p.R:SylStructure.parent.R:Token.n.name")
+                           ".")))
+          (begin
+            (set! s_int (+ s_int (* 2 step)))
+            (set! m_int (+ m_int (* 2 step)))))
+      ;; End of phrase
+      (if (equal? (item.feat syl "syl_out") 0)
+          (let ((pun (item.feat syl "R:SylStructure.parent.R:Token.n.name")))
+            (cond
+             ((equal? pun ".")
+              (set! s_int (- s_int (* 1 step)))
+              (set! m_int (- m_int (* 4 step)))
+              (set! e_int (- e_int (* 6 step))))
+             ((equal? pun "!")
+              (set! m_int (+ m_int (* 1 step)))
+              (set! e_int (+ e_int (* 2 step))))
+             ((equal? pun "?")
+              (set! s_int (+ s_int (* 1 step)))
+              (set! m_int (+ m_int (* 10 step)))
+              (set! e_int (+ e_int (* 8 step))))
+             (t
+              (set! m_int (- m_int (* 1 step)))
+              (set! e_int (- e_int (* 2 step)))))))
+      ;; Resulting values
+      (list
+       (list start s_int)
+       (list (/ (+ start end) 2.0) m_int)
+       (list end e_int)))))
 
 ;;; Duration
 
 (defvar czech-phoneme-durations
   '(
     (#   0.15)
-    (##  0.05)
     (a   0.09)
     (a:  0.12)
     (b   0.07)
@@ -966,29 +1040,56 @@
     (dz~ 0.07)
     ))
 
-;; Final phonem translation
+(defvar czech-duration-cart-tree
+  '(;; pauses
+    (name is "#")
+    ((p.R:SylStructure.parent.parent.R:Word.pbreak is "SB")
+     ((0.1))
+     ((1.0)))
+    ;; clause initial
+    ((R:SylStructure.parent.R:Syllable.syl_in is 0)
+     ((R:SylStructure.parent.stress is 1)
+      ((1.3))
+      ((1.2)))
+     ;; clause final
+     ((n.R:SylStructure.parent.R:Syllable.syl_in is 0)
+      ((R:SylStructure.parent.stress is 1)
+       ((1.3))
+       ((1.2)))
+      ;; stressed
+      ((R:SylStructure.parent.stress is 1)
+       ((ph_vc is +)
+        ((1.2))
+        ((1.0)))
+       ;; default
+       ((1.0)))))))
+
+;;; Volume
+
+(defvar czech-volume-scale 1.8)
+(defvar czech-volume-scale* nil)
+  
+(define (czech-adjust-volume utt)
+  (utt.wave.rescale utt czech-volume-scale*))
+
+;;; Final phoneme translation
 
 (define (czech-phone-adjustment utt)
-  (if (eq? (Parameter.get 'Language) 'czech)
-      (begin
-        (mapcar (lambda (item)
-                  (if (equal? (item.name item) "##")
-                      (item.set_name item "#")))
-                (utt.relation.items utt 'Segment))
-        (if czech-phoneset-translation*
-            (mapcar (lambda (item)
-                      (let ((tr (assoc (item.name item)
-                                       czech-phoneset-translation*)))
-                        (if tr
-                            (item.set_name item (cadr tr)))))
-                    (utt.relation.items utt 'Segment))))))
+  (if (and (eq? (Parameter.get 'Language) 'czech)
+           czech-phoneset-translation*)
+      (mapcar
+       (lambda (item)
+         (let ((tr (assoc (item.name item) czech-phoneset-translation*)))
+           (if tr (item.set_name item (cadr tr)))))
+       (utt.relation.items utt 'Segment))))
 
-;; Finally, the language definition itself
+;;; Finally, the language definition itself
 
 (define (czech-reset-parameters)
   (set! czech-lts-extra-rules* czech-lts-extra-rules)
-  (set! czech-int-lr-params* czech-int-lr-params)
+  (set! czech-int-simple-params* czech-int-simple-params)
   (set! czech-phoneme-durations* czech-phoneme-durations)
+  (set! czech-volume-scale* czech-volume-scale)
   (set! czech-phoneset-translation* nil)
   (Parameter.set 'Synth_Method 'UniSyn))
 
@@ -1017,20 +1118,22 @@
   ;; Pauses
   (Parameter.set 'Pause_Method czech-pause-method)
   ;; Accent prediction and intonation
-  (set! int_lr_params czech-int-lr-params*)
   (set! int_accent_cart_tree czech-accent-cart-tree)
-  (set! int_tone_cart_tree czech-int-tone-cart-tree)
-  (set! f0_lr_start czech-f0-lr-start)
-  (set! f0_lr_mid czech-f0-lr-mid)
-  (set! f0_lr_end czech-f0-lr-end)
-  (Parameter.set 'Int_Method Intonation_Tree)
-  (Parameter.set 'Int_Target_Method Int_Targets_LR)
+  (Parameter.set 'Int_Method 'General)
+  (set! int_general_params (cons (list 'targ_func czech-intonation-targets)
+                                 czech-int-simple-params*))
+  (Parameter.set 'Int_Target_Method Int_Targets_General)
   ;; Duration prediction
-  (set! phoneme_durations czech-phoneme-durations*)
-  (Parameter.set 'Duration_Method 'Averages)
+  (set! duration_cart_tree czech-duration-cart-tree)
+  (set! duration_ph_info (mapcar
+                          (lambda (spec) (list (car spec) 0.0 (cadr spec)))
+                          czech-phoneme-durations*))
+  (Parameter.set 'Duration_Method 'Tree_ZScores)
   ;; Postlex rules
   (set! postlex_rules_hooks (list))
   (set! after_analysis_hooks (list czech-phone-adjustment))
+  ;; Final voice adjustment
+  (set! after_synth_hooks czech-adjust-volume)
   ;; Set current voice
   (set! current-voice 'czech))
 
