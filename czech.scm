@@ -1713,7 +1713,12 @@
                                                          new-feats)))
                                (set! feats (cdr feats)))
                              (item.insert orig-ph (cons name (list new-feats))
-                                          pos))))
+                                          pos)
+                             (let ((new ((if (eq? pos 'after)
+                                             item.next item.prev)
+                                         orig-ph)))
+                               (item.relation.insert orig-ph 'SylStructure
+                                                     new pos)))))
             (vowel? (lambda (ph) (czech-item.feat? ph 'ph_vc '+)))
             (last-end 0.0))
         (while i
