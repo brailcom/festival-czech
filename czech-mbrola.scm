@@ -49,3 +49,5 @@
   (list (list 'phoneset-translation czech-mbrola-translations)
         (list 'synthesis-method 'MBROLA_Synth)
         (list 'synthesis-init czech-mbrola-init)))
+
+(provide 'czech-mbrola)
