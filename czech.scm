@@ -979,13 +979,6 @@
     (dz~ 0.07)
     ))
 
-;; We use English duration tree, since we have nothing better right now and
-;; maybe it's slightly better than just using Averages duration method.
-(require 'gswdurtreeZ)
-(defvar czech-duration_cart_tree gsw_duration_cart_tree)
-(defvar czech-duration_ph_info
-  (mapcar (lambda (i) (list (car i) (cadr i) 0.03)) czech-phoneme_durations))
-
 ;; Final phonem translation
 
 (define (czech-phone-adjustment utt)
@@ -1039,9 +1032,8 @@
   (Parameter.set 'Int_Method Intonation_Tree)
   (Parameter.set 'Int_Target_Method Int_Targets_LR)
   ;; Duration prediction
-  (set! duration_cart_tree czech-duration_cart_tree)
-  (set! duration_ph_info czech-duration_ph_info)
-  (Parameter.set 'Duration_Method 'Tree_ZScores)
+  (set! phoneme_durations czech-phoneme_durations)
+  (Parameter.set 'Duration_Method 'Averages)
   ;; Postlex rules
   (set! postlex_rules_hooks (list))
   (set! after_analysis_hooks (list czech-phone-adjustment))
