@@ -47,6 +47,8 @@
 
 (defvar czech-rand-range nil)
 
+(defvar czech-insert-filling-vowels t)
+
 (define (czech-rand)
   (if czech-randomize
       (begin
@@ -1712,7 +1714,8 @@
   utt)
 
 (define (czech-translate-add-vowels utt)
-  (if (string-equal (Param.get 'Language) 'czech)
+  (if (and (string-equal (Param.get 'Language) 'czech)
+           czech-insert-filling-vowels)
       (let ((i (utt.relation.first utt 'Segment))
             (diphthong-vowels '((au a) (eu e) (ou o)))
             (insert-item (lambda (name orig-ph end pos)
