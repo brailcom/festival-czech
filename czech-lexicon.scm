@@ -1,6 +1,6 @@
 ;;; Czech lexicon
 
-;; Copyright (C) 2003, 2004 Brailcom, o.p.s.
+;; Copyright (C) 2003, 2004, 2005 Brailcom, o.p.s.
 
 ;; Author: Milan Zamazal <pdm@brailcom.org>
 
@@ -141,7 +141,7 @@
 ("GNU" nil (((g n u:) 0)))
 ("Kè"  nil (((k o r u n) 0)))
 ("cca" nil (((c i r k a) 0)))
-("chocomy¹lskou" nil (((ch o c o m i s~ l s k ou) 0)))
+("chocomy¹lskou" nil (((ch o c o m i s~ l s k o u) 0)))
 ("chocomy¹lsky" nil (((ch o c o m i s~ l s k i) 0)))
 ("chocomy¹lská" nil (((ch o c o m i s~ l s k a:) 0)))
 ("chocomy¹lské" nil (((ch o c o m i s~ l s k e:) 0)))
@@ -163,7 +163,7 @@
 ("copyrightù" nil (((k o p i r a j t u:) 0)))
 ("copyrightùm" nil (((k o p i r a j t u: m) 0)))
 ("czech" nil (((c~ e k) 0)))
-("emacsovou" nil (((i: m e k s o v ou) 0)))
+("emacsovou" nil (((i: m e k s o v o u) 0)))
 ("emacsová" nil (((i: m e k s o v a:) 0)))
 ("emacsové" nil (((i: m e k s o v e:) 0)))
 ("emacsového" nil (((i: m e k s o v e: h o) 0)))
@@ -181,7 +181,7 @@
 ("freeware" nil (((f r i: v e: r e) 0)))
 ("freewarech" nil (((f r i: v e: r e ch) 0)))
 ("freewarem" nil (((f r i: v e: r e m) 0)))
-("freewarovou" nil (((f r i: v e: r o v ou) 0)))
+("freewarovou" nil (((f r i: v e: r o v o u) 0)))
 ("freewarová" nil (((f r i: v e: r o v a:) 0)))
 ("freewarové" nil (((f r i: v e: r o v e:) 0)))
 ("freewarového" nil (((f r i: v e: r o v e: h o) 0)))
@@ -201,7 +201,7 @@
 ("hardware" nil (((h a r d v e: r e) 0)))
 ("hardwarech" nil (((h a r d v e: r e ch) 0)))
 ("hardwarem" nil (((h a r d v e: r e m) 0)))
-("hardwarovou" nil (((h a r d v e: r o v ou) 0)))
+("hardwarovou" nil (((h a r d v e: r o v o u) 0)))
 ("hardwarová" nil (((h a r d v e: r o v a:) 0)))
 ("hardwarové" nil (((h a r d v e: r o v e:) 0)))
 ("hardwarového" nil (((h a r d v e: r o v e: h o) 0)))
@@ -222,7 +222,7 @@
 ("shareware" nil (((s h a r e v e: r e) 0)))
 ("sharewarech" nil (((s h a r e v e: r e ch) 0)))
 ("sharewarem" nil (((s h a r e v e: r e m) 0)))
-("sharewarovou" nil (((s h a r e v e: r o v ou) 0)))
+("sharewarovou" nil (((s h a r e v e: r o v o u) 0)))
 ("sharewarová" nil (((s h a r e v e: r o v a:) 0)))
 ("sharewarové" nil (((s h a r e v e: r o v e:) 0)))
 ("sharewarového" nil (((s h a r e v e: r o v e: h o) 0)))
@@ -243,7 +243,7 @@
 ("software" nil (((s o f t v e: r e) 0)))
 ("softwarech" nil (((s o f t v e: r e ch) 0)))
 ("softwarem" nil (((s o f t v e: r e m) 0)))
-("softwarovou" nil (((s o f t v e: r o v ou) 0)))
+("softwarovou" nil (((s o f t v e: r o v o u) 0)))
 ("softwarová" nil (((s o f t v e: r o v a:) 0)))
 ("softwarové" nil (((s o f t v e: r o v e:) 0)))
 ("softwarového" nil (((s o f t v e: r o v e: h o) 0)))
