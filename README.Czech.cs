@@ -10,15 +10,14 @@ Základní jednotky øeèi byly definovány dle [palková-ptáèek:94], sekce 2.
 ** Fonémy
 
 K fonémùm z [palková-ptáèek:94] byly do èeské fonémové sady navíc pøidány
-fonémy odpovídající dlouhým samohláskám á, é, ó, ú.  Není-li v konkrétním
-èeském hlase stanoveno jinak, jsou tyto pou¾ívány pouze bìhem stanovení
-prozodie, pøed finální syntézou zvuku jsou pøevedeny na jejich krátké
-ekvivalenty.  Dále byl je¹tì pøidán foném pauzy a foném pro nárazový pøechod
-mezi samohláskami (napøíklad ve slovì "neefektivní" mezi dvìma `e').
+fonémy odpovídající dlouhým samohláskám á, é, ó, ú.  Dále byl je¹tì pøidán
+foném pauzy a foném pro nárazový pøechod mezi samohláskami (napøíklad ve slovì
+"neefektivní" mezi dvìma `e').
 
-K vlastnostem fonémù byla pøidána délka samohlásek dle anglického vzoru.  Rùzné
-fonémy mohou mít zcela shodné vlastnosti, nebylo snahou uèinit fonémy svými
-vlastnostmi unikátní.
+Vlastnosti fonémù ve fonémové sadì byly definovány dle potøeb èeské syntézy,
+bez pøímé návaznosti na konkrétní jazykové nebo fonetické poznatky.  Rùzné
+fonémy pøitom mohou mít zcela shodné vlastnosti, nebylo snahou uèinit fonémy
+svými vlastnostmi unikátní.
 
 ** Difony
 
@@ -136,29 +135,90 @@ difonù ke ztrátì kvality vlivem únavy mluvèího.
 
 ** Pøidávání segmentù
 
-V lexikonu a LTS pravidlech se neprovádí zdvojování souhlásek pro generování
-samohláskových fonémù ani vkládání neutrální hlásky.  Jedná se toti¾ o interní
-trik, kterým by tvùrci lexikálního analyzátoru nemìli být obtì¾ováni.  Vlo¾ení
-pøíslu¹ných segmentù se provádí automaticky v after_analysis_hooks.
+Èást procesu stanovení výsledné sekvence difonù se provádí a¾ pøed samotnou
+syntézou, v czech-after-analysis-hooks.  Do sekvence segmentù se zde pøidávají
+umìlé segmenty.  Cílem tìchto akcí je vygenerování správné cílové sekvence
+difonù, která nemusí nutnì odpovídat pøirozenému fonetickému zápisu
+prostøednictvím jednotlivých fonémù.  Proto¾e se pøidávání segmentù provádí a¾
+tìsnì pøed syntézou, není nutno je nijak zohledòovat v urèování prozodie.
+Propagace prozodických informací do pøidaných segmentù je zaji¹tìna
+automaticky.
 
 ** Slabiky
 
-Ve festival-czech je za slabiku pova¾ováno celé mluvené slovo.  Øe¹í se tak,
-ponìkud o¹klivým trikem, pøípadné rozlo¾ení psaných slov na více mluvených slov
-(viz napøíklad zkratka `km/h' nebo èíslovky).  Tím pádem slova relace Word
-odpovídají slovùm psané formy, zatímco slabiky relace Syllable odpovídají
-slovùm skuteèným, jak je zapotøebí je mít pøi urèování prozodie.
+Ve festival-czech je za slabiku pova¾ováno celé mluvené slovo.  Prvním dùvodem
+je, ¾e je to výhodné pøi urèování prozodie.  Druhým dùvodem je, ¾e rozklad slov
+na slabiky je v èe¹tinì obtí¾nì urèitelný.  Pøi zkoumání slabik je relevantní
+pouze jejich poèet, který je dán výskytem samohlásek a slabikotvorných
+souhlásek.  Na to není rozklad na slabiky zapotøebí.
 
-Skuteèný rozklad slov na slabiky se neprovádí, proto¾e je v èe¹tinì obtí¾nì
-urèitelný.  Pøi zkoumání slabik je relevantní pouze jejich poèet, který je dán
-výskytem samohlásek a slabikotvorných souhlásek.  Na to není rozklad na slabiky
-zapotøebí.
+
+* Výslovnost jednotlivých slov
+
+Urèování výslovnosti jednotlivých slov je øe¹eno primárnì LTS pravidly `czech'.
+Proto¾e je v¹ak pravopis v souèasné èe¹tinì pøíli¹ nepravidelný, je nutno si
+vypomáhat lexikonem.  Lexikon je pojatý jako seznam pøesnì tìch slov, která
+nejsou a ani rozumnì být nemohou pokryta LTS pravidly.
+
+Pro doplòování LTS pravidel a lexikonu je nezbytný seznam v¹ech èeských slov a
+mù¾e být u¾iteèná funkce dump-pronounciation.
+
+** Vygenerování seznamu v¹ech èeských slov
+
+Vygenerování seznamu v¹ech èeských slov vèetnì jejich tvarù lze provést
+s pomocí èeského ispellu (viz [koláø]).  Seznam slov v základním tvaru je
+vygenerován ze zdrojových souborù èeského ispellu a nachází se v souboru
+czech-words.  Seznam v¹ech tvarù tìchto slov není pro svou rozsáhlost
+distribuován.  Máte-li instalován èeský ispell, mù¾ete tento seznam vygenerovat
+pøíkazem `make czech-words-all'.
+
+** Funkce dump-pronounciation
+
+Funkce dump-pronounciation, obsa¾ená v pøilo¾eném souboru
+dump-pronounciation.scm, slou¾í k pøevodu psané formy slova na výslovnost.
+Lze ji typicky vyu¾ít pro testování LTS pravidel a usnadnìní pøidávání
+nových slov do lexikonu.  Funkce pou¾ívá výhradnì LTS pravidla, nepou¾ívá
+lexikon.
+
+Funkce dump-pronunciation má dva argumenty.  Prvním je jméno souboru
+obsahujícího slova, která mají být pøevedena, druhým je jméno souboru, do
+kterého má být zapsán výstup.  Ve vstupním souboru je oèekáváno právì jedno
+slovo na ka¾dém øádku souboru.  Doporuèuje se, aby slova byla uzavøena
+v uvozovkách, jinak pøi vìt¹ím mno¾ství slov narazíte na výkonnostní potí¾e
+Festivalu.
+
+** Jak postupovat pøi nalezení nesprávné výslovnosti slova
+
+Pokud je slovo obsa¾eno v lexikonu, pøíslu¹ný záznam se jednodu¹e opraví.
+Pokud slovo není obsa¾eno v lexikonu, mìlo by být v první øadì posouzeno, zda
+pøíslu¹ný problém není ¹ir¹ího rázu a nestálo by za to jej o¹etøit pøidáním LTS
+pravidla.
+
+Jedná-li se spí¹e o výjimku, kterou nemá smysl zohledòovat v LTS pravidlech,
+pøidá se do lexikonu.  Jde-li o slovo ohebné, mìly by být pøidány v¹echny jeho
+tvary, jsou-li vyslovovány chybnì té¾.  Je dobré zamyslet se i nad formami
+vytvoøenými pøidáním nebo odebráním pøedpon.  Pøi generování v¹ech tvarù lze
+pro usnadnìní práce vyu¾ít èeský ispell (viz [koláø]) a funkci
+dump-pronounciation.scm.  Pøidáváte-li do lexikonu slovo, jeho¾ základní tvar
+není uveden v souboru czech-words, pøidejte jej tam (a pokud mo¾no jej té¾
+oznamte autorovi èeského ispellu).  Zachovejte pøitom abecední poøadí slov
+v souboru (pøi nastavení locales na cs_CZ.iso8859-2).
+
+Pokud dojde na pøidání nového LTS pravidla, je zapotøebí provìøit, jaké zmìny
+zpùsobí.  Optimální by bylo nechat vygenerovat výslovnost v¹ech èeských slov
+pøed zmìnou LTS pravidel a po ní a následnì srovnat jejich diff výstupy.  To je
+v¹ak na bì¾ných strojích pomìrnì zdlouhavá zále¾itost a je tedy praktiètìj¹í ji
+aplikovat pouze na mno¾inu slov, které mohou být pøíslu¹ným pravidlem dotèeny.
+Je-li nové LTS pravidlo øádnì ovìøeno, mù¾e být pøidáno.  Volitelnì lze
+provìøit slova v lexikonu, zda se výslovnost nìkterých z nich neshoduje
+s výsledkem po aplikaci nových LTS pravidel, a taková slova z lexikonu vyøadit.
 
 
 * Prozodie
 
 Prozodie ve festival-czech zahrnuje intonaci, délku, pauzy a pøízvuk.  Tyto
-parametry jsou konstruovány na základì pravidel publikovaných v [palková:04].
+parametry jsou konstruovány pøevá¾nì na základì pravidel publikovaných
+v [palková:04].
 
 Vìtné úseky a pøízvukové takty jsou konstruovány ve fázi Word, jako zvlá¹tní
 relace IntUnit a StressUnit.
@@ -171,14 +231,20 @@ tabulka kadencí byla pøevzata z [palková-ptáèek:97].
 V publikovaných prozodických pravidlech jsou urèité nejasnosti, které byly
 rozøe¹eny následujícím zpùsobem:
 
-- Pro ¹esti a víceslabièné pøízvukové takty se v pozici F pou¾ívá pravidlo ze
-  skupiny A (v [palková-ptáèek:97] pøíslu¹né pravidlo pro pozici F chybí).
+- Pro ¹esti a víceslabièné pøízvukové takty se v pozici F pou¾ívá intonaèní
+  køivka ze skupiny A (v [palková-ptáèek:97] pøíslu¹né pravidlo pro pozici F
+  chybí).
 
-- Pro pozici F se náhodnì vybírá ze skupin A, B (v [palková:04] není
+- Pro pozici F se volí intonaèní køivka ze skupiny A (v [palková:04] není
   specifikováno).
+
+- Pro pozici F-1 se vybírá pouze z intonaèních køivek povolených pro skupinu F
+  (pro jistotu -- v [palková:04] není specifikováno, k èemu by s ohledem na
+  pøedchozí úpravu mìly být F-køivky skupiny B).
 
 Nedoøe¹ena je detekce doplòkových tázacích vìt ve funkci czech-yes-no-question,
 kde chybí dostateènì obsáhlý seznam tázacích zájmen, èíslovek a pøíslovcí.
+Mìlo by být mo¾né jej získat s pomocí èeského ispellu.
   
 ** Délka
 
@@ -188,16 +254,19 @@ z [palková:04].
 ** Pauzy
 
 Pou¾íváme pauzy tøí délek: nejdel¹í (BB), støední (B) a krátká (SB).  Dlouhá
-pauza se vkládá na koncích vìt, støední pauza mezi souvìtí a v seznamech slov a
-krátká pauza pøed spojky bez èárky.  Detekce souvìtí a seznamu slov v místech,
-kde se nenachází èárka, je provádìno triviální (a samozøejmì v mnoha pøípadech
-chybující) heuristikou.  Umis»ování tìchto pauz se definuje v promìnné
-czech-phrase-cart-tree.
+pauza se vkládá na koncích vìt, støední pauza mezi vìty v souvìtí a v seznamech
+slov a krátká pauza pøed spojky bez èárky.  Detekce souvìtí a seznamu slov
+v místech, kde se nenachází èárka, je provádìno triviální (a samozøejmì v mnoha
+pøípadech chybující) heuristikou.  Umis»ování tìchto pauz se definuje
+v promìnné czech-phrase-cart-tree.
+
+Pou¾itá metoda je na¹ím vlastním výtvorem a neopírá se o ¾ádné fonetické
+poznatky.
 
 ** Pøízvuk
 
 Dle [palková:04], sekce 1.2db), není v syntéze èe¹tiny ¾ádoucí pøízvuk
-explicitnì generovat zmìnou dynamiky.  Pøízvuk je modelován zmìnami intonace.
+explicitnì generovat zmìnou dynamiky.  Pøízvuk je modelován intonaèní køivkou.
 
 
 * Odkazy
@@ -219,6 +288,10 @@ explicitnì generovat zmìnou dynamiky.  Pøízvuk je modelován zmìnami intonace.
   Petr Horák: Modelování suprasegmentálních rysù mluvené èe¹tiny pomocí
   lineární predikce; dizertaèní práce; ÈVUT, Fakulta elektrotechnická,
   Praha 2002
+
+[koláø]
+  Petr Koláø: ispell-czech -- èeská kontrola pravopisu
+  viz ftp://ftp.vslib.cz/pub/unix/ispell/
 
 
 -- Milan Zamazal <pdm@freebsoft.org>

@@ -1,0 +1,56 @@
+nroffchars	().\\*
+texchars	()\[]{}<\>\\$*.%
+defstringtype "nroff" "nroff" ".mm" ".ms" ".me" ".man" ".NeXT"
+
+#
+#   nejprve definujeme ISO-8859-2 znaky 
+#
+wordchars [a-z] [A-Z]
+wordchars á Á
+wordchars ä Ä
+wordchars ± ¡
+wordchars â Â
+wordchars ã Ã
+wordchars è È
+wordchars æ Æ
+wordchars ç Ç
+wordchars ï Ï
+wordchars ð Ð
+wordchars é É
+wordchars ì Ì
+wordchars ë Ë
+wordchars ê Ê
+wordchars í Í
+wordchars î Î
+wordchars µ ¥
+wordchars å Å
+wordchars ³ £
+wordchars ò Ò
+wordchars ñ Ñ
+wordchars ó Ó
+wordchars ô Ô
+wordchars ö Ö
+wordchars õ Õ
+wordchars ø Ø
+wordchars à À
+wordchars ¹ ©
+wordchars ¶ ¦
+wordchars º ª
+wordchars » «
+wordchars þ Þ
+wordchars ù Ù
+wordchars ú Ú
+wordchars ü Ü
+wordchars û Û
+wordchars ý Ý
+wordchars ¾ ®
+wordchars ¼ ¬
+wordchars ¿ ¯
+wordchars ß ß
+
+altstringtype "tex" "tex" ".tex" ".bib"
+
+suffixes
+
+flag A:
+  A > -A, A

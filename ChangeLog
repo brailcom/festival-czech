@@ -1,3 +1,17 @@
+2004-03-20  Milan Zamazal  <pdm@brailcom.org>
+
+	* gen-all-words.sh: New script.
+
+2004-03-19  Milan Zamazal  <pdm@brailcom.org>
+
+	* Makefile: New file.
+
+	* czech-lexicon.scm: Everything except lexicon entries moved to
+	czech.scm.
+
+	* czech.scm: Load compiled lexicon.
+	(czech-lexicon-file): New variable.
+
 2004-03-18  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech-words: Updated.

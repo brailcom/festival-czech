@@ -373,6 +373,31 @@
 (defvar czech-chars "a-zA-Záäèïéìíòóöø¹»úùüý¾ÁÄÈÏÉÌÍÒÓÖØ©«ÚÙÜÝ®")
 (defvar czech-char-regexp (string-append "[" czech-chars "]"))
 
+(defvar czech-multiword-abbrevs
+  '(("á" ("dlouhé" "a"))
+    ("é" ("dlouhé" "e"))
+    ("í" ("dlouhé" "i"))
+    ("ó" ("dlouhé" "o"))
+    ("ú" ("dlouhé" "u"))
+    ("ù" ("u" "s" "krou¾kem"))
+    ("w" ("dvojité" "v"))
+    ("ý" ("dlouhé" "y"))
+    ("`" ("obrácený" "apostrof"))
+    ("\\" ("zpìtné" "lomítko"))
+    (">" ("vìt¹í" "ne¾"))
+    ("<" ("men¹í" "ne¾"))
+    ("[" ("levá" "hranatá"))
+    ("]" ("pravá" "hranatá"))
+    ("{" ("levá" "slo¾ená"))
+    ("}" ("pravá" "slo¾ená"))
+    ("(" ("levá" "kulatá"))
+    (")" ("pravá" "kulatá"))
+    ("\n" ("nový" "øádek"))
+    ("OS/2" ("OS" "2"))
+    ("km/h" ("kilometrù" "za" "hodinu"))
+    ("m/s" ("metrù" "za" "sekundu"))
+    ))
+
 (define (czech-remove element list)
   (cond
    ((null? list) list)
@@ -696,8 +721,23 @@
 
 ;;; Lexicon
 
-(require 'czech-lexicon)
+(defvar czech-lexicon-file "czech-lexicon.out")
+
+(lex.create "czech")
+(lex.set.phoneset "czech")
 (lex.select "czech")
+(let ((dirs '("." "/usr/share/festival"))
+      (lexfile nil))
+  (while dirs
+    (let ((file (path-append (car dirs) czech-lexicon-file)))
+      (if (probe_file file)
+          (begin
+            (set! lexfile file)
+            (set! dirs nil))))
+    (set! dirs (cdr dirs)))
+  (if lexfile
+      (lex.set.compile.file lexfile)
+      (format t "warning: Czech lexicon file not found\n")))
 (lex.set.lts.method 'czech-lts)
 (lex.add.entry '("neznámé" nil (((n e z n a: m e:) 0))))
 
