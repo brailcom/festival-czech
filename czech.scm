@@ -71,6 +71,40 @@
     (let ((n (* (czech-rand) max)))
       (nth n lst))))
 
+(define (czech-next-token-punc word)
+  (if (item.relation.next word "Token")
+      "0"
+      (item.feat word "R:Token.n.daughter1.prepunctuation")))
+
+(define (czech-next-punc word)
+  (let ((token (item.next (item.parent (item.relation word 'Token)))))
+    (while (and token (not (string-matches (item.feat token 'punc) ".+")))
+      (set! token (item.next token)))
+    (and token (item.feat token 'punc))))
+
+(define (czech-prev-punc word)
+  (let ((token (item.prev (item.parent (item.relation word 'Token)))))
+    (while (and token (not (string-matches (item.feat token 'punc) ".+")))
+      (set! token (item.prev token)))
+    (and token (item.feat token 'punc))))
+
+(define (czech-word-stress-unit word)
+  (let ((sylword (item.relation word 'SylStructure)))
+    (if sylword
+        (item.parent (item.relation (item.daughter1 sylword) 'StressUnit)))))
+
+(define (czech-stress-unit-punc unit)
+  (and unit
+       (item.feat unit "daughtern.R:SylStructure.parent.R:Token.parent.punc")))
+
+(define (czech-token-end-punc word)
+  (if (and (item.relation.next word 'SylStructure)
+           (eq? (item.relation.parent word 'Token)
+                (item.relation.parent (item.relation.next word 'SylStructure)
+                                      'Token)))
+      0
+      (item.feat word "R:Token.parent.punc")))
+
 ;;; Phone set
 
 (defPhoneSet czech
@@ -949,43 +983,130 @@
                  (set! pos-sets (cdr pos-sets)))))
          ))))
    (utt.relation.items utt 'Word))
+  ;; Add commas before conjunctions
+  (mapcar (lambda (token)
+            (if (and (czech-item.feat*? token 'punc "0?")
+                     (czech-item.feat? token "daughtern.R:Word.n.gpos" 'conj))
+                (item.set_feat token 'punc ",")))
+          (utt.relation.items utt 'Token))
   utt)
 
 ;;; Phrase breaks
 
+(define (czech-next-simple-punc word)
+  (let ((unit (item.next (czech-word-stress-unit word))))
+    (cond
+     ((not unit)
+      0)
+     ((string-matches (czech-stress-unit-punc unit) ".*[.?!;:,-]")
+      (czech-stress-unit-punc unit))
+     ((czech-item.feat? unit 'preelement 1)
+      (czech-next-punc word))
+     (t
+      0))))
+
+(define (czech-prev-simple-punc word)
+  (let ((unit (item.prev (czech-word-stress-unit word))))
+    (cond
+     ((not unit)
+      0)
+     ((string-matches (czech-stress-unit-punc unit) ".*[.?!;:,-]")
+      (czech-stress-unit-punc unit))
+     (t
+      (let ((token (item.prev (item.parent (item.relation word 'Token)))))
+        (while (and token (not (string-matches (item.feat token 'punc) ".+")))
+          (set! token (item.prev token)))
+        (if (czech-item.feat? (czech-word-stress-unit
+                               (item.daughter1 (item.next token)))
+                              'preelement 1)
+            (item.feat token 'punc)
+            0))))))
+
 (defvar czech-phrase-cart-tree
+  ;; Note: Additional corrections are applied in czech-adjust-phrase-breaks
   ;; SB = (very) short break
-  '(;; punctuation
-    (lisp_token_end_punc matches ".*[.?!:;]")
+  '(;; end of utterance
+    (n.name is 0)
     ((BB))
-    ((lisp_token_end_punc matches ".*[,\)]")
-     ((B))
-     ;; dashes are treated as phrase breaks only if separated by whitespaces
-     ((R:Token.parent.n.daughter1.name is "-")
+    ;; exclude "punctuation words"
+    ((name matches "[][\"'`.,:;!?(){}<>-]+")
+     ((NB))
+     ;; parentheses
+     ((R:Token.parent.n.prepunctuation matches "(.*")
       ((R:Token.n.name is 0)
-       ((BB))
+       ((B))
        ((NB)))
-      ;; opening parenthesis
-      ((R:Token.parent.n.prepunctuation is "(")
-       ((R:Token.n.name is 0)
-        ((B))
-        ((NB)))
-       ;; end of utterance
-       ((n.name is 0)
+      ((lisp_czech-token-end-punc matches ".*)")
+       ((B))
+       ;;
+       ;; phonetic rules
+       ;;
+       ;; "big" punctuations
+       ((lisp_czech-token-end-punc matches ".*[.?!;]\"")
         ((BB))
-        ;; list of items separated by commas, finished by a conjunction
-        ((n.gpos is conj)
-         ((R:Token.parent.p.punc matches ".*,")
-          ((B))
-          ;; not a list but still a conjunction, possibly starting with a vowel
-          ((n.lisp_czech-pos-in-phrase-from < 3) ; at most 1 word before
-           ((SB))
-           ((n.lisp_czech-pos-in-phrase-to < 3) ; at most 1 word after
-            ((SB))
-            ;; comma generating conjunction
-            ((B)))))
-         ;; nothing applies -- no break by default
-         ((NB)))))))))
+        ((lisp_czech-token-end-punc matches ".*[.?!;]")
+         ((lisp_czech-next-token-punc matches "\".*")
+          ((BB))
+          ((XB1)))                       ; for following adjustments
+         ;; "smaller" punctuations
+         ((lisp_czech-token-end-punc matches ".*[:-]")
+          ;; dashes are treated as pbreaks only if separated by whitespaces
+          ((R:Token.parent.n.daughter1.name is "-")
+           ((R:Token.n.name is 0)
+            ((B))
+            ((NB)))
+           ((B)))
+          ;; "comma" punctuations
+          ((lisp_czech-token-end-punc matches ".*,")
+           ((XB2))                      ; for following adjustments
+           ;; nothing applies -- no break by default
+           ((NB)))))))))))
+
+(define (czech-adjust-phrase-breaks utt)
+  ;; This must be called after stress units are identified
+  (mapcar (lambda (w)
+            (cond
+             ((czech-item.feat? w 'pbreak 'XB1) ; "big" punctuations
+              ;; only one stress unit between punctuations makes them shorter
+              (item.set_feat
+               w 'pbreak
+               (cond
+                ((czech-item.feat? w "R:SylStructure.name" 0)
+                 ;; not a word actually
+                 'BB)
+                ((or (czech-item.feat*? (czech-word-stress-unit w)
+                                        "n.lisp_czech-stress-unit-punc"
+                                        ".*[.?!;]\"?")
+                     (czech-item.feat*? (czech-word-stress-unit w)
+                                        "p.lisp_czech-stress-unit-punc"
+                                        ".*[.?!;]\"?"))
+                 'B)
+                (t
+                 'BB))))
+             ((czech-item.feat? w 'pbreak 'XB2) ; "comma" punctuations
+              ;; if only one stress unit separates from other punctuation or
+              ;; the neighbor stress unit contains preelement, phrase break
+              ;; *may* become shorter
+              (item.set_feat
+               w 'pbreak
+               (cond
+                ((czech-item.feat? w "R:SylStructure.name" 0)
+                 ;; not a word actually
+                 'B)
+                ((czech-item.feat*? w "lisp_czech-next-simple-punc" ".*,")
+                 'SB)
+                ((czech-item.feat*? w "lisp_czech-prev-simple-punc" ".*,")
+                 'B)
+                ((czech-item.feat*? w "lisp_czech-prev-simple-punc"
+                                    ".*[-.?!;:]\"?")
+                 'SB)
+                ((czech-item.feat*? (czech-word-stress-unit w)
+                                    "n.lisp_czech-stress-unit-punc"
+                                    ".*[-.?!;:]\"?")
+                 'SB)
+                (t
+                 'B))))))
+          (utt.relation.items utt 'Word)))
 
 ;;; Segmentation
 
@@ -993,7 +1114,8 @@
   ;; Mark syllables before phrase breaks
   (let ((token (utt.relation utt 'Token)))
     (while token
-      (if (string-matches (item.feat token "daughtern.pbreak") "BB?")
+      (if (or (czech-item.feat*? token "daughtern.pbreak" "[SBX]?B[12]?")
+              (czech-item.feat*? token "daughtern.p.pbreak" "[SBX]?B[12]?"))
           (let ((w (item.daughtern token)))
             (while (and w
                         (not (item.daughters (item.relation w 'SylStructure))))
@@ -1306,6 +1428,7 @@
   (Classic_Word utt)
   (czech-intonation-units utt)
   (czech-stress-units utt)
+  (czech-adjust-phrase-breaks utt)
   utt)
 
 ;;; Pauses
@@ -1622,6 +1745,7 @@
   ;; Distinguish silence lengths
   (let ((word (utt.relation.first utt 'Word)))
     (while word
+      
       (let ((durspec (assoc_string (item.feat word "pbreak")
                                    czech-silence-durations)))
         (if durspec

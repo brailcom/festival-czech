@@ -1,5 +1,20 @@
 2005-02-10  Milan Zamazal  <pdm@brailcom.org>
 
+	* czech.scm (czech-next-token-punc, czech-word-stress-unit)
+	(czech-stress-unit-punc, czech-next-punc, czech-prev-punc)
+	(czech-next-simple-punc, czech-prev-simple-punc): New functions.
+	(czech-phrase-cart-tree): Completely reworked, according to
+	phonetic rules.
+	(czech-intonation-units): Small break separates intonation units
+	too.
+	(czech-pos): Put commas before conjunctions.
+	(czech-token-end-punc): New function.
+	(czech-adjust-phrase-breaks): New function.
+	(czech-word): Call it.
+	(czech-duration): Perform pause duration adjustments.
+
+2005-02-10  Milan Zamazal  <pdm@brailcom.org>
+
 	* czech.scm (czech-phoneme-durations): Pause duration set to 0.1.
 	(czech-duration): Multiply czech-silence-durations by 10.
 
