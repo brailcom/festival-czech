@@ -1,3 +1,16 @@
+2003-12-17  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech-unisyn.scm: New file.
+	* czech-mbrola.scm: Require `czech'.
+	(voice_czech_mbrola_cz2): New function.
+	(czech_mbrola_cz2): Voice declared.
+	* czech.scm: Unisyn database declaration etc. moved to
+	czech-unisyn.scm.
+	(voice_czech): Renamed to voice-czech-common.
+	(czech-proclaim-voice): New macro.
+
+	* czech.scm (czech-int_lr_params): Means set to 105.
+
 2003-12-01  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech): Phoneset made compatible with the
