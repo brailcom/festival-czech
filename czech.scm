@@ -1241,7 +1241,7 @@
                 (if (or ;; Join non-syllabic prepositions
                      (czech-item.feat? w 'pos 'prep0)
                      ;; Join proper single-syllabic prepositions
-                     (and (member (item.name w)
+                     (and (member (czech-downcase (item.name w))
                                   czech-proper-single-syl-prepositions)
                           (not (czech-item.feat? w "pos" "se"))))
                     (merge units*)))

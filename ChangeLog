@@ -1,3 +1,9 @@
+2005-02-12  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-identify-stress-units): Apply czech-downcase on
+	item.name before looking it in
+	czech-proper-single-syl-prepositions.
+
 2005-02-10  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-next-token-punc, czech-word-stress-unit)
