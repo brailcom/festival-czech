@@ -728,7 +728,7 @@
    ((and (string-matches name (string-append "^[^" czech-chars "0-9]$"))
          (eqv? (length (item.daughters token)) 0)
          (let ((punc (item.feat token 'punc)))
-           (and (>= (length punc) 3)
+           (and (string-matches punc "...+") ; excludes, among others, punc==0
                 (string-equal (substring punc 0 1) name)
                 (czech-all-same (symbolexplode punc)))))
     (item.set_feat token 'punc 0)
