@@ -20,6 +20,10 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 
+;; Some data were created using the data files and tools contained in the
+;; ispell-czech package available under GPL at
+;; ftp://ftp.vslib.cz/pub/unix/ispell/czech.
+
 
 (define (czech-default-synthesis-init)
   (set! us_abs_offset 0.0)
@@ -51,6 +55,9 @@
 
 (define (czech-parameter parameter)
   (cadr (assoc parameter czech-description)))
+
+(define (czech-item.has_feat item feat)
+  (assoc feat (item.features item)))
 
 ;;; Phone set
 
@@ -126,11 +133,12 @@
 (lex.set.phoneset "czech")
 
 (lts.ruleset
- czech-downcase
+ czech-normalize
  ()
  (
   ( [ a ] = a )
   ( [ á ] = á )
+  ( [ ä ] = e )
   ( [ b ] = b )
   ( [ c ] = c )
   ( [ è ] = è )
@@ -152,6 +160,7 @@
   ( [ ò ] = ò )
   ( [ o ] = o )
   ( [ ó ] = ó )
+  ( [ ö ] = e )
   ( [ p ] = p )
   ( [ q ] = q )
   ( [ r ] = r )
@@ -163,6 +172,7 @@
   ( [ u ] = u )
   ( [ ú ] = ú )
   ( [ ù ] = ù )
+  ( [ ü ] = y )
   ( [ v ] = v )
   ( [ w ] = w )
   ( [ x ] = x )
@@ -172,6 +182,7 @@
   ( [ ¾ ] = ¾ )
   ( [ A ] = a )
   ( [ Á ] = á )
+  ( [ Ä ] = e )
   ( [ B ] = b )
   ( [ C ] = c )
   ( [ È ] = è )
@@ -193,6 +204,7 @@
   ( [ Ò ] = ò )
   ( [ O ] = o )
   ( [ Ó ] = ó )
+  ( [ Ö ] = e )
   ( [ P ] = p )
   ( [ Q ] = q )
   ( [ R ] = r )
@@ -204,6 +216,7 @@
   ( [ U ] = u )
   ( [ Ú ] = ú )
   ( [ Ù ] = ù )
+  ( [ Ü ] = y )
   ( [ V ] = v )
   ( [ W ] = w )
   ( [ X ] = x )
@@ -339,10 +352,10 @@
         (lex.syllabify.phstress
          (lts.apply
           (lts.apply
-           (if (lts.in.alphabet word 'czech-downcase)
+           (if (lts.in.alphabet word 'czech-normalize)
                word
                czech-unknown-symbol-word)
-           'czech-downcase)
+           'czech-normalize)
           'czech))))
 (lex.set.lts.method 'czech-lts)
 
@@ -356,6 +369,9 @@
 (defvar czech-token.prepunctuation "\"'`({[<")
 
 ;;; Token to words processing
+
+(defvar czech-chars "a-zA-Záäèïéìíòóöø¹»úùüý¾ÁÄÈÏÉÌÍÒÓÖØ©«ÚÙÜÝ®")
+(defvar czech-char-regexp (string-append "[" czech-chars "]"))
 
 (define (czech-remove element list)
   (cond
@@ -378,6 +394,25 @@
    (t
     (czech-number-from-digits (czech-remove (car (symbolexplode " "))
                                             (symbolexplode name))))))
+
+(define (czech-prepend-numprefix token name)
+  (if (czech-item.has_feat token 'numprefix)
+      (string-append (item.feat token 'numprefix) name)
+      name))
+
+(define (czech-number* token name)
+  (czech-number (czech-prepend-numprefix token name)))
+
+(define (czech-number@ name)
+  (cond
+   ((string-equal name "0")
+    '("nula"))
+   ((string-equal name "00")
+    '("nula" "nula"))
+   ((string-matches name "0[1-9]")
+    (cons "nula" (czech-number (string-after name "0"))))
+   (t
+    (czech-number name))))
 
 (define (czech-number-from-digits digits)
   (let ((len (length digits)))
@@ -456,6 +491,14 @@
 	  (set! head-digits (reverse head-digits))
 	  (append
 	   (cond
+            ((let ((all-zero t)
+                   (d head-digits))
+               (while (and all-zero d)
+                 (if (string-equal (car d) "0")
+                     (set! d (cdr d))
+                     (set! all-zero nil)))
+               all-zero)
+             nil)
 	    ((and (equal? n 1) (string-equal (car digits) "1"))
 	     (list (car (cdr words))))
 	    ((and (equal? n 1) (string-matches (car digits) "[2-4]"))
@@ -478,14 +521,13 @@
   (cond
    ((string-equal string "")
     nil)
-   ((string-matches string "^[a-zA-Záèïéìíòóø¹»úùý¾ÁÈÏÉÌÍÒÓØ©«ÚÙÝ®]*$")
+   ((string-matches string (string-append "^" czech-char-regexp "*$"))
     (list string))
    ((string-matches string "^[0-9]+$")
     (symbolexplode string))
    (t
     (let ((i 0))
-      (while (string-matches (substring string i 1)
-                             "[a-zA-Záèïéìíòóø¹»úùý¾ÁÈÏÉÌÍÒÓØ©«ÚÙÝ®]")
+      (while (string-matches (substring string i 1) czech-char-regexp)
         (set! i (+ i 1)))
       (if (eq? i 0)
           (while (string-matches (substring string i 1) "[0-9]")
@@ -503,56 +545,68 @@
 
 (define (czech-token_to_words token name)
   (cond
+   ;; Spaced numbers
+   ((and (or (string-matches name "^[-+]?[1-9][0-9]?[0-9]?$")
+             (czech-item.has_feat token 'numprefix))
+         (not (czech-item.has_feat token 'punc))
+         (item.feat token "n.whitespace" " ")
+         (string-matches (item.feat token "n.name") "^[0-9][0-9][0-9]$"))
+    (item.set_feat (item.next token) 'numprefix
+                   (czech-prepend-numprefix token name))
+    nil)
    ;; Ordinal numbers
    ((and (string-matches name "^[0-9]+$")
          (string-equal (item.feat token 'punc) ".")
          (item.next token)
          (not (string-matches (item.feat token "n.whitespace") "  +")))
-    (if (not (assoc 'punctype (item.features token)))
+    (if (not (czech-item.has_feat token 'punctype))
         (item.set_feat token 'punctype 'num))
-    (append (czech-number name)
+    (append (czech-number* token name)
             (list ".")))
-   ;; Numbers begginning with the zero digit
-   ((string-matches name "^0[0-9]*$")
+   ;; Numbers beginning with the zero digit
+   ((and (string-matches name "^0[0-9]*$")
+         (not (czech-item.has_feat token 'numprefix)))
     (apply append (mapcar czech-number (symbolexplode name))))
    ;; Any other numbers
-   ((or (string-matches name "^[-+]*[0-9]+$")
-        (string-matches name "^[-+]*[0-9]+[.,][0-9]+$")
-        (string-matches name "^[-+]*[0-9]+,-$"))
-    (if (not (assoc 'punctype (item.features token)))
+   ((let ((nname (czech-prepend-numprefix token name)))
+      (or (string-matches nname "^[-+]?[0-9]+$")
+          (string-matches nname "^[-+]?[0-9]+[.,][0-9]+$")
+          (string-matches nname "^[-+]?[0-9]+,-$")))
+    (if (not (czech-item.has_feat token 'punctype))
         (item.set_feat token 'punctype 'num))
-    (if (and (string-equal (item.feat token "n.name") "Kè")
-             (string-matches name "^[-+]*[0-9]+,[-0-9]+$"))
-        (append
-         (czech-number (string-before name ","))
-         (list "korun")
-         (let ((hellers (string-after name ",")))
-           (if (not (string-equal hellers "-"))
-               (append
-                (czech-number hellers)
-                (list "haléøù")))))
-        (czech-number name)))
+    (let ((nname (czech-prepend-numprefix token name)))
+      (if (and (string-equal (item.feat token "n.name") "Kè")
+               (string-matches nname "^[-+]?[0-9]+,[-0-9]+$"))
+          (append
+           (czech-number (string-before nname ","))
+           (list "korun")
+           (let ((hellers (string-after nname ",")))
+             (if (not (string-equal hellers "-"))
+                 (append
+                  (czech-number hellers)
+                  (list "haléøù")))))
+          (czech-number nname))))
    ;; Monetary sign
    ((and (string-equal name "Kè")
-         (string-matches (item.feat token "p.name") "^[-+]*[0-9]+,[-0-9]+$"))
+         (string-matches (item.feat token "p.name") "^[-+]?[0-9]+,[-0-9]+$"))
     nil)
    ;; Acronyms
-   ((let ((capitals "^[A-ZÁÈÏÉÌÍÒÓØ©«ÚÙÝ®]+$"))
+   ((let ((capitals "^[A-ZÁÄÈÏÉÌÍÒÓÖØ©«ÚÙÜÝ®]+$"))
       (and (string-matches name capitals)
            (not (lex.lookup_all name))
            (not (string-matches (item.feat token "p.name") capitals))
            (not (string-matches (item.feat token "p.next") capitals))
            (<= (length name) 3) ; longer pronouncable acronyms are not spelled
            ))
-    (lts.apply name 'czech-downcase))
-   ;; Abbreviations and other unpronouncable numbers
+    (lts.apply name 'czech-normalize))
+   ;; Abbreviations and other unpronouncable words
    ((and (string-matches
           name
           "^[bcdfghjklmnpqrstvwxzBCDFGHJKLMNPQSTVWXZèïòø¹»¾ÈÏÒØ©«®][bcdfghjkmnpqstvwxzBCDFGHJKMNPQSTVWXZèïòø¹»¾ÈÏÒØ©«®]+$")
          (not (lex.lookup_all name)))
-    (lts.apply name 'czech-downcase))
+    (lts.apply name 'czech-normalize))
    ;; Separators
-   ((and (string-matches name "^[^a-zA-Záèïéìíòóø¹»úùý¾ÁÈÏÉÌÍÒÓØ©«ÚÙÝ®0-9]+$")
+   ((and (string-matches name (string-append "^[^" czech-chars "0-9]+$"))
          (let ((char (substring name 0 1)))
            (string-matches name (string-append char char char char "+"))))
     (list czech-token.separator_word_name))
@@ -561,7 +615,30 @@
     (if (item.prev token)
         (item.set_feat (item.prev token) 'punc "-"))
     nil)
-   ;; Numeric ranges (may be minus as well, but that's rare)
+   ;; Time (just a few of many possible forms)
+   ((and (string-matches name "^[0-9]+:[0-9][0-9]$")
+         ;; try to identify ratios -- should be better done in POS tagging
+         (not (string-matches (item.feat token "p.name")
+                              "^[Pp][Oo][Mm][Ìì].*"))
+         (not (string-matches (item.feat token "p.name")
+                              "^[Pp][Rr][Aa][Vv][Dd][Ìì][Pp][Oo][Dd][Oo].*"))
+         (not (string-matches (item.feat token "p.name")
+                              "^[©¹][Aa][Nn][Cc].*")))
+    (append (czech-number@ (string-before name ":"))
+            (czech-number@ (string-after name ":"))))
+   ((string-matches name "^[0-9]+:[0-9][0-9]:[0-9][0-9]$")
+    (append (czech-number@ (string-before name ":"))
+            (czech-number@ (string-before (string-after name ":") ":"))
+            (czech-number@ (string-after (string-after name ":") ":"))))
+   ;; Ratios
+   ((string-matches name "^[0-9]+:[0-9]+$")
+    (append (czech-number (string-before name ":"))
+            '("ku")
+            (czech-number (string-after name ":"))))
+   ;; Lexicon words
+   ((lex.lookup_all name)
+    (list name))
+   ;; Numeric ranges (might be minus as well, but that's rare)
    ((string-matches name "[0-9]+[.,]*[0-9]*-[0-9]+[.,]*[0-9]*$")
     ;; we don't include signs here not to break phone numbers and such a
     ;; written form is incorrect anyway
@@ -572,23 +649,23 @@
      '(((name "-") (pos range)))
      (czech-token_to_words token (string-after (substring name 1 1000) "-"))))
    ;; Homogenous tokens
-   ((string-matches name "^[a-zA-Záèïéìíòóø¹»úùý¾ÁÈÏÉÌÍÒÓØ©«ÚÙÝ®]+$")
+   ((string-matches name (string-append "^" czech-char-regexp "+$"))
     (list name))
-   ((string-matches name "^[^a-zA-Záèïéìíòóø¹»úùý¾ÁÈÏÉÌÍÒÓØ©«ÚÙÝ®0-9]+$")
+   ((string-matches name (string-append "^[^" czech-chars "0-9]+$"))
     (if (> (length name) 10)
         (list czech-token.garbage_word_name)
         (symbolexplode name)))
    ;; Hyphens
-   ((string-matches "^[a-zA-Záèïéìíòóø¹»úùý¾ÁÈÏÉÌÍÒÓØ©«ÚÙÝ®]+-[-a-zA-Záèïéìíòóø¹»úùý¾ÁÈÏÉÌÍÒÓØ©«ÚÙÝ®]+$")
+   ((string-matches name
+      (string-append "^" czech-char-regexp "+-[-" czech-chars "]+$"))
     (append
      (czech-token_to_words token (string-before name "-"))
      (czech-token_to_words token (string-after name "-"))))
-   ;; TODO: time, romain numerals
+   ;; TODO: roman numerals
    ;; Heterogenous tokens -- mixed alpha, numeric and non-alphanumeric
    ;; characters
    (t
-    (if (not (string-matches name
-                             "^[-a-zA-Záèïéìíòóø¹»úùý¾ÁÈÏÉÌÍÒÓØ©«ÚÙÝ®]+$"))
+    (if (not (string-matches name (string-append "^[-" czech-chars "]+$")))
         (item.set_feat token 'punctype nil))
     (apply
      append
@@ -707,6 +784,10 @@
 
 (lex.add.entry '("pst" nil (((p s t) 1))))
 
+(lex.add.entry '("m/s" nil (((m e t) 1) ((r u:) 0) ((z a) 1) ((s e) 0)
+                            ((k u n) 0) ((d u) 0))))
+(lex.add.entry '("km/h" nil (((k i) 1) ((l o) 0) ((m e t) 0) ((r u:) 0)
+                             ((z a) 1) ((h o) 0) ((d~ i) 0) ((n u) 0))))
 (lex.add.entry '("cca" nil (((c i r) 1) ((k a) 0))))
 (lex.add.entry '("mm"  nil (((m i) 1) ((l i) 0) ((m e) 0) ((t r u:) 0))))
 (lex.add.entry '("cm"  nil (((c e n) 1) ((t i) 0) ((m e) 0) ((t r u:) 0))))
@@ -714,6 +795,7 @@
 
 (lex.add.entry '("Kè"  nil (((k o) 1) ((r u n) 0))))
 
+(lex.add.entry '("GNU" nil (((g n u:) 1))))
 (lex.add.entry '("Emacs" nil (((i:) 1) ((m e k s) 0))))
 (lex.add.entry '("Emacsu" nil (((i:) 1) ((m e) 0) ((k s u) 0))))
 (lex.add.entry '("Emacsem" nil (((i:) 1) ((m e) 0) ((k s e m) 0))))
@@ -730,23 +812,48 @@
 
 ;;; Part of Speech
 
+(defvar czech-guess_pos
+  '((prep0 "k" "s" "v" "z")
+    (prep "bez" "beze" "bìhem" "do" "ke" "krom" "kromì" "mezi" "mimo"
+          "místo" "na" "nad" "nade" "o" "od" "ode" "okolo" "po" "pod" "pode"
+          "pro" "proti" "pøed" "pøede" "pøes" "pøeze" "pøi" "se" "skrz"
+          "skrze" "u" "ve" "vyjma" "za" "ze" "zpoza")
+    (conj "a" "i" "ani" "nebo" "anebo")
+    (particle "a»" "ké¾" "nech»")
+    (misc "aby" "abych" "abys" "abychom" "abyste" "ale" "alespoò" "aneb" "ani"
+          "ani¾" "an¾to" "aspoò" "av¹ak" "aè" "a¾" "aèkoli" "aèkoliv" "buï"
+          "buïto" "buïsi" "by" "by»" "by»si" "co" "coby" "èi" "èili" "div"
+          "dokdy" "dokonce" "dokud" "dotud" "jak" "jakby" "jakkoli" "jakkoliv"
+          "jakmile" "jako" "jakoby" "jako¾" "jako¾to" "jaký" "jednak" "jednou"
+          "jeliko¾" "jen" "jenom" "jenom¾e" "jen¾e" "jestli" "jestli¾e" "je¹tì"
+          "je¾to" "jinak" "kam" "kde" "kde¾to" "kdo" "kdy" "kdybych" "kdybys"
+          "kdyby" "kdybychom" "kdybyste" "kdy¾" "kolik" "který" "kudy" "kvùli"
+          "leda" "leda¾e" "leè" "mezitímco" "mimoto" "naèe¾" "neb" "neboli"
+          "nebo»" "nejen" "nejen¾e" "ne¾" "ne¾li" "neøkuli" "nicménì" "nýbr¾"
+          "odkdy" "odkud" "pak" "pakli" "pakli¾e" "podle" "podmínky" "pokud"
+          "ponìvad¾" "popøípadì" "potom" "potud" "poté" "proèe¾" "proto"
+          "proto¾e" "právì" "pøece" "pøesto¾e" "pøitom" "respektive" "sic"
+          "sice" "sotva" "sotva¾e" "tak" "takový" "taktak" "tak¾e" "také"
+          "tedy" "ten" "teprve" "to" "toho" "tolik" "tomu" "toti¾" "tu" "tudí¾"
+          "tím" "tøeba" "tøebas" "tøebas¾e" "tøeba¾e" "v¹ak" "v¾dy»" "zatímco"
+          "zda" "zdali" "zejména" "zrovna" "zvlá¹tì" "¾e")))
+
 (define (czech-pos utt)
   (mapcar
    (lambda (w)
      (let ((name (item.name w))
            (token (item.root (item.relation w 'Token))))
        (cond
-        ((assoc 'pos (item.features w))
+        ((czech-item.has_feat w 'pos)
          nil)
-        ((and (assoc 'punctype (item.features token))
-              (string-matches name
-                              "^[^a-zA-Záèïéìíòóø¹»úùý¾ÁÈÏÉÌÍÒÓØ©«ÚÙÝ®0-9]+$"))
+        ((and (czech-item.has_feat token 'punctype)
+              (string-matches name (string-append "^[^" czech-chars "0-9]+$")))
          (item.set_feat w "pos" (item.feat token 'punctype)))
         ((member (item.name w) '("\"" "'" "`" "-" "." "," ":" ";" "!" "?"
                                  "(" ")"))
          (item.set_feat w "pos" "punc"))
         ((and (eq? (string-length name) 1)
-              (or (assoc 'punc (item.features token))
+              (or (czech-item.has_feat token 'punc)
                   (not (item.next token))))
          (item.set_feat w "pos" "sym")))))
    (utt.relation.items utt 'Word))
@@ -755,13 +862,17 @@
 ;;; Phrase breaks
 
 (set! czech-phrase_cart_tree
-      '((lisp_token_end_punc in ("?" "!" "." ":" "-"))
+      '((lisp_token_end_punc in ("." "?" "!" ":" ";" "-"))
 	((BB))
-	((lisp_token_end_punc in ("'" "\"" "," ";" ")"))
+	((lisp_token_end_punc in ("," "\"" ")"))
 	 ((B))
 	 ((n.name is 0)  ; end of utterance
 	  ((BB))
-	  ((NB))))))
+          ((n.gpos is conj)
+           ((R:Token.root.p.punc is ",")
+            ((B))
+            ((NB)))
+           ((NB)))))))
 
 ;;; Pauses
 
@@ -784,16 +895,18 @@
 
 ;;; Intonation
 
-(set! czech-int_simple_params '((f0_mean 80) (f0_std 25)))
+(set! czech-int_simple_params '((f0_mean 100) (f0_std 5)))
 
 (set! czech-accent_cart_tree
-      '((R:SylStructure.parent.gpos is content)
-	((stress is 1)
-	 ((Accented))
-	 ((position_type is single)
-	  ((Accented))
-	  ((NONE))))
-	((NONE))))
+      '((R:SylStructure.parent.gpos is prep0)
+        ((NONE))
+        ((p.R:SylStructure.parent.gpos is prep)
+         ((NONE))
+         ((position_type in (initial single))
+          ((Accented))
+          ((stress is 1)
+           ((Accented))
+           ((NONE)))))))
 
 ;;; Duration
 
@@ -875,6 +988,7 @@
   ;; Lexicon selection
   (lex.select "czech")
   ;; Part of speech
+  (set! guess_pos czech-guess_pos)
   (Parameter.set 'POS_Method czech-pos)
   ;; Simple phrase break prediction by punctuation
   (set! pos_supported nil)
@@ -885,7 +999,7 @@
   ;; Accent prediction and intonation
   (set! int_simple_params czech-int_simple_params)
   (set! int_accent_cart_tree czech-accent_cart_tree)
-  (Parameter.set 'Int_Method 'simple)
+  (Parameter.set 'Int_Method Intonation_Simple)
   (Parameter.set 'Int_Target_Method Int_Targets_Simple)
   ;; Duration prediction
   (set! phoneme_durations czech-phoneme_durations)
