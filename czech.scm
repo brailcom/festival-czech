@@ -1,6 +1,6 @@
 ;;; Czech support for Festival
 
-;; Copyright (C) 2003 Brailcom, o.p.s.
+;; Copyright (C) 2003, 2004 Brailcom, o.p.s.
 
 ;; Author: Milan Zamazal <pdm@brailcom.org>
 
@@ -30,7 +30,7 @@
 ;;; Utility functions
 
 (define (czech-parameter parameter)
-  (cadr (assoc parameter czech-description)))
+  (cadr (assoc parameter czech-description*)))
 
 (define (czech-item.has_feat item feat)
   (assoc feat (item.features item)))
@@ -331,17 +331,29 @@
   ))
 
 (defvar czech-unknown-symbol-word "neznámý")
+
+(defvar czech-lts-extra-rules '())
+
+(define (czech-basic-lts word)
+  (lts.apply
+   (lts.apply
+    (if (lts.in.alphabet word 'czech-normalize)
+        word
+        czech-unknown-symbol-word)
+    'czech-normalize)
+   'czech))
+
 (define (czech-lts word features)
   (list word
         nil
         (lex.syllabify.phstress
-         (lts.apply
-          (lts.apply
-           (if (lts.in.alphabet word 'czech-normalize)
-               word
-               czech-unknown-symbol-word)
-           'czech-normalize)
-          'czech))))
+          (let ((transformed (czech-basic-lts word))
+                (rules czech-lts-extra-rules*))
+            (while rules
+              (set! transformed (lts.apply transformed (car rules)))
+              (set! rules (cdr rules)))
+            transformed))))
+
 (lex.set.lts.method 'czech-lts)
 
 ;;; Tokenization
@@ -803,7 +815,7 @@
 
 ;;; Part of Speech
 
-(defvar czech-guess_pos
+(defvar czech-guess-pos
   '((prep0 "k" "s" "v" "z")
     (prep "bez" "beze" "bìhem" "do" "ke" "krom" "kromì" "mezi" "mimo"
           "místo" "na" "nad" "nade" "o" "od" "ode" "okolo" "po" "pod" "pode"
@@ -852,7 +864,7 @@
 
 ;;; Phrase breaks
 
-(set! czech-phrase_cart_tree
+(set! czech-phrase-cart-tree
       '((lisp_token_end_punc in ("." "?" "!" ":" ";" "-"))
 	((BB))
 	((lisp_token_end_punc in ("," "\"" ")"))
@@ -867,7 +879,7 @@
 
 ;;; Pauses
 
-(define (czech-pause_method utt)
+(define (czech-pause-method utt)
   (Classic_Pauses utt)
   (let ((silence (list '##)))
     (mapcar (lambda (w)
@@ -886,12 +898,12 @@
 
 ;;; Intonation
 
-(defvar czech-int_simple_params '((f0_mean 100) (f0_std 5)))
+(defvar czech-int-simple-params '((f0_mean 100) (f0_std 5)))
 
-(defvar czech-int_lr_params '((target_f0_mean 105) (target_f0_std 5)
+(defvar czech-int-lr-params '((target_f0_mean 105) (target_f0_std 5)
                               (model_f0_mean 105) (model_f0_std 10)))
 
-(defvar czech-accent_cart_tree
+(defvar czech-accent-cart-tree
   '((R:SylStructure.parent.gpos is prep0)
     ((NONE))
     ((p.R:SylStructure.parent.gpos is prep)
@@ -906,15 +918,15 @@
 ;; it's slightly better than just using Simple intonation method, especially as
 ;; for questions, etc.
 (require 'tobi)
-(defvar czech-int_tone_cart_tree f2b_int_tone_cart_tree)
+(defvar czech-int-tone-cart-tree f2b_int_tone_cart_tree)
 (require 'f2bf0lr)
-(defvar czech-f0_lr_start f2b_f0_lr_start)
-(defvar czech-f0_lr_mid f2b_f0_lr_mid)
-(defvar czech-f2b_f0_lr_end f2b_f0_lr_end)
+(defvar czech-f0-lr-start f2b_f0_lr_start)
+(defvar czech-f0-lr-mid f2b_f0_lr_mid)
+(defvar czech-f2b-f0-lr-end f2b_f0_lr_end)
 
 ;;; Duration
 
-(defvar czech-phoneme_durations
+(defvar czech-phoneme-durations
   '(
     (#   0.15)
     (##  0.05)
@@ -976,6 +988,12 @@
 
 ;; Finally, the language definition itself
 
+(define (czech-reset-parameters)
+  (set! czech-description* czech-description)
+  (set! czech-lts-extra-rules* czech-lts-extra-rules)
+  (set! czech-int-lr-params* czech-int-lr-params)
+  (set! czech-phoneme-durations* czech-phoneme-durations))
+
 (define (voice-czech-common)
   (voice_reset)
   (Parameter.set 'Language 'czech)
@@ -992,25 +1010,25 @@
   ;; Lexicon selection
   (lex.select "czech")
   ;; Part of speech
-  (set! guess_pos czech-guess_pos)
+  (set! guess_pos czech-guess-pos)
   (Parameter.set 'POS_Method czech-pos)
   ;; Simple phrase break prediction by punctuation
   (set! pos_supported nil)
-  (set! phrase_cart_tree czech-phrase_cart_tree)
+  (set! phrase_cart_tree czech-phrase-cart-tree)
   (Parameter.set 'Phrase_Method 'cart_tree)
   ;; Pauses
-  (Parameter.set 'Pause_Method czech-pause_method)
+  (Parameter.set 'Pause_Method czech-pause-method)
   ;; Accent prediction and intonation
-  (set! int_lr_params czech-int_lr_params)
-  (set! int_accent_cart_tree czech-accent_cart_tree)
-  (set! int_tone_cart_tree czech-int_tone_cart_tree)
-  (set! f0_lr_start czech-f0_lr_start)
-  (set! f0_lr_mid czech-f0_lr_mid)
-  (set! f0_lr_end czech-f2b_f0_lr_end)
+  (set! int_lr_params czech-int-lr-params*)
+  (set! int_accent_cart_tree czech-accent-cart-tree)
+  (set! int_tone_cart_tree czech-int-tone-cart-tree)
+  (set! f0_lr_start czech-f0-lr-start)
+  (set! f0_lr_mid czech-f0-lr-mid)
+  (set! f0_lr_end czech-f2b-f0-lr-end)
   (Parameter.set 'Int_Method Intonation_Tree)
   (Parameter.set 'Int_Target_Method Int_Targets_LR)
   ;; Duration prediction
-  (set! phoneme_durations czech-phoneme_durations)
+  (set! phoneme_durations czech-phoneme-durations*)
   (Parameter.set 'Duration_Method 'Averages)
   ;; Postlex rules
   (set! postlex_rules_hooks (list))
@@ -1029,6 +1047,7 @@
         (body (cdddr form)))
     `(begin
        (define (,(intern (string-append 'voice_ name)))
+         (czech-reset-parameters)
          ,@body
          (voice-czech-common)
          (set! current-voice (quote ,name)))

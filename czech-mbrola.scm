@@ -1,6 +1,6 @@
 ;;; Czech support for Festival Mbrola output module
 
-;; Copyright (C) 2003 Brailcom, o.p.s.
+;; Copyright (C) 2003, 2004 Brailcom, o.p.s.
 
 ;; Author: Milan Zamazal <pdm@brailcom.org>
 
@@ -24,6 +24,50 @@
 (require 'czech)
 (require 'mbrola)
 
+(lts.ruleset
+ czech-mbrola-lts
+ ()
+ (( [ z o: ] = z o )
+  ;;;
+  ( [ # ] = # )
+  ( [ a ] = a )
+  ( [ a: ] = a: )
+  ( [ b ] = b )
+  ( [ c ] = c )
+  ( [ c~ ] = c~ )
+  ( [ ch ] = ch )
+  ( [ d ] = d )
+  ( [ d~ ] = d~ )
+  ( [ e ] = e )
+  ( [ e: ] = e: )
+  ( [ f ] = f )
+  ( [ g ] = g )
+  ( [ h ] = h )
+  ( [ i ] = i )
+  ( [ i: ] = i: )
+  ( [ j ] = j )
+  ( [ k ] = k )
+  ( [ l ] = l )
+  ( [ m ] = m )
+  ( [ n ] = n )
+  ( [ n~ ] = n~ )
+  ( [ o ] = o )
+  ( [ o: ] = o: )
+  ( [ p ] = p )
+  ( [ r ] = r )
+  ( [ r~ ] = r~ )
+  ( [ s ] = s )
+  ( [ s~ ] = s~ )
+  ( [ t ] = t )
+  ( [ t~ ] = t~ )
+  ( [ u ] = u )
+  ( [ u: ] = u: )
+  ( [ v ] = v )
+  ( [ z ] = z )
+  ( [ z~ ] = z~ )
+  ( [ dz ] = dz )
+  ( [ dz~ ] = dz~ )))
+
 (defvar czech-mbrola-translations
   '(("#"   "_")
     ("c"   "ts")
@@ -38,7 +82,7 @@
     ("t~"  "t'")
     ("z~"  "Z")))
 
-(defvar czech-mbrola-phoneme_durations
+(defvar czech-mbrola-phoneme-durations
   '(
     (#   0.25)
     (##  0.05)
@@ -97,7 +141,8 @@
 (czech-proclaim-voice
  mbrola_cz2
  "Czech voice provided by the Mbrola cz2 database."
- (set! czech-description czech-mbrola-description)
- (set! czech-phoneme_durations czech-mbrola-phoneme_durations))
+ (set! czech-description* czech-mbrola-description)
+ (set! czech-phoneme-durations* czech-mbrola-phoneme-durations)
+ (set! czech-lts-extra-rules* '(czech-mbrola-lts)))
 
 (provide 'czech-mbrola)
