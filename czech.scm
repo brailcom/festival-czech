@@ -27,7 +27,10 @@
   (assoc feat (item.features item)))
 
 (define (czech-item.feat? item feat value)
-  (string-equal (item.feat item feat) value))
+  (and item (string-equal (item.feat item feat) value)))
+
+(define (czech-item.feat*? item feat value)
+  (and item (string-matches (item.feat item feat) value)))
 
 (define (czech-all-same lst)
   (or (<= (length lst) 1)
@@ -546,6 +549,11 @@
    ((assoc_string name czech-multiword-abbrevs)
     (apply append (mapcar (lambda (w) (czech-token_to_words token w))
                           (cadr (assoc_string name czech-multiword-abbrevs)))))
+   ((and (string-matches name "[ckm]m")
+         (item.prev token)
+         (czech-item.feat*? token "p.name" "[-+]?[0-9]+[.,]?[0-9]*"))
+    (list (cadr (assoc_string name '(("cm" "centimetrù") ("km" "kilometrù")
+                                     ("mm" "milimetrù"))))))
    ;; Spaced numbers
    ((and (or (string-matches name "^[-+]?[1-9][0-9]?[0-9]?$")
              (czech-item.has_feat token 'numprefix))
@@ -732,15 +740,38 @@
           (apply append (mapcar (lambda (p) (cdr (assoc p czech-guess-pos)))
                                 (if (consp pos) pos (list pos))))))
 
-(define (czech-pos-last-in-phrase? word)
-  (or (not (item.next word))
-      (and (string-matches (item.feat word "R:Token.n.name") "0?")
-           (or (not (string-matches
-                     (item.feat word "R:Token.parent.punc") "0?"))
-               (not (string-matches
-                     (item.feat word "R:Token.parent.n.prepunctuation") "0?"))
-               (string-matches (item.feat word "n.name")
+(define (czech-pos-in-phrase-from word)
+  (let ((result 1)
+        (w word))
+    (while (and (item.prev w)
+                (or (not (czech-item.feat*? w "R:Token.p.name" "0?"))
+                    (and (czech-item.feat*? w "p.R:Token.parent.punc" "0?")
+                         (czech-item.feat*? w "R:Token.parent.prepunctuation"
+                                            "0?")
+                         (not (czech-item.feat*?
+                               w "p.name"
                                (string-append "^[^" czech-chars "0-9]+$"))))))
+      (set! result (+ result 1))
+      (set! w (item.prev w)))
+    result))
+
+(define (czech-pos-in-phrase-to word)
+  (let ((result 1)
+        (w word))
+    (while (and (item.next w)
+                (or (czech-item.feat*? w "R:Token.n.name" "0?")
+                    (and (czech-item.feat*? w "R:Token.parent.punc" "0?")
+                         (czech-item.feat*?
+                          w "R:Token.parent.n.prepunctuation" "0?")
+                         (not (czech-item.feat*?
+                               w "n.name"
+                               (string-append "^[^" czech-chars "0-9]+$"))))))
+      (set! result (+ result 1))
+      (set! w (item.next w)))
+    result))
+
+(define (czech-pos-last-in-phrase? word)
+  (<= (czech-pos-in-phrase-to word) 1))
 
 (define (czech-pos utt)
   (mapcar
@@ -811,9 +842,9 @@
          ((R:Token.parent.p.punc matches ".*,")
           ((B))
           ;; not a list but still a conjunction, possibly starting with a vowel
-          ((n.pos_in_phrase < 3)       ; at most 2 words before the conjunction
+          ((n.lisp_czech-pos-in-phrase-from < 3) ; at most 1 word before
            ((SB))
-           ((n.words_out < 4)           ; at most 2 words after the conjunction
+           ((n.lisp_czech-pos-in-phrase-to < 3) ; at most 1 word after
             ((SB))
             ;; comma generating conjunction
             ((B)))))
@@ -917,7 +948,9 @@
   (if (and unit (not (consp unit)))
       (set! unit (item.daughters unit)))
   (apply append (mapcar (lambda (syl)
-                          (item.daughters (item.relation syl 'SylStructure)))
+                          (if (not (eq? syl 'preelement))
+                              (item.daughters
+                               (item.relation syl 'SylStructure))))
                         unit)))
 
 (define (czech-unit-syllable-count unit)
@@ -978,12 +1011,12 @@
                       (set! units (cons (append (car singles) '(preelement)
                                                 (car units*))
                                         (cdr units*)))
-                      (set! units* (cdr units)))
+                      (set! units* units))
                      ((<= len 4)
                       (set! units (cons (apply append singles) units*)))
                      (t
                       (let ((first-unit '())
-                            (n (/ (+ len 1) 2))
+                            (n (/ len 2))
                             (i 0))
                         (while (< i n)
                           (set! first-unit (append (car singles) first-unit))
@@ -1004,7 +1037,6 @@
                             (slen 0)
                             (next-units* (cdr units*)))
                         (while (and next-units*
-                                    (< slen 6)
                                     (<= (czech-unit-syllable-count
                                          (car next-units*)) 1)
                                     (not (string-equal
@@ -1064,7 +1096,15 @@
                              (t
                               (merge-n 2 units*)
                               (merge-n 1 (cdr units*))
-                              (merge-n 1 (cddr units*))))))
+                              (merge-n 1 (cddr units*)))))
+                           (t
+                            ;; This very rare case is not defined in the rules
+                            (while (>= slen 4)
+                              (merge-n 1 (cdr units*))
+                              (set! units* (cdr units*))
+                              (set! slen (- slen 2)))
+                            (merge-n (- slen 1) (cdr units*))
+                            ))
                           (set! units* next-units*)))))
                   ;; That's all
                   (if last-unit
@@ -1292,13 +1332,33 @@
                       (czech-stress-unit-phonemes unit))))
         (if (eqv? (length kernels) 1)
             ;; One-syllabic units have two-number contours
-            (let ((k (car kernels)))
-              (if (eqv? (length k) 1)
-                  (item.set_feat (car k) 'contourval contour)
-                  (begin
-                    (item.set_feat (car k) 'contourval (car contour))
-                    (item.set_feat (car (last k)) 'contourval
-                                   (cadr contour)))))
+            ;; (they can occur only in the final positions)
+            (let ((k (car kernels))
+                  (contour-1 (car contour))
+                  (contour-2 (cadr contour)))
+              (let ((k* (reverse k))
+                    (last-k (car (last k))))
+                (if (eqv? (length k) 1)
+                    ;; Single phone in kernel -- put both values on it
+                    (item.set_feat (car k) 'contourval contour)
+                    ;; Multiple phones -- spread the values over true kernel
+                    (begin
+                      (while (czech-item.feat? (cadr k*) 'ph_vc '+)
+                        (set! k* (cdr k*)))
+                      (if (eq? (car k*) last-k)
+                          (item.set_feat last-k 'contourval contour)
+                          (begin
+                            (item.set_feat (car k*) 'contourval contour-1)
+                            (item.set_feat last-k 'contourval contour-2)))))
+                ;; Extend the contour pair to certain neighbors
+                (set! k* (cdr k*))
+                (while k*
+                  (item.set_feat (car k*) 'contourval contour-1)
+                  (set! k* (cdr k*)))
+                (let ((next-k (item.next last-k)))
+                  (while (czech-item.feat? next-k 'ph_cvox '+)
+                    (item.set_feat next-k 'contourval contour-2)
+                    (set! next-k (item.next next-k))))))
             ;; Otherwise spread the contour value over all kernels
             (while kernels
               (let ((contourval (car contour)))

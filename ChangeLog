@@ -1,3 +1,34 @@
+2004-03-17  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-identify-stress-units): Invalid counting in
+	many single-syllabic word processing fixed; single syllabic
+	initial processing fixed; ensure that in many single syllabic
+	chains no single syllabic element remains.
+	(czech-stress-unit-phonemes): Protection against preelement mark
+	added.
+
+2004-03-17  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-token_to_words): Read "[ckm]m" as a measure
+	length only if the previous token is a number.
+
+2004-03-17  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-pos-in-phrase-from, czech-pos-in-phrase-to):
+	New functions.
+	(czech-pos-last-in-phrase?): Use them.
+	(czech-item.feat*?): New function.
+	(czech-phrase-cart-tree): Standard phrase position feature
+	functions that don't work replaced by our own functions; number of
+	allowed in conjunction break guessing neighboring words reduced to
+	1.
+
+2004-03-17  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int-select-contours): Contour values of final
+	single syllabic units fixed.
+	(czech-item.feat?): Don't crash when item is nil.
+
 2004-03-16  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-identify-stress-units): Don't append last-unit
