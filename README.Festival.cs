@@ -147,9 +147,6 @@ nevkládá ¾ádná pauza, vkládá se za interpunkci, nìkdy krátká (po èárce), nìkdy
 dlouhá (konec vìty).  Tato funkce sama o sobì pauzy nevkládá, to se dìje a¾ na
 základì jí generovaných informací v Pauses.
 
-Pou¾íváme jednodu¹¹í, nestatistickou, metodu `cart_tree', pøièem¾ zohledòujeme
-v první øadì interpunkci.
-
 ** Word
 
 Provádí pøevod slov na fonémy a slabiky v implicitním festivalovém formátu.
@@ -157,17 +154,6 @@ Definováno v lexicon.scm, není-li globálním parametrem Word_Method øeèeno
 jinak, volá se C++ funkce Classic_Word.
 
 Celý process je pomìrnì podrobnì popsán v dokumentaci, sekce Lexicons.
-Definovaný postup pro èe¹tinu funguje zhruba následujícím zpùsobem:
-
-- Výjimky jsou definovány v lexikonu, viz czech-lexicon.scm.
-
-- Jinak se uplatòuje funkce czech-lts.
-
-- czech-lts nejprve pøevede text na fonémy a pak volá obvyklou festivalovou
-  funkci czech-syllabify-phstress pro jejich sestavení do slabik.  Slabiky jsou
-  identifikovány v C++ funkcí `syl_breakable' podle samohlásek (které jsou
-  definovány ve phone set).  Proto¾e anglická funkce na èe¹tinu nefunguje
-  dobøe, pou¾ívám místo lex.syllabify.phstress uvedenou funkci vlastní.
 
 ** Pauses
 

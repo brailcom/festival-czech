@@ -26,82 +26,100 @@
 (define (czech-item.has_feat item feat)
   (assoc feat (item.features item)))
 
+(define (czech-item.feat? item feat value)
+  (string-equal (item.feat item feat) value))
+
 (define (czech-all-same lst)
   (or (<= (length lst) 1)
       (and (string-equal (car lst) (cadr lst))
            (czech-all-same (cdr lst)))))
 
+(defvar czech-rand-range nil)
+
+(define (czech-rand)
+  (if (not czech-rand-range)
+      (let ((n 100)
+            (max 0))
+        (while (> n 0)
+          (let ((r (rand)))
+            (if (> r max)
+                (set! max r)))
+          (set! n (- n 1)))
+        (set! czech-rand-range 1)
+        (while (> max czech-rand-range)
+          (set! czech-rand-range (* 2 czech-rand-range)))))
+  (/ (rand) czech-rand-range))
+
+(define (czech-random-choice lst)
+  (let ((max (length lst)))
+    (let ((n (* (czech-rand) max)))
+      (nth n lst))))
+
 ;;; Phone set
 
 (defPhoneSet czech
-  (;; The properties try to be as much close as possible to the phone
-   ;; properties defined in radio_phones.scm; so that they work with English
-   ;; prosody rules.  Also, there should be no two phones with the same
-   ;; properties present.  Correspondence to real phone properties is less
-   ;; important in the context of the previous rules.
-   
-   ;; vowel or consonant: vowel consonant
+  (;; vowel or consonant: vowel consonant
    (vc + - 0)
-   ;; vowel length: short long dipthong schwa
+   ;; vowel length: short long diphthong schwa
    (vlng s l d a 0)
-   ;; vowel height: low mid high
-   (vheight 1 2 3 0)
-   ;; vowel frontness: front mid back
-   (vfront 1 2 3 0)
-   ;; vowellip rounding: yes no
-   (vrnd + - 0)
-   ;; consonant type: stop fricative affricate nasal lateral approximant
-   (ctype s f a n l r 0)
-   ;; place of articulation: labial alveolar palatal labio-dental dental velar
-   ;;                        glottal other
-   (cplace l a p b d v g o 0)
+   ;; consonant type: nasal, sonorant, stop, affricate, fricative
+   (ctype n l s a f 0)
    ;; consonant voicing: yes no
    (cvox + - 0)
+   ;; can create a syllable: yes no
+   (syl + - 0)
    )
   (
-   ;;   c l h f r t p v
-   (#   0 0 0 0 0 0 0 0)
-   (a   + s 3 2 - 0 0 0)
-   (a:  + l 3 2 - 0 0 0)
-   (b   - 0 0 0 0 s l +)
-   (c   - 0 0 0 0 a a -)
-   (ch  - 0 0 0 0 f g -)
-   (c~  - 0 0 0 0 a p -)
-   (d   - 0 0 0 0 s a +)
-   (d~  - 0 0 0 0 a o +)
-   (dz  - 0 0 0 0 a a +)
-   (dz~ - 0 0 0 0 a p +)
-   (e   + s 2 1 - 0 0 0)
-   (e:  + l 2 1 - 0 0 0)
-   (f   - 0 0 0 0 f b -)
-   (g   - 0 0 0 0 s v +)
-   (h   - 0 0 0 0 f g +)
-   (i   + s 1 1 - 0 0 0)
-   (i:  + l 1 1 - 0 0 0)
-   (j   - 0 0 0 0 r p +)
-   (k   - 0 0 0 0 s v -)
-   (l   - 0 0 0 0 l a +)
-   (m   - 0 0 0 0 n l +)
-   (n   - 0 0 0 0 n a +)
-   (n~  - 0 0 0 0 n p +)
-   (o   + s 2 3 + 0 0 0)
-   (o:  + l 2 3 + 0 0 0)
-   (p   - 0 0 0 0 s l -)
-   (r   - 0 0 0 0 r a +)
-   (r~  - 0 0 0 0 r o +)
-   (s   - 0 0 0 0 f a -)
-   (s~  - 0 0 0 0 f p -)
-   (t   - 0 0 0 0 s a -)
-   (t~  - 0 0 0 0 a o -)
-   (u   + s 1 3 + 0 0 0)
-   (u:  + l 1 3 + 0 0 0)
-   (v   - 0 0 0 0 f b +)
-   (z   - 0 0 0 0 f a +)
-   (z~  - 0 0 0 0 f p +)
+   ;;   c l t v s
+   (#   0 0 0 0 0)                      ; pause
+   (_   0 0 0 0 0)                      ; vowel-vowel stroke
+   (@   + a 0 0 0)                      ; schwa
+   (a   + s 0 0 +)
+   (a:  + l 0 0 +)
+   (au  + d 0 0 +)
+   (b   - 0 s + -)
+   (c   - 0 a - -)
+   (ch  - 0 f - -)
+   (c~  - 0 a - -)
+   (d   - 0 s + -)
+   (d~  - 0 s + -)
+   (dz  - 0 a + -)
+   (dz~ - 0 a + -)
+   (e   + s 0 0 +)
+   (e:  + l 0 0 +)
+   (eu  + d 0 0 +)
+   (f   - 0 f - -)
+   (g   - 0 s + -)
+   (h   - 0 f + -)
+   (i   + s 0 0 +)
+   (i:  + l 0 0 +)
+   (j   - 0 l 0 -)
+   (k   - 0 s - -)
+   (l   - 0 l 0 +)
+   (m   - 0 n + -)
+   (n   - 0 n + -)
+   (n~  - 0 n + -)
+   (o   + s 0 0 +)
+   (o:  + l 0 0 +)
+   (ou  + d 0 0 +)
+   (p   - 0 s - -)
+   (r   - 0 l 0 +)
+   (r~  - 0 f + -)
+   (s   - 0 f - -)
+   (s~  - 0 f - -)
+   (t   - 0 s - -)
+   (t~  - 0 s - -)
+   (u   + s 0 0 +)
+   (u:  + l 0 0 +)
+   (v   - 0 f + -)
+   (z   - 0 f + -)
+   (z~  - 0 f + -)
   )
 )
 (PhoneSet.silences '(#))
 
+(defvar czech-phoneset-translation
+  '(("a:" "a") ("e:" "e") ("o:" "o") ("u:" "u") ("_" "#")))
 (defvar czech-phoneset-translation* nil)
 
 ;;; Text to phones
@@ -215,8 +233,10 @@
  ((BPV b p v)
   (DTN d t n)
   (ÌI ì i í)
-  (SZ s z)
-  (Vowel a á e é i í o ó u ú ù y ý))
+  (I i y)
+  (Í í ý)
+  (Vowel a á e é i í o ó u ú ù y ý)
+  (SZ s z))
  (
   ;; Special combinations
   ( [ d ] i SZ m u = d )
@@ -230,48 +250,28 @@
   ( # a n [ t ] i = t )
   ( # a n t [ i ] Vowel = i )
   ( [ t ] i v n = t )
+
+  ;; Special orthography rules
   ( [ d ] ÌI = d~ )
   ( [ t ] ÌI = t~ )
   ( [ n ] ÌI = n~ )
   ( DTN [ ì ] = e )
   ( BPV [ ì ] = j e )
   ( m [ ì ] = n~ e )
-  ;; Special combinations (maybe...)
-  ( # [ i ] Vowel = j )
-  ( [ i ] Vowel = i j )
-  ( [ í ] Vowel = i: j )
-  ( Vowel [ i ] = j )
-  ( Vowel [ y ] = j )
-  ( Vowel [ í ] = j i: )
-  ( Vowel [ ý ] = j i: )
-  ( [ n n ] ÌI = n~ )
-  ( [ n n ] = n )
-
-  ;; Endings (maybe...)
-  ( # [ b ] = b )
-  ( # [ d z ] = dz )
-  ( # [ d ¾ ] = dz~ )
-  ( # [ d ] = d )
-  ( # [ g ] = g )
-  ( # [ h ] = h )
-  ( # [ v ] = v )
-  ( # [ w ] = v )
-  ( # [ z ] = z )
-  ( [ b ] # = p )
-  ( [ d ] # = t )
-  ( [ d z ] # = c )
-  ( [ d ¾ ] # = c~ )
-  ( [ g ] # = k )
-  ( [ h ] # = ch )
-  ( [ v ] # = f )
-  ( [ w ] # = f )
-  ( [ z ] # = s )
-  
-  ;; Two-letter phonems
+  ;; `i' handling
+  ( # [ I ] Vowel = j )
+  ( [ I ] Vowel = i j )
+  ( [ Í ] Vowel = i: j )
+  ( Vowel [ I ] = j )
+  ( Vowel [ Í ] = j i: )
+  ;; Diphthongs
+  ( [ a u ] = au )
+  ( [ e u ] = eu )
+  ( [ o u ] = ou )
+  ;; Other two-letter phonemes
   ( [ d ¾ ] = dz~ )
   ( [ d z ] = dz )
   ( [ c h ] = ch )
-
   ;; Special letters
   ( [ ì ] = j e )
   ;; Simple letters
@@ -330,24 +330,10 @@
     'czech-normalize)
    'czech))
 
-(define (czech-syllabify phones)
-  (if (null? phones)
-      ()
-      (let ((syl ()))
-        (while (and phones (eq? (phone_feature (car phones) 'vc) '-))
-          (set! syl (cons (car phones) syl))
-          (set! phones (cdr phones)))
-        (while (and phones (eq? (phone_feature (car phones) 'vc) '+))
-          (set! syl (cons (car phones) syl))
-          (set! phones (cdr phones)))
-        (cons (reverse syl) (czech-syllabify phones)))))
-
 (define (czech-syllabify-phstress phones)
   (if (null? phones)
       ()
-      (let ((syllables (czech-syllabify phones)))
-        (cons (list (car syllables) 1)
-              (mapcar (lambda (s) (list s 0)) (cdr syllables))))))
+      (list (list phones 0))))
 
 (define (czech-lts word features)
   (list word
@@ -546,6 +532,10 @@
 
 (define (czech-token_to_words token name)
   (cond
+   ;; Special terms
+   ((assoc_string name czech-multiword-abbrevs)
+    (apply append (mapcar (lambda (w) (czech-token_to_words token w))
+                          (cadr (assoc_string name czech-multiword-abbrevs)))))
    ;; Spaced numbers
    ((and (or (string-matches name "^[-+]?[1-9][0-9]?[0-9]?$")
              (czech-item.has_feat token 'numprefix))
@@ -557,7 +547,7 @@
     nil)
    ;; Ordinal numbers
    ((and (string-matches name "^[0-9]+$")
-         (string-equal (item.feat token 'punc) ".")
+         (czech-item.feat? token 'punc ".")
          (item.next token)
          (not (string-matches (item.feat token "n.whitespace") "  +")))
     (if (not (czech-item.has_feat token 'punctype))
@@ -576,7 +566,7 @@
     (if (not (czech-item.has_feat token 'punctype))
         (item.set_feat token 'punctype 'num))
     (let ((nname (czech-prepend-numprefix token name)))
-      (if (and (string-equal (item.feat token "n.name") "Kè")
+      (if (and (czech-item.feat? token "n.name" "Kè")
                (string-matches nname "^[-+]?[0-9]+,[-0-9]+$"))
           (append
            (czech-number (string-before nname ","))
@@ -678,18 +668,344 @@
 (require 'czech-lexicon)
 (lex.select "czech")
 (lex.set.lts.method 'czech-lts)
-(lex.add.entry '("neznámé" nil (((n e) 1) ((z n a:) 0) ((m e:) 0))))
+(lex.add.entry '("neznámé" nil (((n e z n a: m e:) 0))))
+
+;;; Segmentation
+
+(define (czech-intonation-units utt)
+  ;; Mark syllables before phrase breaks
+  (let ((token (utt.relation utt 'Token)))
+    (while token
+      (if (string-matches (item.feat token "daughtern.pbreak") "BB?")
+          (let ((w (item.daughtern token)))
+            (while (and w
+                        (not (item.daughters (item.relation w 'SylStructure))))
+              (set! w (item.prev w)))
+            (if w
+                (item.set_feat (item.daughtern (item.relation w 'SylStructure))
+                               "sentence_break" 1))))
+      (set! token (item.next token))))
+  ;; Make the intonation units
+  (utt.relation.create utt 'IntUnit)
+  (let ((sylwords (utt.relation.items utt 'Syllable))
+        (id 1)
+        (unit-sylwords '()))
+    (while sylwords
+      (let ((w (car sylwords)))
+        (set! unit-sylwords (cons w unit-sylwords))
+        (set! sylwords (cdr sylwords))
+        ;; If `w' is a last syllable before a relevant phrase break, make new
+        ;; intonation unit
+        (if (string-matches (item.feat w "R:SylStructure.sentence_break") 1)
+            (begin
+              (utt.relation.append
+               utt 'IntUnit
+               `("int" ((name ,(format nil "IUnit%d" id)))))
+              (set! id (+ id 1))
+              ;; Add the syllables to the intonation unit
+              (let ((i (utt.relation.last utt 'IntUnit)))
+                (set! unit-sylwords (reverse unit-sylwords))
+                (while unit-sylwords
+                  (item.append_daughter i (car unit-sylwords))
+                  (set! unit-sylwords (cdr unit-sylwords))))))))))
+
+(define (czech-yes-no-question int-unit)
+  (and (czech-item.feat? int-unit
+                         "daughtern.R:SylStructure.parent.R:Token.parent.punc"
+                         "?")
+       (not (czech-item.feat? int-unit
+                              "daughter1.R:SylStructure.parent.R:Word.pos"
+                              'question))
+       (not (czech-item.feat? int-unit
+                              "daughter2.R:SylStructure.parent.R:Word.pos"
+                              'question))))
+
+(defvar czech-proper-single-syl-prepositions
+  '("bez" "do" "ke" "ku" "na" "nad" "o" "od" "po" "pod" "pro" "pøed" "pøes"
+    "pøi" "se" "u" "ve" "za" "ze"))
+(defvar czech-special-final-words
+  '("ho" "je" "jej" "ji" "jsem" "jsi" "jste" "mì" "mi" "se" "si" "tì" "ti"))
+
+(define (czech-syllable-kernels phonemes)
+  (let ((kernels '()))
+    (while phonemes
+      ;; Starting syllabic consonant doesn't constitute syllable
+      (if (and (czech-item.feat? (car phonemes) 'ph_vc '-)
+               (czech-item.feat? (car phonemes) 'ph_syl '+))
+          (set! phonemes (cdr phonemes)))
+      ;; Skip non-syllabic consonants
+      (while (and phonemes (czech-item.feat? (car phonemes) 'ph_syl '-))
+        (set! phonemes (cdr phonemes)))
+      (if phonemes
+          ;; Now take the kernel
+          (let ((kc '())
+                (kv '()))
+            (if (czech-item.feat? (car phonemes) 'ph_vc '-)
+                (while (and (czech-item.feat? (car phonemes) 'ph_vc '-)
+                            (czech-item.feat? (car phonemes) 'ph_syl '+))
+                  (set! kc (cons (car phonemes) kc))
+                  (set! phonemes (cdr phonemes))))
+            (while (and phonemes
+                        (czech-item.feat? (car phonemes) 'ph_vc '+)
+                        (czech-item.feat? (car phonemes) 'ph_syl '+))
+              (set! kv (cons (car phonemes) kv))
+              (set! phonemes (cdr phonemes)))
+            (let ((k (reverse (or kv kc))))
+              (let ((seg (and k (item.prev (car k)))))
+                (while (and seg (czech-item.feat? seg 'ph_cvox '+))
+                  (set! k (cons seg k))
+                  (set! seg (item.prev seg))))
+              (set! kernels (cons k kernels))))))
+    (reverse kernels)))
+
+(define (czech-syllable-count phonemes)
+  (length (czech-syllable-kernels phonemes)))
+
+(define (czech-stress-unit-phonemes unit)
+  (if (and unit (not (consp unit)))
+      (set! unit (item.daughters unit)))
+  (apply append (mapcar (lambda (syl)
+                          (item.daughters (item.relation syl 'SylStructure)))
+                        unit)))
+
+(define (czech-unit-syllable-count unit)
+  (czech-syllable-count (czech-stress-unit-phonemes unit)))
+
+(define (czech-identify-stress-units sylwords)
+  (let ((units (mapcar list sylwords))
+        (unit-word (lambda (unit)
+                     (and (eqv? (length unit) 1)
+                          (item.parent
+                           (item.relation (car unit) 'SylStructure)))))
+        (unit-word-name (lambda (unit)
+                          (and (eqv? (length unit) 1)
+                               (item.feat (car unit)
+                                          "R:SylStructure.parent.name"))))
+        (merge (lambda (list)
+                 (set-car! list (append (car list) (cadr list)))
+                 (set-cdr! list (cddr list)))))
+    ;; Nothing to do if there is at most 1 word
+    (if (<= (length units) 1)
+        units
+        (begin
+          ;; Basic joining    
+          (let ((units* units))
+            (while units*
+              (let ((w (unit-word (car units*))))
+                (if (or ;; Join non-syllabic prepositions
+                     (member (item.name w)
+                             (cdr (assoc 'prep0 czech-guess-pos)))
+                     ;; Join proper single-syllabic prepositions
+                     (and (member (item.name w)
+                                  czech-proper-single-syl-prepositions)
+                          (not (czech-item.feat? w "pos" "se"))))
+                    (merge units*)))
+              (set! units* (cdr units*))))
+          ;; At most 1 word now?
+          (if (<= (length units) 1)
+              units
+              (let ((last-unit (car (last units))))
+                ;; Final single-syllabic word
+                (if (and (<= (czech-unit-syllable-count last-unit) 1)
+                         (not (member (unit-word-name last-unit)
+                                      czech-special-final-words)))
+                    (set-cdr! (nth_cdr (- (length units) 1) units) '())
+                    (set! last-unit '()))
+                ;; Initial single-syllabic words
+                (let ((units* units)
+                      (singles '()))
+                  (while (and units*
+                              (<= (czech-unit-syllable-count (car units*)) 1))
+                    (set! singles (cons (car units*) singles))
+                    (set! units* (cdr units*)))
+                  (set! singles (reverse singles))
+                  (let ((len (length singles)))
+                    (cond
+                     ((<= len 0)
+                      nil)
+                     ((<= len 1)
+                      (set! units (cons (append (car singles) '(preelement)
+                                                (car units*))
+                                        (cdr units*)))
+                      (set! units* (cdr units)))
+                     ((<= len 4)
+                      (set! units (cons (apply append singles) units*)))
+                     (t
+                      (let ((first-unit '())
+                            (n (/ (+ len 1) 2))
+                            (i 0))
+                        (while (< i n)
+                          (set! (first-unit (cons (car singles) first-unit)))
+                          (set! singles (cdr singles))
+                          (set! i (+ i 1)))
+                        (set! units (cons (reverse first-unit)
+                                          (cons singles units*)))))))
+                  ;; Middle word processing
+                  (while units*
+                    (let ((u (car units*)))
+                      ;; The word "a"
+                      (if (string-equal (unit-word-name u) "a")
+                          (merge units*))
+                      ;; Single-syllabic words
+                      (let ((len (czech-unit-syllable-count u))
+                            (singles '())
+                            (slen 0)
+                            (next-units* (cdr units*)))
+                        (while (and next-units*
+                                    (< slen 6)
+                                    (<= (czech-unit-syllable-count
+                                         (car next-units*)) 1)
+                                    (not (string-equal
+                                          (unit-word-name (car next-units*))
+                                          "a")))
+                          (set! singles (cons (car next-units*) singles))
+                          (set! slen (+ slen 1))
+                          (set! next-units* (cdr next-units*)))
+                        (set! singles (reverse singles))
+                        (let ((merge-n (lambda (n units)
+                                         (while (> n 0)
+                                           (merge units)
+                                           (set! n (- n 1))))))
+                          (cond
+                           ((eqv? slen 0)
+                            nil)
+                           ((eqv? slen 1)
+                            (merge units*))
+                           ((eqv? slen 2)
+                            (if (and (<= len 4)
+                                     (czech-random-choice '(t nil)))
+                                (merge-n 2 units*)
+                                (merge (cdr units*))))
+                           ((eqv? slen 3)
+                            (if (<= len 3)
+                                (merge-n 3 units*)
+                                (merge-n 2 (cdr units*))))
+                           ((eqv? slen 4)
+                            (cond
+                             ((>= len 5)
+                              (merge-n 3 (cdr units*)))
+                             ((and (<= len 2)
+                                   (czech-random-choice '(t nil)))
+                              (merge-n 4 units*))
+                             (t
+                              (merge-n 2 units*)
+                              (merge-n 1 (cdr units*)))))
+                           ((eqv? slen 5)
+                            (cond
+                             ((<= len 3)
+                              (merge-n 2 units*)
+                              (merge-n 2 (cdr units*)))
+                             ((<= len 4)
+                              (merge-n 1 (cdr units*))
+                              (merge-n 2 (cddr units*)))
+                             (t
+                              (merge-n 2 (cdr units*))
+                              (merge-n 1 (cddr units*)))))
+                           ((eqv? slen 6)
+                            (cond
+                             ((>= len 4)
+                              (merge-n 2 (cdr units*))
+                              (merge-n 2 (cddr units*)))
+                             ((czech-random-choice '(t nil))
+                              (merge-n 2 units*)
+                              (merge-n 3 (cdr units*)))
+                             (t
+                              (merge-n 2 units*)
+                              (merge-n 1 (cdr units*))
+                              (merge-n 1 (cddr units*))))))
+                          (set! units* next-units*)))))
+                  ;; That's all
+                  units)))))))
+
+(define (czech-stress-units utt)
+  (utt.relation.create utt 'IntStress)
+  (utt.relation.create utt 'StressUnit)
+  (let ((id 1)
+        (int-unit (utt.relation.first utt 'IntUnit)))
+    (while int-unit
+      (let ((stress-units (czech-identify-stress-units
+                           (item.daughters int-unit))))
+        ;; Add the intonation unit at the top of the StressUnit relation
+        (utt.relation.append utt 'IntStress int-unit)
+        (while stress-units
+          ;; Create new stress unit
+          (item.relation.append_daughter int-unit 'IntStress
+            `("stress" ((name ,(format nil "SUnit%d" id)) (position "M"))))
+          (set! id (+ id 1))
+          (utt.relation.append utt 'StressUnit
+                               (item.relation.daughtern int-unit 'IntStress))
+          ;; Fill it with its words
+          (let ((i (utt.relation.last utt 'StressUnit)))
+            (mapcar (lambda (syl)
+                      (if (eq? syl 'preelement)
+                          (item.set_feat i "preelement" 1)
+                          (begin
+                            (item.append_daughter i syl)
+                            (let ((j (item.daughtern i)))
+                              (mapcar (lambda (seg)
+                                        (item.append_daughter j seg))
+                                      (item.daughters syl))))))
+                    (car stress-units)))
+          (set! stress-units (cdr stress-units))))
+      ;; The first stress unit in an intonation unit has position I
+      (item.set_feat (item.relation.daughter1 int-unit 'IntStress)
+                     "position" "I")
+      ;; The last stress unit in an intonation unit has position F or FF
+      ;; (overrides I in case of a conflict)
+      (item.set_feat (item.relation.daughtern int-unit 'IntStress) "position"
+       (if (member (item.feat
+                    int-unit
+                    "daughtern.R:SylStructure.parent.R:Token.n.name")
+                   '("." "!" "?" ";" ":"))
+           (if (czech-yes-no-question int-unit) "FF-IT" "FF-KKL")
+           "F"))
+      ;; Special case: F-1 positions overriding I and M
+      (if (not (equal? (item.relation.daughtern int-unit 'IntStress)
+                       (item.relation.daughter1 int-unit 'IntStress)))
+          (let ((last-pos (item.feat int-unit
+                                     "R:IntStress.daughtern.position")))
+            (item.set_feat (item.prev
+                            (item.relation.daughtern int-unit 'IntStress))
+                           "position" (string-append last-pos "-1"))))
+      (set! int-unit (item.next int-unit)))))
+
+(define (czech-add-strokes utt)
+  (let ((stroke '(_ (("name" _))))
+        (prep0s (cdr (assoc 'prep0 czech-guess-pos)))
+        (i (utt.relation.first utt 'SylStructure)))
+    (while i
+      (if (or
+           ;; Insert _ between vowels on word boundaries
+           (and (czech-item.feat? i "daughter1.daughter1.ph_vc" '+)
+                (czech-item.feat? i "p.daughtern.daughtern.ph_vc" '+))
+           ;; Insert _ between a non-syllabic preposition and a vowel
+           (and (member (item.feat i "p.name") prep0s)
+                (czech-item.feat? i "daughter1.daughter1.ph_vc" '+)))
+          (item.insert
+           (item.relation (item.daughter1 (item.daughter1 i)) 'Segment)
+           stroke 'before))
+      (set! i (item.next i)))))
+
+(define (czech-word utt)
+  (Classic_Word utt)
+  (czech-intonation-units utt)
+  (czech-stress-units utt)
+  (czech-add-strokes utt)
+  utt)
 
 ;;; Part of Speech
 
 (defvar czech-guess-pos
   '((prep0 "k" "s" "v" "z")
-    (prep "bez" "beze" "bìhem" "do" "ke" "krom" "kromì" "mezi" "mimo"
+    (prep "bez" "beze" "bìhem" "do" "ke" "ku" "krom" "kromì" "mezi" "mimo"
           "místo" "na" "nad" "nade" "o" "od" "ode" "okolo" "po" "pod" "pode"
           "pro" "proti" "pøed" "pøede" "pøes" "pøeze" "pøi" "se" "skrz"
           "skrze" "u" "ve" "vyjma" "za" "ze" "zpoza")
     (conj "a" "i" "ani" "nebo" "anebo")
     (particle "a»" "ké¾" "nech»")
+    (question "co" "kam" "kde" "kdepak" "kdo" "kdy" "kolik" "kolikátá"
+              "kolikáté" "kolikátý" "která" "které" "kterému" "který" "kudy"
+              "nakolik" "odkud" "pokolikáté" "proè")
     (misc "aby" "abych" "abys" "abychom" "abyste" "ale" "alespoò" "aneb" "ani"
           "ani¾" "an¾to" "aspoò" "av¹ak" "aè" "a¾" "aèkoli" "aèkoliv" "buï"
           "buïto" "buïsi" "by" "by»" "by»si" "co" "coby" "èi" "èili" "div"
@@ -708,24 +1024,40 @@
           "tím" "tøeba" "tøebas" "tøebas¾e" "tøeba¾e" "v¹ak" "v¾dy»" "zatímco"
           "zda" "zdali" "zejména" "zrovna" "zvlá¹tì" "¾e")))
 
+(define (czech-pos-last-in-phrase? word)
+  (or (not (item.next word))
+      (string-matches (item.feat word "n.name")
+                      (string-append "^[^" czech-chars "0-9]+$"))))
+
 (define (czech-pos utt)
   (mapcar
    (lambda (w)
      (let ((name (item.name w))
-           (token (item.root (item.relation w 'Token))))
+           (token (item.parent (item.relation w 'Token))))
        (cond
+        ;; Feature already assigned
         ((czech-item.has_feat w 'pos)
          nil)
+        ;; Word followed by a punctuation
         ((and (czech-item.has_feat token 'punctype)
               (string-matches name (string-append "^[^" czech-chars "0-9]+$")))
          (item.set_feat w "pos" (item.feat token 'punctype)))
-        ((member (item.name w) '("\"" "'" "`" "-" "." "," ":" ";" "!" "?"
-                                 "(" ")"))
+        ;; Punctuation
+        ((member name '("\"" "'" "`" "-" "." "," ":" ";" "!" "?" "(" ")"))
          (item.set_feat w "pos" "punc"))
+        ;; Single letter, not in the role of a word
         ((and (eq? (string-length name) 1)
-              (or (czech-item.has_feat token 'punc)
-                  (not (item.next token))))
-         (item.set_feat w "pos" "sym")))))
+              (czech-pos-last-in-phrase? w))
+         (item.set_feat w "pos" "sym"))
+        ;; Word "se", not in the role of a preposition
+        ((and (string-equal name "se")  ; the word "se"
+              (item.prev w)             ; not the first word
+              (or (czech-pos-last-in-phrase? w) ; final word
+                  (member (item.name (item.next w)) ; followed by a preposition
+                          (append (cdr (assoc 'prep0 czech-guess-pos))
+                                  (cdr (assoc 'prep czech-guess-pos))))))
+         (item.set_feat w "pos" "se"))
+        )))
    (utt.relation.items utt 'Word))
   utt)
 
@@ -746,21 +1078,16 @@
        ((R:Token.root.p.punc is ",")
         ((B))
         ;; not a list, but still a conjunction, possibly starting with a vowel
-        ((SB)))
-       ;; short breaks before words starting with vowels
-       ((n.name matches "[aeiou].*")
-        ((SB))
-        ;; nothing applies -- no break by default
-        ((NB))))))))
+        ((n.pos_in_phrase < 3)         ; at most 2 words before the conjunction
+         ((SB))
+         ((n.words_out < 4)            ; at most 2 words after the conjunction
+          ((SB))
+          ;; comma generating conjunction
+          ((B)))))
+       ;; nothing applies -- no break by default
+       ((NB)))))))
 
 ;;; Pauses
-
-(define (czech-non-pause-words w n)
-  (or (<= n 0)
-      (let ((next (item.next w)))
-        (or (not next)
-            (and (not (string-matches (item.feat next "pbreak") "BB?"))
-                 (czech-non-pause-words next (- n 1)))))))
 
 (define (czech-pause-method utt)
   (Classic_Pauses utt)
@@ -768,93 +1095,188 @@
     ;; Handle SB -- Classic_Pauses doesn't know about it
     (mapcar
      (lambda (w)
-       (if (string-equal (item.feat w "pbreak") "SB")
+       (if (czech-item.feat? w "pbreak" 'SB)
            (insert_pause utt w)))
-     words)
-    ;; Insert pauses into long non-breaking sequences
-    (let ((counter 0))
-      (mapcar
-       (lambda (w)
-         (if (string-matches (item.feat w "pbreak") "BB?") ; SBs don't apply
-             (set! counter 0)
-             (begin
-               (set! counter (+ counter 1))
-               (if (and (>= counter 8)
-                        (czech-non-pause-words w 3))
-                   (begin
-                     (insert_pause utt w)
-                     (set! counter 0))))))
-       words)))
+     words))
   utt)
 
-;;; Accents and intonation
+;;; Accents
 
-(defvar czech-int-simple-params '((f0_mean 100) (f0_std 20)))
+(defvar czech-accent-cart-tree '(NONE))
 
-(defvar czech-accent-cart-tree
-  '((R:SylStructure.parent.gpos is prep0)
-    ((NONE))
-    ((p.R:SylStructure.parent.gpos is prep)
-     ((NONE))
-     ((position_type in (initial single))
-      ((Accented))
-      ((stress is 1)
-       ((Accented))
-       ((NONE)))))))
+;; Intonation
 
-(define (czech-intonation-targets utt syl)
-  (let ((start (item.feat syl 'syllable_start))
-        (end (item.feat syl 'syllable_end))
-        (mean (cadr (assoc 'f0_mean int_general_params)))
-        (step (/ (cadr (assoc 'f0_std int_general_params)) 5)))
-    (let ((s_int mean)
-          (m_int mean)
-          (e_int mean))
-      ;; Accented syllables
-      (if (equal? (item.feat syl "R:Intonation.daughter1.name") "Accented")
-          (begin
-            (set! s_int (+ s_int step))
-            (set! m_int (+ m_int (* 2 step)))))
-      ;; First sylable of an utterance or sentence
-      (if (or (not (item.prev syl))
-              (and (equal? (item.feat syl "syl_in") 0)
-                   (equal? (item.feat syl
-                                      "p.R:SylStructure.parent.R:Token.n.name")
-                           ".")))
-          (begin
-            (set! s_int (+ s_int (* 2 step)))
-            (set! m_int (+ m_int (* 2 step)))))
-      ;; End of phrase
-      (if (equal? (item.feat syl "syl_out") 0)
-          (let ((pun (item.feat syl "R:SylStructure.parent.R:Token.n.name")))
+(defvar czech-int-contours
+  '(((A 1) (1.02 0.95) (1.02 0.96) (1 1))
+    ((B 1) (0.99 1.02) (0.98 1.04) (0.98 1.05))
+    ((C 1) (0.96 0.90) (1.02 0.84) (0.98 0.88) (0.98 0.86))
+    ((D 1) (0.86 1.16) (0.86 1.20))
+    ((F 1) (1.02 0.96) (1 1) (0.98 1.04) (0.98 1.05))
+    ((A 2) (1.02 0.95) (1.04 0.92) (0.97 1))
+    ((B 2) (0.96 1.06) (0.98 1.04) (0.98 1.07))
+    ((C 2) (1 0.90) (0.96 0.90) (0.98 0.88) (1.02 0.84))
+    ((D 2) (0.94 1.08) (0.90 1.14))
+    ((F 2) (1.04 0.92) (0.97 1) (0.98 1.04) (0.98 1.07))
+    ((A 3) (1.02 0.98 0.96) (1.02 0.96 0.98) (1.04 0.96 0.96) (1 1 0.98)
+           (1 0.96 1) (0.96 1.08 0.90) (0.96 1.04 0.96) (0.98 0.99 1))
+    ((B 3) (1 0.96 1.04) (1 0.94 1.04) (0.94 1.04 1.02) (0.99 1.04 1.02)
+           (0.94 1 1.06) (0.94 1.02 1.04) (0.96 1.04 0.96))
+    ((C 3) (1 0.95 0.95) (0.96 0.98 0.92) (0.94 0.96 0.96) (0.94 0.90 0.98) )
+    ((D 3) (0.94 0.99 1.09) (0.94 1.08 0.99))
+    ((F 3) (0.96 1.04 0.96) (0.98 0.99 1) (0.94 1 1.06) (0.94 1.02 1.04)
+           (0.96 1.04 0.96))
+    ((A 4) (1 1 0.98 0.99) (0.98 1 0.97 1) (0.97 1.03 0.98 0.99) (1 1 0.99 1))
+    ((B 4) (1 0.97 1.01 1.02) (0.98 1 1.02 1.02) (1 0.97 1.03 1.02))
+    ((C 4) (0.96 0.94 0.98 0.98) (0.98 0.98 0.96 0.94) (0.98 0.92 0.96 0.98))
+    ((D 4) (0.94 1 0.99 1.12) (0.94 1.12 1 0.97))
+    ((F 4) (0.97 1.03 0.98 0.99) (1 1 0.99 1) (0.98 1 1.02 1.02)
+           (1 0.97 1.03 1.02))
+    ((A 5) (0.98 1.02 0.98 0.99 1) (0.97 1.03 1 1 0.97) (0.98 1.02 1 1 0.98))
+    ((B 5) (1 0.97 1.01 1.02 1.01) (1.01 0.98 1 1 1.02) (0.98 1 1.02 1.02 1))
+    ((C 5) (0.98 1 0.98 0.96 0.94) (0.98 0.92 0.98 0.98 0.98)
+           (0.98 0.98 0.92 0.98 0.98))
+    ((D 5) (0.94 1 0.99 0.99 1.13) (0.94 1.13 1 0.96 0.96))
+    ((F 5) (0.98 1.02 1 1 0.98) (0.98 1 1.02 1.02 1))
+    ((A 6) (0.98 1.02 0.99 1 (1) 0.98 0.99))
+    ((B 6) (1 0.99 1 1 (1) 1.01 1.01) (1 0.98 1.01 1.01 (1) 1.01 1.02))
+    ((C 6) (0.98 1 0.98 0.96 0.94 1 (1)) (0.98 0.92 0.98 0.98 0.98 (1))
+           (0.98 0.98 0.92 0.98 0.98 0.98 (1)))
+    ((D 6) (0.94 1 0.99 0.99 1 (1) 1.13) (1.13 1 0.98 1 (1) 0.96 0.96))
+    ((F 6) (0.98 1.02 0.99 1 (1) 0.98 0.99))
+    ))
+
+(define (czech-int-select-contours utt)
+  (let ((unit (utt.relation utt 'StressUnit))
+        (m-count-odd nil))
+    (while unit
+      (let ((position (item.feat unit 'position)))
+        ;; Determine appropriate contour type
+        ;; Contourtype set: A, B, C, D, F (F position), P (preelements)
+        (let ((contourtype (cond
+                            ((string-equal position "I")
+                             (if (eqv? (item.feat unit "preelement") 1)
+                                 'P 'B))
+                            ((string-equal position "M")
+                             (set! m-count (not m-count-odd))
+                             (if m-count-odd 'A 'B))
+                            ((string-equal position "F-1") 'B)
+                            ((string-equal position "F") 'F)
+                            ((string-equal position "FF-KKL-1") 'A)
+                            ((string-equal position "FF-KKL") 'C)
+                            ((string-equal position "FF-IT-1") 'B)
+                            ((string-equal position "FF-IT") 'D))))
+          (item.set_feat unit "contourtype" contourtype)
+          ;; Find particular contour
+          (if (not (eq? contourtype 'P))
+              (let ((nsyls (czech-unit-syllable-count unit)))
+                (let ((contour (czech-random-choice
+                                (cdr (assoc (list contourtype
+                                                  (if (<= nsyls 6) nsyls 6))
+                                            czech-int-contours)))))
+                  ;; Adjust the first syllables of final contours
+                  (if (string-matches (item.feat unit "p.R:IntUnit.position")
+                                      ".*-1$")
+                      (let ((adjust-contour (lambda (c adj)
+                                              (cons (+ (car c) adj) (cdr c)))))
+                        (cond
+                         ((string-equal position "F")
+                          (set! contour (adjust-contour contour -0.02)))
+                         ((string-equal position "FF-KKL")
+                          (set! contour (adjust-contour contour 0.02)))
+                         ((string-equal position "FF-IT")
+                          (set! contour (adjust-contour contour -0.02))))))
+                  ;; Finalize contours of long units
+                  (let ((n (- nsyls 6)))
+                    (if (>= n 0)
+                        (let ((prefix '())
+                              (contour* contour))
+                          (while (not (consp (car contour*)))
+                            (set! prefix (cons (car contour*)) prefix)
+                            (set! contour* (cdr contour*)))
+                          (let ((val (car contour*)))
+                            (set! contour* (cdr contour*))
+                            (while (> n 0)
+                              (set! contour* (cons val contour*))
+                              (set! n (- n 1)))
+                            (set! contour (append (reverse prefix)
+                                                  contour*))))))
+                  (item.set_feat unit "contour" contour))))))
+      (set! unit (item.next unit)))
+    ;; Set contour values for preelements
+    (set! unit (utt.relation utt 'StressUnit))
+    (while unit
+      (if (czech-item.feat? unit "contourtype" 'P)
+          (item.set_feat unit "contour"
+                         (list (- (car (item.feat unit "n.contour")) 0.02))))
+      (set! unit (item.next unit)))
+    ;; Spread the contours on sylwords
+    (set! unit (utt.relation utt 'StressUnit))
+    (while unit
+      (let ((contour (item.feat unit "contour"))
+            (kernels (czech-syllable-kernels
+                      (czech-stress-unit-phonemes unit))))
+        (if (eqv? (length kernels) 1)
+            ;; One-syllabic units have two-number contours
+            (let ((k (car kernels)))
+              (if (eqv? (length k) 1)
+                  (item.set_feat (car k) 'contourval contour)
+                  (begin
+                    (item.set_feat (car k) 'contourval (car contour))
+                    (item.set_feat (car (last k)) 'contourval
+                                   (cadr contour)))))
+            ;; Otherwise spread the contour value over all kernels
+            (while kernels
+              (let ((contourval (car contour)))
+                (mapcar (lambda (seg)
+                          (item.set_feat seg "contourval" contourval))
+                        (car kernels)))
+              (set! kernels (cdr kernels))
+              (set! contour (cdr contour)))))
+      (set! unit (item.next unit)))))
+
+;; The f0_std parameter is ignored
+(defvar czech-int-simple-params '((f0_mean 100) (f0_std 10)))
+
+(define (czech-int-targets utt syl)
+  (let ((segments (item.relation.daughters syl 'SylStructure))
+        (syl-start (item.feat syl 'syllable_start))
+        (f0-base (cadr (assq 'f0_mean czech-int-simple-params)))
+        (f0-std (/ (cadr (assq 'f0_std czech-int-simple-params)) 10))
+        (times-values '()))
+    (let ((last-seg-end syl-start))
+      (while segments
+        (let ((s (car segments)))
+          (let ((contourval (item.feat s 'contourval))
+                (seg-end (item.feat s 'end)))
             (cond
-             ((equal? pun ".")
-              (set! s_int (- s_int (* 1 step)))
-              (set! m_int (- m_int (* 4 step)))
-              (set! e_int (- e_int (* 6 step))))
-             ((equal? pun "!")
-              (set! m_int (+ m_int (* 1 step)))
-              (set! e_int (+ e_int (* 2 step))))
-             ((equal? pun "?")
-              (set! s_int (+ s_int (* 1 step)))
-              (set! m_int (+ m_int (* 10 step)))
-              (set! e_int (+ e_int (* 8 step))))
-             (t
-              (set! m_int (- m_int (* 1 step)))
-              (set! e_int (- e_int (* 2 step)))))))
-      ;; Resulting values
-      (list
-       (list start s_int)
-       (list (/ (+ start end) 2.0) m_int)
-       (list end e_int)))))
+             ((consp contourval)
+              (let ((tlen (- seg-end last-seg-end))
+                    (place 0.1))
+                (set! times-values
+                      (append
+                       (list (list (+ last-seg-end (* place tlen))
+                                   (car contourval))
+                             (list (+ last-seg-end (* (- 1.0 place) tlen))
+                                   (cadr contourval)))
+                       times-values))))
+             ((not (eqv? contourval 0))
+              (let ((time (/ (+ last-seg-end seg-end) 2.0))
+                    (value (* f0-base f0-std contourval)))
+                (set! times-values (cons (list time value) times-values)))))
+            (set! last-seg-end seg-end)
+            (set! segments (cdr segments))))))
+    (reverse times-values)))
 
 ;;; Duration
 
 (defvar czech-phoneme-durations
   '(
     (#   0.15)
+    (_   0.01)
+    (@   0.02)
     (a   0.09)
     (a:  0.12)
+    (au  0.04)
     (b   0.07)
     (c   0.07)
     (c~  0.07)
@@ -863,6 +1285,7 @@
     (d~  0.07)
     (e   0.08)
     (e:  0.11)
+    (eu  0.04)
     (f   0.07)
     (g   0.07)
     (h   0.07)
@@ -876,6 +1299,7 @@
     (n~  0.07)
     (o   0.09)
     (o:  0.12)
+    (ou  0.04)
     (p   0.07)
     (r   0.07)
     (r~  0.07)
@@ -892,29 +1316,61 @@
     (dz~ 0.07)
     ))
 
-(defvar czech-duration-cart-tree
-  '(;; pauses
-    (name is "#")
-    ((p.R:SylStructure.parent.parent.R:Word.pbreak is "SB")
-     ((0.1))
-     ((1.0)))
-    ;; clause initial
-    ((R:SylStructure.parent.R:Syllable.syl_in is 0)
-     ((R:SylStructure.parent.stress is 1)
-      ((1.3))
-      ((1.2)))
-     ;; clause final
-     ((n.R:SylStructure.parent.R:Syllable.syl_in is 0)
-      ((R:SylStructure.parent.stress is 1)
-       ((1.3))
-       ((1.2)))
-      ;; stressed
-      ((R:SylStructure.parent.stress is 1)
-       ((ph_vc is +)
-        ((1.2))
-        ((1.0)))
-       ;; default
-       ((1.0)))))))
+(defvar czech-silence-duration-factors '(("BB" 1.0) ("B" 0.5) ("SB" 0.1)))
+
+(defvar czech-stress-duration-factors
+  '((1  1.03)
+    (2  1.02)
+    (3  1.01)
+    (4  1.00)
+    (5  1.00)
+    (6  0.99)
+    (7  0.98)
+    (8  0.96)
+    (9  0.94)
+    (10 0.93)
+    (11 0.91)
+    (12 0.90)))
+
+(defvar czech-duration-random-factor 0.2)
+
+(define (czech-duration utt)
+  ;; Distinguish silence lengths
+  (let ((word (utt.relation.first utt 'Word)))
+    (while word
+      (let ((factor (cadr (assoc_string (item.feat word "pbreak")
+                                        czech-silence-duration-factors))))
+        (if factor
+            (item.set_feat
+             (item.next (item.relation (find_last_seg word) 'Segment))
+             'dur_factor
+             (* factor (+ 1 (- (* 2 (czech-rand) czech-duration-random-factor)
+                               czech-duration-random-factor))))))
+      (set! word (item.next word))))
+  ;; Set general duration factors
+  (let ((sunit (utt.relation.first utt 'StressUnit)))
+    (while sunit
+      (let ((nsyls (czech-unit-syllable-count sunit)))
+        (if (> nsyls 12)
+            (set! nsyls 12))
+        (let ((factor (cadr (assoc nsyls czech-stress-duration-factors))))
+          (mapcar (lambda (syl)
+                    (mapcar (lambda (seg)
+                              (item.set_feat seg "dur_factor" factor))
+                            (item.relation.daughters syl 'SylStructure)))
+                  (item.relation.leafs sunit 'StressUnit))))
+      (set! sunit (item.next sunit))))
+  ;; Compute durations
+  (mapcar
+   (lambda (seg)
+     (let ((factor (item.feat seg "dur_factor")))
+       (item.set_feat seg "end"
+                      (+ (item.feat seg "start")
+                         (* (if (<= factor 0) 1 factor)
+                            (cadr (assoc_string (item.name seg)
+                                                czech-phoneme-durations*)))))))
+   (utt.relation.items utt 'Segment))
+  utt)
 
 ;;; Volume
 
@@ -926,6 +1382,44 @@
 
 ;;; Final phoneme translation
 
+(define (czech-add-segments utt)
+  (let ((i (utt.relation.first utt 'Segment))
+        (diphthong-vowels '((au a) (eu e) (ou o)))
+        (make-item (lambda (ph end) `(,ph (("name" ,ph) ("end" ,end)))))
+        (vowel? (lambda (ph) (czech-item.feat? ph "ph_vc" '+)))
+        (schwa-consonant? (lambda (ph)
+                            (member (item.feat ph "ph_ctype") '("p" "n" "s"))))
+        (last-end 0.0))
+    (while i
+      (let ((end (item.feat i "end")))
+        (cond
+         ;; Duplicate both vowels of a diphthong
+         ((czech-item.feat? i "ph_vlng" 'd)
+          (let ((vowel (cadr (assoc_string (item.name i) diphthong-vowels)))
+                (total-len (- end last-end)))
+            (item.insert i (make-item vowel (+ last-end (* total-len 0.3)))
+                         'before)
+            (item.insert i (make-item 'u end) 'after)
+            (item.set_feat i "end" (+ last-end (* total-len 0.7))))
+          (set! i (item.next i)))
+         ;; Duplicate vowels
+         ((vowel? i)
+          (item.insert i (make-item (item.name i) (/ (+ last-end end) 2))
+                       'before))
+         ;; Insert schwa between some consonants
+         ((and (schwa-consonant? i)
+               (item.next i)
+               (schwa-consonant? (item.next i)))
+          (item.set_feat i "end" (+ last-end (* (- end last-end) 0.8))))
+         ((and (schwa-consonant? i)
+               (item.prev i)
+               (schwa-consonant? (item.prev i)))
+          (item.insert i (make-item '@ (+ last-end (* (- end last-end) 0.2)))
+                       'before)))
+        (set! last-end end))
+      (set! i (item.next i))))
+  utt)
+
 (define (czech-phone-adjustment utt)
   (if (and (string-equal (Param.get 'Language) 'czech)
            czech-phoneset-translation*)
@@ -933,7 +1427,11 @@
        (lambda (item)
          (let ((tr (assoc (item.name item) czech-phoneset-translation*)))
            (if tr (item.set_name item (cadr tr)))))
-       (utt.relation.items utt 'Segment))))
+       (utt.relation.items utt 'Segment)))
+  utt)
+
+(define czech-after-analysis-hooks
+  (list czech-add-segments czech-phone-adjustment))
 
 ;;; Finally, the language definition itself
 
@@ -942,7 +1440,8 @@
   (set! czech-int-simple-params* czech-int-simple-params)
   (set! czech-phoneme-durations* czech-phoneme-durations)
   (set! czech-volume-scale* czech-volume-scale)
-  (set! czech-phoneset-translation* nil)
+  (set! czech-phoneset-translation* czech-phoneset-translation)
+  (set! czech-after-analysis-hooks* czech-after-analysis-hooks)
   (Param.set 'Synth_Method 'UniSyn))
 
 (define (voice-czech-common)
@@ -960,6 +1459,8 @@
   (set! token_to_words czech-token_to_words)
   ;; Lexicon selection
   (lex.select "czech")
+  ;; Segmentation
+  (Param.set 'Word_Method 'czech-word)
   ;; Part of speech
   (set! guess_pos czech-guess-pos)
   (Param.set 'POS_Method czech-pos)
@@ -967,23 +1468,19 @@
   (set! pos_supported nil)
   (set! phrase_cart_tree czech-phrase-cart-tree)
   (Param.set 'Phrase_Method 'cart_tree)
+  (Param.set 'Phrasify_Method Classic_Phrasify)
   ;; Pauses
   (Param.set 'Pause_Method czech-pause-method)
   ;; Accent prediction and intonation
   (set! int_accent_cart_tree czech-accent-cart-tree)
-  (Param.set 'Int_Method 'General)
-  (set! int_general_params (cons (list 'targ_func czech-intonation-targets)
+  (Param.set 'Int_Method czech-int-select-contours)
+  (set! int_general_params (cons (list 'targ_func czech-int-targets)
                                  czech-int-simple-params*))
   (Param.set 'Int_Target_Method Int_Targets_General)
   ;; Duration prediction
-  (set! duration_cart_tree czech-duration-cart-tree)
-  (set! duration_ph_info (mapcar
-                          (lambda (spec) (list (car spec) 0.0 (cadr spec)))
-                          czech-phoneme-durations*))
-  (Param.set 'Duration_Method 'Tree_ZScores)
+  (Param.set 'Duration_Method czech-duration)
   ;; Postlex rules
-  (set! postlex_rules_hooks (list))
-  (set! after_analysis_hooks (list czech-phone-adjustment))
+  (set! after_analysis_hooks czech-after-analysis-hooks*)
   ;; Final voice adjustment
   (set! after_synth_hooks czech-adjust-volume)
   ;; Set current voice

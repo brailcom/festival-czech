@@ -134,6 +134,7 @@
  (set! czech-phoneme-durations* czech-mbrola-phoneme-durations)
  (set! czech-lts-extra-rules* '(czech-mbrola-lts))
  (set! czech-volume-scale* 1.0)
+ (set! czech-after-analysis-hooks* czech-phone-adjustment)
  (if czech-mbrola_database
      (set! mbrola_database czech-mbrola_database)
      (error "czech-mbrola_database variable not set"))
