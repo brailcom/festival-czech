@@ -1,5 +1,11 @@
 2004-03-23  Milan Zamazal  <pdm@brailcom.org>
 
+	* czech-lexicon.scm: `copyright' added.
+
+	* czech.scm (lts.ruleset): i-vowel handling fixed; `copy' removed.
+
+2004-03-23  Milan Zamazal  <pdm@brailcom.org>
+
 	* czech-mbrola.scm (czech-mbrola-lts): `_' added.
 
 2004-03-23  Milan Zamazal  <pdm@brailcom.org>

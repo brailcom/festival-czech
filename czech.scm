@@ -244,6 +244,7 @@
   (I i y)
   (Í í ý)
   (Vowel a á e é ì i í o ó u ú ù y ý)
+  (Vowel-I a á e é ì o ó u ú ù)
   (SZ s z))
  (
   ;; Special rules
@@ -262,7 +263,6 @@
   ( l i [ c ] o m = c )
   ( [ c ] o m = k )
   
-  ( [ c ] o p y = k )
   ( f r [ e e ] = i: )
   
   ( m l a [ d ] i s t = d~ )
@@ -328,11 +328,11 @@
   ;; Some vowel-vowel pairs
   ( m i m [ o ] Vowel = o _ )
   ( # m n o h [ o ] Vowel = o _ )
-  ( Vowel [ a ] = _ a )
-  ( Vowel [ e ] = _ e )
-  ( Vowel [ é ] = _ é )
-  ( Vowel [ o ] = _ o )
-  ( Vowel [ ó ] = _ ó )
+  ( Vowel-I [ a ] = _ a )
+  ( Vowel-I [ e ] = _ e )
+  ( Vowel-I [ é ] = _ é )
+  ( Vowel-I [ o ] = _ o )
+  ( Vowel-I [ ó ] = _ ó )
   ;; Other two-letter phonemes
   ( [ d ¾ ] = dz~ )
   ( [ d z ] = dz )
