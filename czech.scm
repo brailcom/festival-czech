@@ -659,12 +659,6 @@
 (lex.add.entry '("shift" nil (((s~ i f t) 1))))
 (lex.add.entry '("control" nil (((k o n) 1) ((t r o l) 0))))
 (lex.add.entry '("escape" nil (((i s ) 1) ((k e j p) 0))))
-(lex.add.entry '("leftroundbracket" nil (((l e) 1) ((v a:) 0) ((k u) 1) ((l a t a:) 0))))
-(lex.add.entry '("rightroundbracket" nil (((p r a) 1) ((v a:) 0) ((k u) 1) ((l a t a:) 0))))
-(lex.add.entry '("leftsquarebracket" nil (((l e) 1) ((v a:) 0) ((h r a) 1) ((n a t a:) 0))))
-(lex.add.entry '("rightsquarebracket" nil (((p r a) 1) ((v a:) 0) ((h r a) 1) ((n a t a:) 0))))
-(lex.add.entry '("leftbrace" nil (((l e) 1) ((v a:) 0) ((s l o) 1) ((z~ e n a:) 0))))
-(lex.add.entry '("rightbrace" nil (((p r a) 1) ((v a:) 0) ((s l o) 1) ((z~ e n a:) 0))))
 
 ;;; Part of Speech
 
