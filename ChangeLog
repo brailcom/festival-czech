@@ -1,3 +1,10 @@
+2003-11-26  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int_simple_params): New variable.
+	(voice_czech): Use `simple' intonation method.
+	(czech-default-synthesis-init): Initialize all required UniSyn
+	parameters.
+
 2003-11-10  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (lex.add.entry): Non-words removed.
