@@ -90,7 +90,7 @@
 
 (define (czech-word-stress-unit word)
   (let ((sylword (item.relation word 'SylStructure)))
-    (if sylword
+    (if (and sylword (item.daughter1 sylword))
         (item.parent (item.relation (item.daughter1 sylword) 'StressUnit)))))
 
 (define (czech-stress-unit-punc unit)
