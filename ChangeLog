@@ -1,5 +1,23 @@
 2004-03-15  Milan Zamazal  <pdm@brailcom.org>
 
+	* czech.scm (czech-identify-stress-units): List handling in
+	initial single-syllabic word processing fixed.
+
+2004-03-15  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-word): Don't call czech-add-keystrokes.
+	(czech-pause): Call czech-add-keystrokes.
+	(czech-add-strokes): Don't insert stroke if pause is present at
+	that place.
+
+2004-03-15  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-pause-method): Renamed to czech-pause-breaks.
+	(czech-pause): New function.
+	(voice-czech-common): Honor the previous changes.
+
+2004-03-15  Milan Zamazal  <pdm@brailcom.org>
+
 	* czech.scm (czech-duration): Honor Duration_Stretch.
 
 2004-03-12  Milan Zamazal  <pdm@brailcom.org>

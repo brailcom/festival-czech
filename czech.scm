@@ -986,11 +986,12 @@
                             (n (/ (+ len 1) 2))
                             (i 0))
                         (while (< i n)
-                          (set! first-unit (cons (car singles) first-unit))
+                          (set! first-unit (append (car singles) first-unit))
                           (set! singles (cdr singles))
                           (set! i (+ i 1)))
                         (set! units (cons (reverse first-unit)
-                                          (cons singles units*)))))))
+                                          (cons (apply append singles)
+                                                units*)))))))
                   ;; Middle word processing
                   (while units*
                     (let ((u (car units*)))
@@ -1120,6 +1121,14 @@
                            "position" (string-append last-pos "-1"))))
       (set! int-unit (item.next int-unit)))))
 
+(define (czech-word utt)
+  (Classic_Word utt)
+  (czech-intonation-units utt)
+  (czech-stress-units utt)
+  utt)
+
+;;; Pauses
+
 (define (czech-add-strokes utt)
   (let ((stroke '(_ (("name" _))))
         (i (utt.relation.first utt 'SylStructure)))
@@ -1127,25 +1136,19 @@
       (if (or
            ;; Insert _ between vowels on word boundaries
            (and (czech-item.feat? i "daughter1.daughter1.ph_vc" '+)
-                (czech-item.feat? i "p.daughtern.daughtern.ph_vc" '+))
+                (czech-item.feat? i "p.daughtern.daughtern.ph_vc" '+)
+                (czech-item.feat? i "daughter1.daughter1.R:Segment.p.name" '#))
            ;; Insert _ between a non-syllabic preposition and a vowel
            (and (czech-item.feat? i "p.pos" 'prep0)
-                (czech-item.feat? i "daughter1.daughter1.ph_vc" '+)))
+                (czech-item.feat? i "daughter1.daughter1.ph_vc" '+)
+                (czech-item.feat? i "daughter1.daughter1.R:Segment.p.name"
+                                  '#)))
           (item.insert
            (item.relation (item.daughter1 (item.daughter1 i)) 'Segment)
            stroke 'before))
       (set! i (item.next i)))))
 
-(define (czech-word utt)
-  (Classic_Word utt)
-  (czech-intonation-units utt)
-  (czech-stress-units utt)
-  (czech-add-strokes utt)
-  utt)
-
-;;; Pauses
-
-(define (czech-pause-method utt)
+(define (czech-pause-breaks utt)
   (Classic_Pauses utt)
   (let ((words (utt.relation.items utt 'Word)))
     ;; Handle SB -- Classic_Pauses doesn't know about it
@@ -1153,7 +1156,11 @@
      (lambda (w)
        (if (czech-item.feat? w "pbreak" 'SB)
            (insert_pause utt w)))
-     words))
+     words)))
+
+(define (czech-pause utt)
+  (czech-pause-breaks utt)
+  (czech-add-strokes utt)
   utt)
 
 ;;; Accents
@@ -1552,7 +1559,7 @@
   (Param.set 'Phrase_Method 'cart_tree)
   (Param.set 'Phrasify_Method Classic_Phrasify)
   ;; Pauses
-  (Param.set 'Pause_Method czech-pause-method)
+  (Param.set 'Pause_Method czech-pause)
   ;; Accent prediction and intonation
   (set! int_accent_cart_tree czech-accent-cart-tree)
   (Param.set 'Int_Method czech-int-select-contours)
