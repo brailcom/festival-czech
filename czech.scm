@@ -496,9 +496,9 @@
   (cond
    ((and (string-matches name "^[0-9]+$")
          (string-equal (item.feat token 'punc) ".")
-         (or (not (item.next token))
-             (not (string-matches (item.feat (item.next token) 'whitespace)
-                                  "  +"))))
+         (item.next token)
+         (not (string-matches (item.feat (item.next token) 'whitespace)
+                              "  +")))
     (if (not (assoc 'punctype (item.features token)))
         (item.set_feat token 'punctype 'num))
     (append (czech-number name)
