@@ -21,6 +21,7 @@
 ;; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 
 
+(require 'czech)
 (require 'mbrola)
 
 (defvar czech-mbrola-translations
@@ -49,5 +50,10 @@
   (list (list 'phoneset-translation czech-mbrola-translations)
         (list 'synthesis-method 'MBROLA_Synth)
         (list 'synthesis-init czech-mbrola-init)))
+
+(czech-proclaim-voice
+ mbrola_cz2
+ "Czech voice provided by the Mbrola cz2 database."
+ (set! czech-description czech-mbrola-description))
 
 (provide 'czech-mbrola)

@@ -5,8 +5,7 @@ Jak se balík pou¾ívá:
     (load ".../czech.scm")
 
 - Chcete-li èe¹tinu pou¾ívat se standardní festivalovou syntézou (UniSyn),
-  nastavte je¹tì pøed nata¾ením souboru czech.scm promìnnou czech-index_file na
-  cestu k pou¾itým vzorkùm:
+  pou¾ijte jako vzor pro definici hlasu soubor czech-unisyn.scm.
 
     (set! czech-index_file ".../festival/voice/czech.index")
 
@@ -28,13 +27,9 @@ Jak se balík pou¾ívá:
 
       (load ".../czech-mbrola.scm")
 
-  * Nastavit èeskou syntézu na Mbrola:
+  * Nastavit èeský hlas z Mbrola:
 
-      (set! czech-description czech-mbrola-description)
+      (voice_czech_mbrola_cz2)
 
   Prosím uvìdomte si, ¾e Mbrola není svobodný software a mù¾ete jej pou¾ívat
   jen do míry svolení a podpory jeho výrobce.
-
-- Nyní je ji¾ mo¾no zapnout èe¹tinu:
-
-    (voice_czech)

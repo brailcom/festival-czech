@@ -25,33 +25,9 @@
 ;; ftp://ftp.vslib.cz/pub/unix/ispell/czech.
 
 
-(define (czech-default-synthesis-init)
-  (set! us_abs_offset 0.0)
-  (set! window_factor 1.0)
-  (set! us_rel_offset 0.0)
-  (set! us_gain 0.9)
-  (Parameter.set 'Synth_Method 'UniSyn)
-  (Parameter.set 'us_sigpr 'lpc)
-  (us_db_select 'czech)
-  nil)
+(defvar czech-description nil)
 
-(defvar czech-index_file nil)
-
-(if czech-index_file
-    (us_diphone_init
-     (list (list 'name "czech")
-           (list 'index_file czech-index_file)
-           (list 'grouped "false")
-           (list 'coef_ext ".lpc")
-           (list 'sig_ext ".res")
-           (list 'default_diphone "#-#"))))
-
-(defvar czech-default-description
-  '((phoneset-translation nil)
-    (synthesis-method UniSyn)
-    (synthesis-init czech-default-synthesis-init)))
-
-(defvar czech-description czech-default-description)
+;;; Utility functions
 
 (define (czech-parameter parameter)
   (cadr (assoc parameter czech-description)))
@@ -910,8 +886,8 @@
 
 (defvar czech-int_simple_params '((f0_mean 100) (f0_std 5)))
 
-(defvar czech-int_lr_params '((target_f0_mean 85) (target_f0_std 5)
-                              (model_f0_mean 110) (model_f0_std 10)))
+(defvar czech-int_lr_params '((target_f0_mean 105) (target_f0_std 5)
+                              (model_f0_mean 105) (model_f0_std 10)))
 
 (defvar czech-accent_cart_tree
   '((R:SylStructure.parent.gpos is prep0)
@@ -998,7 +974,7 @@
 
 ;; Finally, the language definition itself
 
-(define (voice_czech)
+(define (voice-czech-common)
   (voice_reset)
   (Parameter.set 'Language 'czech)
   ;; Phone set
@@ -1045,15 +1021,20 @@
   ;; Set current voice
   (set! current-voice 'czech))
 
-;; We proclaim a fallback Czech voice with the default settings.  There's
-;; nothing better to do right now as there is no free Czech voice for Festival.
-(proclaim_voice
- 'czech
- '((language czech)
-   (dialect nil)
-   (gender nil)
-   (coding ISO-8859-2)
-   (description
-    "Default Czech voice.")))
+(defmac (czech-proclaim-voice form)
+  (let ((name (cadr form))
+        (description (caddr form))
+        (body (cdddr form)))
+    `(begin
+       (define (,(intern (string-append 'voice_czech_ name)))
+         ,@body
+         (voice-czech-common))
+       (proclaim_voice
+        (quote ,name)
+        (quote ((language czech)
+                (dialect nil)
+                (gender nil)
+                (coding ISO-8859-2)
+                (description ,description)))))))
 
 (provide 'czech)
