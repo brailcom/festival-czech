@@ -1,6 +1,20 @@
 2003-11-27  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech): proclaim_voice added.
+	(czech-token_to_words, lex.add.entry): Czech monetary support
+	added.
+	(czech-token.punctuation): Dash removed.
+	(czech-token_to_words): Handle dashes.
+	(czech-token_to_words): Try to identify more acronyms; apply
+	czech-downcase on them.
+	(czech-token_to_words): Don't include spaces in number regexps.
+	(czech-token_to_words): Support for numeric ranges added.
+	(czech-pos): Don't set `pos' feature if already set.
+	(czech-token_to_words): Split non-alphanumeric tokens to
+	characters; handle separators and long sequences of
+	non-alphanumeric characters.
+	(czech-token.separator_word_name)
+	(czech-token.garbage_word_name): New variables.
 
 2003-11-26  Milan Zamazal  <pdm@brailcom.org>
 
