@@ -1,3 +1,11 @@
+2004-03-09  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int-targets): Apply the new contour value
+	conversion also when contourval is a list and fix the order of
+	values in such a case.
+	(czech-int-select-contours): Coding typo in parenthesis fixed for
+	long contours.
+
 2004-03-08  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-int-targets): Use int_general_params, not
