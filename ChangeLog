@@ -1,3 +1,58 @@
+2004-01-30  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int-lr-params): Removed, use
+	czech-int-simple-params instead.
+	(czech-reset-parameters, voice-czech-common): Honor the previous
+	change.
+	(czech-int-simple-params): Values changed to reasonable numbers.
+	(voice-czech-common): Switch to general intonation method.
+	(czech-intonation-targets): New function.
+
+2004-01-30  Milan Zamazal  <pdm@brailcom.org>
+	
+	* czech.scm (czech-duration-cart-tree): Use other means than the
+	undocumented feature syl_break for determining clause
+	initials/finals; factor of stressed initials/finals reduced to
+	1.3.
+
+2004-01-29  Milan Zamazal  <pdm@brailcom.org>
+	
+	* czech.scm (czech-syllabify-phstress, czech-syllabify): New
+	functions.
+	(czech-lts): Use it instead of lex.syllabify.phstress.
+
+2004-01-29  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int-lr-params): Changed to respect the English
+	intonation tree parameters and an experimental Czech voice.
+
+2004-01-29  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-duration-tree): New variable.
+	(voice-czech-common): Duration method changed to Tree_ZScores.
+
+2004-01-29  Milan Zamazal  <pdm@brailcom.org>
+	
+	* czech.scm (czech-volume-scale, czech-volume-scale*): New variables.
+	(czech-adjust-volume): New function.
+	(czech-reset-parameters): Reset czech-volume-scale*.
+	(voice-czech-common): Set after_synth_hooks.
+
+2004-01-29  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-non-pause-words): New function.
+	(czech-pause-method): Insert pauses into long non-breaking
+	phrases.
+
+2004-01-29  Milan Zamazal  <pdm@brailcom.org>
+	
+	* czech.scm (defPhoneSet, PhoneSet.silences)
+	(czech-phoneme-durations): ## removed.
+	(czech-phrase-cart-tree): Use defvar instead of set; SB
+	introduced.
+	(czech-phone-adjustment): ## support removed.
+	(czech-pause-method): Handle SB instead of generating ##.
+
 2004-01-28  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-f2b-f0-lr-end): Renamed to czech-f0-lr-end.
