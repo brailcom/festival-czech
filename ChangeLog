@@ -1,0 +1,29 @@
+2003-08-28  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-pos): New function.
+	(voice_czech): Set it as POS_Method.
+	(lex.add.entry): Punctuation entries defined properly.
+
+2003-08-27  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech-mbrola.scm (PhoneSet.silences): Removed.
+	(provide): Added.
+
+	* czech.scm (czech-unknown-symbol-message): Renamed to
+	czech-unknown-symbol-word.  Value changed to a single word value.
+	(czech-downcase): Don't include punctuation.
+	(czech-token.punctuation, czech-token.prepunctuation): New
+	variables.
+	(voice_czech): Use them.
+	(lex.set.lts.ruleset): Don't call it.
+	(lex.add.entry): Parentheses added.
+	(lex.add.entry): Proper sylabification and accents added.
+	(czech-phoneme_durations): Typo in e:'s value fixed.
+	(czech-phoneme_durations): Random vowel duration adjustments.
+	(czech-token.punctuation): Dash added.
+	(lex.add.entry): "Emacs" and "copyright" added.
+	(czech-tokenize-on-nonalphas): New function.
+	(czech-token_to_words): Handle punctuation characters in tokens.
+	(czech-token_to_words): Apply recursively on parts separated by
+	punctuation.  Spell non-syllabic words.
+
