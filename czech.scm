@@ -106,8 +106,8 @@
 (defPhoneSet czech
   (;; vowel or consonant: vowel consonant
    (vc + - 0)
-   ;; vowel length: short long diphthong schwa
-   (vlng s l d a 0)
+   ;; vowel length: short long
+   (vlng s l 0)
    ;; consonant type: nasal, sonorant, stop, affricate, fricative
    (ctype n l s a f 0)
    ;; consonant voicing: yes no
@@ -119,13 +119,12 @@
    ;;   c l t v s
    (#   0 0 0 0 0)                      ; pause
    (_   0 0 0 0 -)                      ; vowel-vowel stroke
-   (@   + a 0 0 +)                      ; schwa
    (a   + s 0 0 +)
    (a:  + l 0 0 +)
-   (au  + d 0 0 +)
    (b   - 0 s + -)
    (c   - 0 a - -)
    (ch  - 0 f - -)
+   (ch* - 0 f - -)                      ; similar to h, before voiced cons.
    (c~  - 0 a - -)
    (d   - 0 s + -)
    (d~  - 0 s + -)
@@ -133,7 +132,6 @@
    (dz~ - 0 a + -)
    (e   + s 0 0 +)
    (e:  + l 0 0 +)
-   (eu  + d 0 0 +)
    (f   - 0 f - -)
    (g   - 0 s + -)
    (h   - 0 f + -)
@@ -144,13 +142,14 @@
    (l   - 0 l 0 +)
    (m   - 0 n + -)
    (n   - 0 n + -)
+   (n*  - 0 n + -)                      ; n before k or g
    (n~  - 0 n + -)
    (o   + s 0 0 +)
    (o:  + l 0 0 +)
-   (ou  + d 0 0 +)
    (p   - 0 s - -)
    (r   - 0 l 0 +)
    (r~  - 0 f + -)
+   (r~* - 0 f - -)                      ; neighbor of an unvoiced consonant
    (s   - 0 f - -)
    (s~  - 0 f - -)
    (t   - 0 s - -)
@@ -172,6 +171,7 @@
 
 (lts.ruleset
  czech-normalize
+ ;; just transforms the texts to a canonical form
  ()
  (
   ( [ a ] = a )
@@ -263,6 +263,7 @@
   ( [ Ý ] = ý )
   ( [ Z ] = z )
   ( [ ® ] = ¾ )
+  ;; digits are here to make this rule set usable in some other cases
   ( [ 0 ] = 0 )
   ( [ 1 ] = 1 )
   ( [ 2 ] = 2 )
@@ -276,14 +277,12 @@
   ))
  
 (lts.ruleset
- czech
+ czech-orthography
+ ;; transforms Czech written text to a phonetic form
  ((BPV b p v)
   (DTN d t n)
   (ÌI ì i í)
-  (I i y)
-  (Í í ý)
   (Vowel a á e é ì i í o ó u ú ù y ý)
-  (Vowel-I a á e é ì o ó u ú ù)
   (SZ s z))
  (
   ;; Special rules
@@ -355,24 +354,17 @@
   ( m [ ì ] = n~ e )
   ;; `i' handling
   ( # m e z [ i ] Vowel = i _ )
-  ( # [ I ] Vowel = j )
-  ( [ I ] Vowel = i j )
-  ( [ Í ] Vowel = i: j )
-  ( Vowel [ I ] = j )
-  ( Vowel [ Í ] = j i: )
-  ;; Diphthongs
-  ( [ a u ] = au )
-  ( [ e u ] = eu )
-  ( [ o u ] = ou )
+  ( #_ [ i ] #_ = i )
+  ( Vowel+# [ i ] Vowel+# = j )
+  ( Vowel [ í ] Vowel = j i: j )
+  ( [ i ] Vowel = i j )
+  ( [ í ] Vowel = i: j )
+  ( Vowel [ i ] = j )
+  ( Vowel [ í ] = j i: )
   ;; Some vowel-vowel pairs
   ( m i m [ o ] Vowel = o _ )
   ( # m n o h [ o ] Vowel = o _ )
-;   ( Vowel-I [ a ] = _ a )
-;   ( Vowel-I [ e ] = _ e )
-;   ( Vowel-I [ é ] = _ e: )
-;   ( Vowel-I [ o ] = _ o )
-;   ( Vowel-I [ ó ] = _ o: )
-  ;; Other two-letter phonemes
+  ;; Two-letter phonemes
   ( [ d ¾ ] = dz~ )
   ( [ d z ] = dz )
   ( [ c h ] = ch )
@@ -432,18 +424,119 @@
   ( [ ¾ ] = z~ )
   ))
 
+(lts.ruleset
+ czech-diphones
+ ;; adjusts the phonetic form, maps non-existent diphones to existent ones
+ ;; This rule set must be applied repeatedly until no change occurs.
+ (
+  (GK g k)
+  (Voiced-Cons--V b d d~ dz dz~ g h r~ z z~)
+  (Voiced-Cons b ch* d d~ dz dz~ g h r~ v z z~)
+  (Non-Voiced-Cons c c~ ch f k p r~* s s~ t t~)
+  (Non-Voiced-Cons+# c c~ ch f k p r~* s s~ t t~ # _)
+  (Pre-Nasal-Phoneme a a: e e: i i: l o o: r u u:)
+  (#_ # _)
+  )
+ (
+  ;; n*
+  ( Pre-Nasal-Phoneme [ n ] GK = n* )
+  ;; ch*
+  ( [ ch ] Voiced-Cons = ch* )
+  ( [ ch* ] Voiced-Cons = ch* )
+  ( [ ch* ] = ch )
+  ;; r~*
+  ( [ r~ ] Non-Voiced-Cons = r~* )
+  ( ch [ r~ ] = r~ )
+  ( Non-Voiced-Cons [ r~ ] = r~* )
+  ;; voiced consonant -> unvoiced consonant
+  ( [ b ] Non-Voiced-Cons+# = p )
+  ( [ d ] Non-Voiced-Cons+# = t )
+  ( [ d~ ] Non-Voiced-Cons+# = t~ )
+  ( [ dz ] Non-Voiced-Cons+# = c )
+  ( [ dz~ ] Non-Voiced-Cons+# = c~ )
+  ( [ g ] Non-Voiced-Cons+# = k )
+  ( [ h ] Non-Voiced-Cons+# = ch )
+  ( [ v ] Non-Voiced-Cons+# = f )
+  ( [ z ] Non-Voiced-Cons+# = s )
+  ( [ z~ ] Non-Voiced-Cons+# = s~ )
+  ;; unvoiced consonant -> voiced consonant
+  ( [ c ] Voiced-Cons--V = dz )
+  ( [ c~ ] Voiced-Cons--V = dz~ )
+  ( [ f ] Voiced-Cons--V = v )
+  ( [ k ] Voiced-Cons--V = g )
+  ( [ p ] Voiced-Cons--V = b )
+  ( [ s ] Voiced-Cons--V = s )
+  ( [ s~ ] Voiced-Cons--V = s~ )
+  ( [ t ] Voiced-Cons--V = t )
+  ( [ t~ ] Voiced-Cons--V = t~ )
+  ;; if no special rule applies, rewrite to itself
+  ( [ # ] = # )
+  ( [ _ ] = _ )
+  ( [ a ] = a )
+  ( [ a: ] = a: )
+  ( [ b ] = b )
+  ( [ c ] = c )
+  ( [ c~ ] = c~ )
+  ( [ ch ] = ch )
+  ( [ ch* ] = ch* )
+  ( [ d ] = d )
+  ( [ d~ ] = d~ )
+  ( [ dz ] = dz )
+  ( [ dz~ ] = dz~ )
+  ( [ e ] = e )
+  ( [ e: ] = e: )
+  ( [ f ] = f )
+  ( [ g ] = g )
+  ( [ h ] = h )
+  ( [ i ] = i )
+  ( [ i: ] = i: )
+  ( [ j ] = j )
+  ( [ k ] = k )
+  ( [ l ] = l )
+  ( [ m ] = m )
+  ( [ n ] = n )
+  ( [ n* ] = n* )
+  ( [ n~ ] = n~ )
+  ( [ o ] = o )
+  ( [ o: ] = o: )
+  ( [ p ] = p )
+  ( [ r ] = r )
+  ( [ r~ ] = r~ )
+  ( [ r~* ] = r~* )
+  ( [ s ] = s )
+  ( [ s~ ] = s~ )
+  ( [ t ] = t )
+  ( [ t~ ] = t~ )
+  ( [ u ] = u )
+  ( [ u: ] = u: )
+  ( [ v ] = v )
+  ( [ z ] = z )
+  ( [ z~ ] = z~ )
+  ))
+
+;; -- missing diphones: n-f n-g n-k #-ch*
+;; -- special diphones: a-a: a-e: a-o: a-u: a:-a a:-a: a:-e a:-e: a:-o a:-o:
+;;                      a:-u a:-u: e-a: e-e: e-o: e-u: e:-a e:-a: atd.
+;;;;
+
 (defvar czech-unknown-symbol-word "neznámý")
 
 (defvar czech-lts-extra-rules '())
 
 (define (czech-basic-lts word)
-  (lts.apply
-   (lts.apply
-    (if (lts.in.alphabet word 'czech-normalize)
-        word
-        czech-unknown-symbol-word)
-    'czech-normalize)
-   'czech))
+  (let ((phonetic-form (lts.apply
+                        (lts.apply
+                         (if (lts.in.alphabet word 'czech-normalize)
+                             word
+                             czech-unknown-symbol-word)
+                         'czech-normalize)
+                        'czech-orthography))
+        phonetic-form*)
+    (while (not (equal? (set! phonetic-form*
+                              (lts.apply phonetic-form 'czech-diphones))
+                        phonetic-form))
+      (set! phonetic-form phonetic-form*))
+    phonetic-form))
 
 (define (czech-syllabify-phstress phones)
   (if (null? phones)
@@ -1678,19 +1771,19 @@
   '(
     (#   0.10)
     (_   0.01)
-    (@   0.02)
     (a   0.09)
     (a:  0.12)
-    (au  0.10)
     (b   0.07)
     (c   0.07)
     (c~  0.07)
     (ch  0.07)
+    (ch* 0.07)
     (d   0.07)
     (d~  0.07)
+    (dz  0.07)
+    (dz~ 0.07)
     (e   0.08)
     (e:  0.11)
-    (eu  0.10)
     (f   0.07)
     (g   0.07)
     (h   0.07)
@@ -1701,13 +1794,14 @@
     (l   0.07)
     (m   0.07)
     (n   0.065)
+    (n*  0.065)
     (n~  0.07)
     (o   0.09)
     (o:  0.12)
-    (ou  0.10)
     (p   0.07)
     (r   0.07)
     (r~  0.07)
+    (r~* 0.07)
     (s   0.07)
     (s~  0.07)
     (t   0.07)
@@ -1717,8 +1811,6 @@
     (v   0.035)
     (z   0.07)
     (z~  0.07)
-    (dz  0.07)
-    (dz~ 0.07)
     ))
 
 (defvar czech-silence-durations
@@ -1815,32 +1907,10 @@
 
 ;;; Final phoneme translation
 
-(define (czech-translate-split-diphthongs utt)
-  (if (string-equal (Param.get 'Language) 'czech)
-      (let ((i (utt.relation.first utt 'Segment))
-            (diphthong-vowels '((au a u) (eu e u) (ou o u)))
-            (last-end 0.0))
-        (while i
-          (let ((end (item.feat i 'end)))
-            (if (czech-item.feat? i 'ph_vlng 'd)
-                (let ((vowels
-                       (cdr (assoc_string (item.name i) diphthong-vowels))))
-                  (item.insert i (cons (car vowels) (list (item.features i)))
-                               'before)
-                  (let ((new-item (item.prev i)))
-                    (item.set_name new-item (car vowels))
-                    (item.set_feat new-item 'end (/ (+ last-end end) 2))
-                    (item.relation.insert i 'SylStructure new-item 'before))
-                  (item.set_name i (cadr vowels))))
-            (set! last-end end))
-          (set! i (item.next i)))))
-  utt)
-
 (define (czech-translate-add-vowels utt)
   (if (and (string-equal (Param.get 'Language) 'czech)
            czech-insert-filling-vowels)
       (let ((i (utt.relation.first utt 'Segment))
-            (diphthong-vowels '((au a) (eu e) (ou o)))
             (insert-item (lambda (name orig-ph end pos)
                            (let ((feats (item.features orig-ph))
                                  (new-feats `((name ,name) (end ,end))))
@@ -1863,15 +1933,6 @@
         (while i
           (let ((end (item.feat i 'end)))
             (cond
-             ;; Duplicate both vowels of a diphthong
-             ((czech-item.feat? i 'ph_vlng 'd)
-              (let ((vowel (cadr
-                            (assoc_string (item.name i) diphthong-vowels)))
-                    (total-len (- end last-end)))
-                (insert-item vowel i (+ last-end (* total-len 0.3)) 'before)
-                (insert-item 'u i end 'after)
-                (item.set_feat i 'end (+ last-end (* total-len 0.7))))
-              (set! i (item.next i)))
              ;; Duplicate vowels
              ((vowel? i)
               (insert-item (item.name i) i (/ (+ last-end end) 2) 'before)))
@@ -1890,7 +1951,7 @@
   utt)
 
 (defvar czech-after-analysis-hooks
-  (list czech-translate-split-diphthongs czech-translate-add-vowels czech-translate-phonemes))
+  (list czech-translate-add-vowels czech-translate-phonemes))
 
 ;;; Finally, the language definition itself
 
