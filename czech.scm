@@ -362,7 +362,7 @@
 (defvar czech-token.separator_word_name "oddìlovaè") ; our own variable
 (defvar czech-token.garbage_word_name "smetí")       ; our own variable
 (defvar czech-token.whitespace "  \t\n\r")
-(defvar czech-token.punctuation "\"'`.,:;!?(){}[]<>")
+(defvar czech-token.punctuation "\"'`.,:;!?-(){}[]<>")
 (defvar czech-token.prepunctuation "\"'`({[<")
 
 ;;; Token to words processing
@@ -611,11 +611,6 @@
          (>= (length name) 4)
          (czech-all-same (symbolexplode name)))
     (list czech-token.separator_word_name))
-   ;; Dashes
-   ((string-matches name "^-+$")
-    (if (item.prev token)
-        (item.set_feat (item.prev token) 'punc "-"))
-    nil)
    ;; Time (just a few of many possible forms)
    ((and (string-matches name "^[0-9]+:[0-9][0-9]$")
          ;; try to identify ratios -- should be better done in POS tagging
@@ -657,10 +652,13 @@
         (list czech-token.garbage_word_name)
         (symbolexplode name)))
    ;; Hyphens
+   ((string-matches name (string-append "^" czech-char-regexp "+-$"))
+    (czech-token_to_words token (string-before name "-")))
    ((string-matches name
       (string-append "^" czech-char-regexp "+-[-" czech-chars "]+$"))
     (append
      (czech-token_to_words token (string-before name "-"))
+     '(((name "-") (pos punc)))       ; necessary for punctuation reading modes
      (czech-token_to_words token (string-after name "-"))))
    ;; TODO: roman numerals
    ;; Heterogenous tokens -- mixed alpha, numeric and non-alphanumeric
@@ -771,26 +769,36 @@
 (defvar czech-phrase-cart-tree
   ;; SB = (very) short break
   '(;; punctuation
-    (lisp_token_end_punc in ("." "?" "!" ":" ";" "-"))
+    (lisp_token_end_punc matches ".*[.?!:;]")
     ((BB))
-    ((lisp_token_end_punc in ("," "\"" ")"))
+    ((lisp_token_end_punc matches ".*[,\)]")
      ((B))
-     ;; end of utterance
-     ((n.name is 0)
-      ((BB))
-      ;; list of items separated by commas, finished by a conjunction
-      ((n.gpos is conj)
-       ((R:Token.root.p.punc is ",")
+     ;; dashes are treated as phrase breaks only if separated by whitespaces
+     ((R:Token.parent.n.daughter1.name is "-")
+      ((R:Token.n.name is 0)
+       ((BB))
+       ((NB)))
+      ;; opening parenthesis
+      ((R:Token.parent.n.prepunctuation is "(")
+       ((R:Token.n.name is 0)
         ((B))
-        ;; not a list, but still a conjunction, possibly starting with a vowel
-        ((n.pos_in_phrase < 3)         ; at most 2 words before the conjunction
-         ((SB))
-         ((n.words_out < 4)            ; at most 2 words after the conjunction
-          ((SB))
-          ;; comma generating conjunction
-          ((B)))))
-       ;; nothing applies -- no break by default
-       ((NB)))))))
+        ((NB)))
+       ;; end of utterance
+       ((n.name is 0)
+        ((BB))
+        ;; list of items separated by commas, finished by a conjunction
+        ((n.gpos is conj)
+         ((R:Token.parent.p.punc matches ".*,")
+          ((B))
+          ;; not a list but still a conjunction, possibly starting with a vowel
+          ((n.pos_in_phrase < 3)       ; at most 2 words before the conjunction
+           ((SB))
+           ((n.words_out < 4)           ; at most 2 words after the conjunction
+            ((SB))
+            ;; comma generating conjunction
+            ((B)))))
+         ;; nothing applies -- no break by default
+         ((NB)))))))))
 
 ;;; Segmentation
 
@@ -832,9 +840,10 @@
                   (set! unit-sylwords (cdr unit-sylwords))))))))))
 
 (define (czech-yes-no-question int-unit)
-  (and (czech-item.feat? int-unit
-                         "daughtern.R:SylStructure.parent.R:Token.parent.punc"
-                         "?")
+  (and (string-matches (item.feat
+                        int-unit
+                        "daughtern.R:SylStructure.parent.R:Token.parent.punc")
+                       ".*\\?")
        (not (czech-item.feat? int-unit
                               "daughter1.R:SylStructure.parent.R:Word.pos"
                               'question))
@@ -1075,10 +1084,10 @@
       ;; The last stress unit in an intonation unit has position F or FF
       ;; (overrides I in case of a conflict)
       (item.set_feat (item.relation.daughtern int-unit 'IntStress) "position"
-       (if (member (item.feat
-                    int-unit
-                    "daughtern.R:SylStructure.parent.R:Token.n.name")
-                   '("." "!" "?" ";" ":"))
+       (if (string-matches
+            (item.feat int-unit
+                       "daughtern.R:SylStructure.parent.R:Token.parent.punc")
+            ".*[.!?;:]")
            (if (czech-yes-no-question int-unit) "FF-IT" "FF-KKL")
            "F"))
       ;; Special case: F-1 positions overriding I and M

@@ -1,3 +1,28 @@
+2004-03-10  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-stress-units): Handle multiple character
+	punctuation.
+	(czech-yes-no-question): Likewise.
+
+2004-03-10  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-phrase-cart-tree): Put B before left
+	parenthesis; handle multiple character punctuation.
+
+2004-03-10  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-phrase-cart-tree): Dash handling fixed.
+
+2004-03-10  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-token.punctuation): `-' added.
+	(czech-token_to_words): Don't handle dashes; don't throw away
+	dashes inside words.
+
+2004-03-10  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech-lexicon.scm: Various kinds of braces added for `punc'.
+
 2004-03-09  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-int-targets): Apply the new contour value
