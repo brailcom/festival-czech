@@ -1,5 +1,9 @@
 2005-02-12  Milan Zamazal  <pdm@brailcom.org>
 
+	* czech.scm (voice-czech-common): Set Token_Method to Token_Any.
+
+2005-02-12  Milan Zamazal  <pdm@brailcom.org>
+
 	* czech.scm (czech-next-punc, czech-prev-punc): Punctuation
 	detection regexp fixed.
 

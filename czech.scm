@@ -1917,6 +1917,7 @@
   (set! token.punctuation czech-token.punctuation)
   (set! token.prepunctuation czech-token.prepunctuation)
   (set! token_to_words czech-token-to-words)
+  (Param.set 'Token_Method 'Token_Any)
   ;; Lexicon selection
   (lex.select "czech")
   ;; Segmentation
