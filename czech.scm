@@ -1554,7 +1554,7 @@
 
 (defvar czech-phoneme-durations
   '(
-    (#   1.00)
+    (#   0.10)
     (_   0.01)
     (@   0.02)
     (a   0.09)
@@ -1632,7 +1632,7 @@
                   (item.set_feat
                    (item.next (item.relation seg 'Segment))
                    'dur_factor
-                   (+ min (* (- max min) (czech-rand))))))))
+                   (* 10 (+ min (* (- max min) (czech-rand)))))))))
       (set! word (item.next word))))
   ;; Set general duration factors
   (let ((sunit (utt.relation.first utt 'StressUnit)))
