@@ -1,3 +1,33 @@
+2004-03-05  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-guess-pos): New words added to question.
+
+2004-03-05  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-identify-stress-units, czech-add-strokes): Use
+	POS information stored in word features.
+
+2004-03-05  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-pos): Check all words against czech-guess-pos.
+
+2004-03-05  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-downcase, czech-word-pos?): New functions.
+	(czech-identify-stress-units, czech-pos, czech-add-strokes): Use
+	them.
+
+2004-03-05  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int-contour-tree): New variable.
+	(czech-int-select-contours): Use it; preelements contour handling
+	fixed.
+
+2004-03-04  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-randomize): New variable.
+	(czech-rand): Honor it.
+
 2004-03-04  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-stress-units): Put last unit under type F

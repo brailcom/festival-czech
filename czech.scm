@@ -34,21 +34,26 @@
       (and (string-equal (car lst) (cadr lst))
            (czech-all-same (cdr lst)))))
 
+(defvar czech-randomize t)
+
 (defvar czech-rand-range nil)
 
 (define (czech-rand)
-  (if (not czech-rand-range)
-      (let ((n 100)
-            (max 0))
-        (while (> n 0)
-          (let ((r (rand)))
-            (if (> r max)
-                (set! max r)))
-          (set! n (- n 1)))
-        (set! czech-rand-range 1)
-        (while (> max czech-rand-range)
-          (set! czech-rand-range (* 2 czech-rand-range)))))
-  (/ (rand) czech-rand-range))
+  (if czech-randomize
+      (begin
+        (if (not czech-rand-range)
+            (let ((n 100)
+                  (max 0))
+              (while (> n 0)
+                (let ((r (rand)))
+                  (if (> r max)
+                      (set! max r)))
+                (set! n (- n 1)))
+              (set! czech-rand-range 1)
+              (while (> max czech-rand-range)
+                (set! czech-rand-range (* 2 czech-rand-range)))))
+        (/ (rand) czech-rand-range))
+      0.5))
 
 (define (czech-random-choice lst)
   (let ((max (length lst)))
@@ -345,6 +350,11 @@
               (set! transformed (lts.apply transformed (car rules)))
               (set! rules (cdr rules)))
             transformed))))
+
+(define (czech-downcase word)
+  (if (lts.in.alphabet word 'czech-normalize)
+      (apply string-append (lts.apply word 'czech-normalize))
+      word))
 
 ;;; Tokenization
 
@@ -670,6 +680,118 @@
 (lex.set.lts.method 'czech-lts)
 (lex.add.entry '("neznámé" nil (((n e z n a: m e:) 0))))
 
+;;; Part of Speech
+
+(defvar czech-guess-pos
+  '((prep0 "k" "s" "v" "z")
+    (prep "bez" "beze" "bìhem" "do" "ke" "ku" "krom" "kromì" "mezi" "mimo"
+          "místo" "na" "nad" "nade" "o" "od" "ode" "okolo" "po" "pod" "pode"
+          "pro" "proti" "pøed" "pøede" "pøes" "pøeze" "pøi" "se" "skrz"
+          "skrze" "u" "ve" "vyjma" "za" "ze" "zpoza")
+    (conj "a" "i" "ani" "nebo" "anebo")
+    (particle "a»" "ké¾" "nech»")
+    (question "co" "copak" "èemu" "èemupak" "èí" "èípak" "kam" "kampak" "kde"
+              "kdepak" "kdo" "kdopak" "kdy" "kdypak" "koho" "kohopak" "kolik"
+              "kolikpak" "kolikátá" "kolikáté" "kolikátý" "komu" "komupak"
+              "kterak" "která" "které" "kterého" "kterému" "který" "kterýpak"
+              "kudy" "kudypak" "naè" "naèpak" "nakolik" "odkud" "pokolikáté"
+              "proè" "proèpak")
+    (misc "aby" "abych" "abys" "abychom" "abyste" "ale" "alespoò" "aneb" "ani"
+          "ani¾" "an¾to" "aspoò" "av¹ak" "aè" "a¾" "aèkoli" "aèkoliv" "buï"
+          "buïto" "buïsi" "by" "by»" "by»si" "co" "coby" "èi" "èili" "div"
+          "dokdy" "dokonce" "dokud" "dotud" "jak" "jakby" "jakkoli" "jakkoliv"
+          "jakmile" "jako" "jakoby" "jako¾" "jako¾to" "jaký" "jednak" "jednou"
+          "jeliko¾" "jen" "jenom" "jenom¾e" "jen¾e" "jestli" "jestli¾e" "je¹tì"
+          "je¾to" "jinak" "kam" "kde" "kde¾to" "kdo" "kdy" "kdybych" "kdybys"
+          "kdyby" "kdybychom" "kdybyste" "kdy¾" "kolik" "který" "kudy" "kvùli"
+          "leda" "leda¾e" "leè" "mezitímco" "mimoto" "naèe¾" "neb" "neboli"
+          "nebo»" "nejen" "nejen¾e" "ne¾" "ne¾li" "neøkuli" "nicménì" "nýbr¾"
+          "odkdy" "odkud" "pak" "pakli" "pakli¾e" "podle" "podmínky" "pokud"
+          "ponìvad¾" "popøípadì" "potom" "potud" "poté" "proèe¾" "proto"
+          "proto¾e" "právì" "pøece" "pøesto¾e" "pøitom" "respektive" "sic"
+          "sice" "sotva" "sotva¾e" "tak" "takový" "taktak" "tak¾e" "také"
+          "tedy" "ten" "teprve" "to" "toho" "tolik" "tomu" "toti¾" "tu" "tudí¾"
+          "tím" "tøeba" "tøebas" "tøebas¾e" "tøeba¾e" "v¹ak" "v¾dy»" "zatímco"
+          "zda" "zdali" "zejména" "zrovna" "zvlá¹tì" "¾e")))
+
+(define (czech-word-pos? word pos)
+  (member (item.name word)
+          (apply append (mapcar (lambda (p) (cdr (assoc p czech-guess-pos)))
+                                (if (consp pos) pos (list pos))))))
+
+(define (czech-pos-last-in-phrase? word)
+  (or (not (item.next word))
+      (string-matches (item.feat word "n.name")
+                      (string-append "^[^" czech-chars "0-9]+$"))))
+
+(define (czech-pos utt)
+  (mapcar
+   (lambda (w)
+     (let ((name (item.name w))
+           (token (item.parent (item.relation w 'Token))))
+       (cond
+        ;; Feature already assigned
+        ((czech-item.has_feat w 'pos)
+         nil)
+        ;; Word followed by a punctuation
+        ((and (czech-item.has_feat token 'punctype)
+              (string-matches name (string-append "^[^" czech-chars "0-9]+$")))
+         (item.set_feat w "pos" (item.feat token 'punctype)))
+        ;; Punctuation
+        ((member name '("\"" "'" "`" "-" "." "," ":" ";" "!" "?" "(" ")"))
+         (item.set_feat w "pos" "punc"))
+        ;; Single letter, not in the role of a word
+        ((and (eq? (string-length name) 1)
+              (czech-pos-last-in-phrase? w))
+         (item.set_feat w "pos" "sym"))
+        ;; Word "se", not in the role of a preposition
+        ((and (string-equal name "se")  ; the word "se"
+              (item.prev w)             ; not the first word
+              (or (czech-pos-last-in-phrase? w) ; final word
+                  (czech-word-pos? (item.next w) '(prep0 prep))
+                                        ; followed by a preposition
+                  ))
+         (item.set_feat w "pos" "se"))
+        ;; Nothing special: check the czech-guess-pos tree
+        (t
+         (let ((pos-sets czech-guess-pos)
+               (word (czech-downcase (item.name w))))
+           (while pos-sets
+             (if (member word (cdar pos-sets))
+                 (begin
+                   (item.set_feat w 'pos (caar pos-sets))
+                   (set! pos-sets nil))
+                 (set! pos-sets (cdr pos-sets)))))
+         ))))
+   (utt.relation.items utt 'Word))
+  utt)
+
+;;; Phrase breaks
+
+(defvar czech-phrase-cart-tree
+  ;; SB = (very) short break
+  '(;; punctuation
+    (lisp_token_end_punc in ("." "?" "!" ":" ";" "-"))
+    ((BB))
+    ((lisp_token_end_punc in ("," "\"" ")"))
+     ((B))
+     ;; end of utterance
+     ((n.name is 0)
+      ((BB))
+      ;; list of items separated by commas, finished by a conjunction
+      ((n.gpos is conj)
+       ((R:Token.root.p.punc is ",")
+        ((B))
+        ;; not a list, but still a conjunction, possibly starting with a vowel
+        ((n.pos_in_phrase < 3)         ; at most 2 words before the conjunction
+         ((SB))
+         ((n.words_out < 4)            ; at most 2 words after the conjunction
+          ((SB))
+          ;; comma generating conjunction
+          ((B)))))
+       ;; nothing applies -- no break by default
+       ((NB)))))))
+
 ;;; Segmentation
 
 (define (czech-intonation-units utt)
@@ -784,7 +906,7 @@
         (merge (lambda (list)
                  (set-car! list (append (car list) (cadr list)))
                  (set-cdr! list (cddr list)))))
-    ;; Nothing to do if there is at most 1 word
+    ;; Nothing to do if there is at most one word
     (if (<= (length units) 1)
         units
         (begin
@@ -793,8 +915,7 @@
             (while units*
               (let ((w (unit-word (car units*))))
                 (if (or ;; Join non-syllabic prepositions
-                     (member (item.name w)
-                             (cdr (assoc 'prep0 czech-guess-pos)))
+                     (czech-item.feat? w 'pos 'prep0)
                      ;; Join proper single-syllabic prepositions
                      (and (member (item.name w)
                                   czech-proper-single-syl-prepositions)
@@ -971,7 +1092,6 @@
 
 (define (czech-add-strokes utt)
   (let ((stroke '(_ (("name" _))))
-        (prep0s (cdr (assoc 'prep0 czech-guess-pos)))
         (i (utt.relation.first utt 'SylStructure)))
     (while i
       (if (or
@@ -979,7 +1099,7 @@
            (and (czech-item.feat? i "daughter1.daughter1.ph_vc" '+)
                 (czech-item.feat? i "p.daughtern.daughtern.ph_vc" '+))
            ;; Insert _ between a non-syllabic preposition and a vowel
-           (and (member (item.feat i "p.name") prep0s)
+           (and (czech-item.feat? i "p.pos" 'prep0)
                 (czech-item.feat? i "daughter1.daughter1.ph_vc" '+)))
           (item.insert
            (item.relation (item.daughter1 (item.daughter1 i)) 'Segment)
@@ -992,100 +1112,6 @@
   (czech-stress-units utt)
   (czech-add-strokes utt)
   utt)
-
-;;; Part of Speech
-
-(defvar czech-guess-pos
-  '((prep0 "k" "s" "v" "z")
-    (prep "bez" "beze" "bìhem" "do" "ke" "ku" "krom" "kromì" "mezi" "mimo"
-          "místo" "na" "nad" "nade" "o" "od" "ode" "okolo" "po" "pod" "pode"
-          "pro" "proti" "pøed" "pøede" "pøes" "pøeze" "pøi" "se" "skrz"
-          "skrze" "u" "ve" "vyjma" "za" "ze" "zpoza")
-    (conj "a" "i" "ani" "nebo" "anebo")
-    (particle "a»" "ké¾" "nech»")
-    (question "co" "kam" "kde" "kdepak" "kdo" "kdy" "kolik" "kolikátá"
-              "kolikáté" "kolikátý" "která" "které" "kterému" "který" "kudy"
-              "nakolik" "odkud" "pokolikáté" "proè")
-    (misc "aby" "abych" "abys" "abychom" "abyste" "ale" "alespoò" "aneb" "ani"
-          "ani¾" "an¾to" "aspoò" "av¹ak" "aè" "a¾" "aèkoli" "aèkoliv" "buï"
-          "buïto" "buïsi" "by" "by»" "by»si" "co" "coby" "èi" "èili" "div"
-          "dokdy" "dokonce" "dokud" "dotud" "jak" "jakby" "jakkoli" "jakkoliv"
-          "jakmile" "jako" "jakoby" "jako¾" "jako¾to" "jaký" "jednak" "jednou"
-          "jeliko¾" "jen" "jenom" "jenom¾e" "jen¾e" "jestli" "jestli¾e" "je¹tì"
-          "je¾to" "jinak" "kam" "kde" "kde¾to" "kdo" "kdy" "kdybych" "kdybys"
-          "kdyby" "kdybychom" "kdybyste" "kdy¾" "kolik" "který" "kudy" "kvùli"
-          "leda" "leda¾e" "leè" "mezitímco" "mimoto" "naèe¾" "neb" "neboli"
-          "nebo»" "nejen" "nejen¾e" "ne¾" "ne¾li" "neøkuli" "nicménì" "nýbr¾"
-          "odkdy" "odkud" "pak" "pakli" "pakli¾e" "podle" "podmínky" "pokud"
-          "ponìvad¾" "popøípadì" "potom" "potud" "poté" "proèe¾" "proto"
-          "proto¾e" "právì" "pøece" "pøesto¾e" "pøitom" "respektive" "sic"
-          "sice" "sotva" "sotva¾e" "tak" "takový" "taktak" "tak¾e" "také"
-          "tedy" "ten" "teprve" "to" "toho" "tolik" "tomu" "toti¾" "tu" "tudí¾"
-          "tím" "tøeba" "tøebas" "tøebas¾e" "tøeba¾e" "v¹ak" "v¾dy»" "zatímco"
-          "zda" "zdali" "zejména" "zrovna" "zvlá¹tì" "¾e")))
-
-(define (czech-pos-last-in-phrase? word)
-  (or (not (item.next word))
-      (string-matches (item.feat word "n.name")
-                      (string-append "^[^" czech-chars "0-9]+$"))))
-
-(define (czech-pos utt)
-  (mapcar
-   (lambda (w)
-     (let ((name (item.name w))
-           (token (item.parent (item.relation w 'Token))))
-       (cond
-        ;; Feature already assigned
-        ((czech-item.has_feat w 'pos)
-         nil)
-        ;; Word followed by a punctuation
-        ((and (czech-item.has_feat token 'punctype)
-              (string-matches name (string-append "^[^" czech-chars "0-9]+$")))
-         (item.set_feat w "pos" (item.feat token 'punctype)))
-        ;; Punctuation
-        ((member name '("\"" "'" "`" "-" "." "," ":" ";" "!" "?" "(" ")"))
-         (item.set_feat w "pos" "punc"))
-        ;; Single letter, not in the role of a word
-        ((and (eq? (string-length name) 1)
-              (czech-pos-last-in-phrase? w))
-         (item.set_feat w "pos" "sym"))
-        ;; Word "se", not in the role of a preposition
-        ((and (string-equal name "se")  ; the word "se"
-              (item.prev w)             ; not the first word
-              (or (czech-pos-last-in-phrase? w) ; final word
-                  (member (item.name (item.next w)) ; followed by a preposition
-                          (append (cdr (assoc 'prep0 czech-guess-pos))
-                                  (cdr (assoc 'prep czech-guess-pos))))))
-         (item.set_feat w "pos" "se"))
-        )))
-   (utt.relation.items utt 'Word))
-  utt)
-
-;;; Phrase breaks
-
-(defvar czech-phrase-cart-tree
-  ;; SB = (very) short break
-  '(;; punctuation
-    (lisp_token_end_punc in ("." "?" "!" ":" ";" "-"))
-    ((BB))
-    ((lisp_token_end_punc in ("," "\"" ")"))
-     ((B))
-     ;; end of utterance
-     ((n.name is 0)
-      ((BB))
-      ;; list of items separated by commas, finished by a conjunction
-      ((n.gpos is conj)
-       ((R:Token.root.p.punc is ",")
-        ((B))
-        ;; not a list, but still a conjunction, possibly starting with a vowel
-        ((n.pos_in_phrase < 3)         ; at most 2 words before the conjunction
-         ((SB))
-         ((n.words_out < 4)            ; at most 2 words after the conjunction
-          ((SB))
-          ;; comma generating conjunction
-          ((B)))))
-       ;; nothing applies -- no break by default
-       ((NB)))))))
 
 ;;; Pauses
 
@@ -1145,26 +1171,31 @@
     ((F 6) (0.98 1.02 0.99 1 (1) 0.98 0.99))
     ))
 
+(defvar czech-int-contour-tree
+  ;; Contourtype set: A, B, C, D, F (for F position)
+  '((position is I)
+    ((preelement is 1)
+     ((B))
+     ((A)))
+    ((position is M)
+     ((p.countourtype is B)
+      ((A))
+      ((B)))
+     ((position is F-1) ((B))
+      ((position is F) ((F))
+       ((position is FF-KKL-1) ((A))
+        ((position is FF-KKL) ((C))
+         ((position is FF-IT-1) ((B))
+          ((position is FF-IT) ((D))
+           ((ERROR)))))))))))
+
 (define (czech-int-select-contours utt)
   (let ((unit (utt.relation utt 'StressUnit))
         (m-count-odd nil))
     (while unit
       (let ((position (item.feat unit 'position)))
         ;; Determine appropriate contour type
-        ;; Contourtype set: A, B, C, D, F (F position), P (preelements)
-        (let ((contourtype (cond
-                            ((string-equal position "I")
-                             (if (eqv? (item.feat unit "preelement") 1)
-                                 'P 'B))
-                            ((string-equal position "M")
-                             (set! m-count (not m-count-odd))
-                             (if m-count-odd 'A 'B))
-                            ((string-equal position "F-1") 'B)
-                            ((string-equal position "F") 'F)
-                            ((string-equal position "FF-KKL-1") 'A)
-                            ((string-equal position "FF-KKL") 'C)
-                            ((string-equal position "FF-IT-1") 'B)
-                            ((string-equal position "FF-IT") 'D))))
+        (let ((contourtype (wagon_predict unit czech-int-contour-tree)))
           (item.set_feat unit "contourtype" contourtype)
           ;; Find particular contour
           (if (not (eq? contourtype 'P))
@@ -1185,6 +1216,9 @@
                           (set! contour (adjust-contour contour 0.02)))
                          ((string-equal position "FF-IT")
                           (set! contour (adjust-contour contour -0.02))))))
+                  ;; Set contour values for preelements
+                  (if (czech-item.feat? unit 'preelement 1)
+                      (set! contour (cons (- (car contour) 0.02) contour)))
                   ;; Finalize contours of long units
                   (let ((n (- nsyls 6)))
                     (if (>= n 0)
@@ -1201,13 +1235,6 @@
                             (set! contour (append (reverse prefix)
                                                   contour*))))))
                   (item.set_feat unit "contour" contour))))))
-      (set! unit (item.next unit)))
-    ;; Set contour values for preelements
-    (set! unit (utt.relation utt 'StressUnit))
-    (while unit
-      (if (czech-item.feat? unit "contourtype" 'P)
-          (item.set_feat unit "contour"
-                         (list (- (car (item.feat unit "n.contour")) 0.02))))
       (set! unit (item.next unit)))
     ;; Spread the contours on sylwords
     (set! unit (utt.relation utt 'StressUnit))
@@ -1462,7 +1489,7 @@
   ;; Segmentation
   (Param.set 'Word_Method 'czech-word)
   ;; Part of speech
-  (set! guess_pos czech-guess-pos)
+  (set! guess_pos czech-guess-pos)      ; not actually used
   (Param.set 'POS_Method czech-pos)
   ;; Simple phrase break prediction by punctuation
   (set! pos_supported nil)
