@@ -1,3 +1,7 @@
+2003-10-17  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (lex.add.entry): "shift" and "control" added.
+
 2003-10-01  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-phone-adjustment): Run only if the current
