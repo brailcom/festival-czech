@@ -711,20 +711,18 @@
           "skrze" "u" "ve" "vyjma" "za" "ze" "zpoza")
     (conj "a" "i" "ani" "nebo" "anebo")
     (particle "a»" "ké¾" "nech»")
-    (question "co" "copak" "èemu" "èemupak" "èí" "èípak" "kam" "kampak" "kde"
-              "kdepak" "kdo" "kdopak" "kdy" "kdypak" "koho" "kohopak" "kolik"
-              "kolikpak" "kolikátá" "kolikáté" "kolikátý" "komu" "komupak"
-              "kterak" "která" "které" "kterého" "kterému" "který" "kterýpak"
-              "kudy" "kudypak" "naè" "naèpak" "nakolik" "odkud" "pokolikáté"
-              "proè" "proèpak")
+    (question "co" "èemu" "èí" "jak" "jaká" "jaké" "jaký" "kam" "kde"
+              "kdo" "kdy" "koho" "kolik" "kolikátá" "kolikáté" "kolikátý"
+              "komu" "kterak" "která" "které" "kterého" "kterému" "který"
+              "kudy" "naè" "nakolik" "odkud" "pokolikáté" "proè")
     (misc "aby" "abych" "abys" "abychom" "abyste" "ale" "alespoò" "aneb" "ani"
           "ani¾" "an¾to" "aspoò" "av¹ak" "aè" "a¾" "aèkoli" "aèkoliv" "buï"
-          "buïto" "buïsi" "by" "by»" "by»si" "co" "coby" "èi" "èili" "div"
-          "dokdy" "dokonce" "dokud" "dotud" "jak" "jakby" "jakkoli" "jakkoliv"
-          "jakmile" "jako" "jakoby" "jako¾" "jako¾to" "jaký" "jednak" "jednou"
+          "buïto" "buïsi" "by" "by»" "by»si" "coby" "èi" "èili" "div"
+          "dokdy" "dokonce" "dokud" "dotud" "jakby" "jakkoli" "jakkoliv"
+          "jakmile" "jako" "jakoby" "jako¾" "jako¾to" "jednak" "jednou"
           "jeliko¾" "jen" "jenom" "jenom¾e" "jen¾e" "jestli" "jestli¾e" "je¹tì"
-          "je¾to" "jinak" "kam" "kde" "kde¾to" "kdo" "kdy" "kdybych" "kdybys"
-          "kdyby" "kdybychom" "kdybyste" "kdy¾" "kolik" "který" "kudy" "kvùli"
+          "je¾to" "jinak" "kde¾to" "kdybych" "kdybys"
+          "kdyby" "kdybychom" "kdybyste" "kdy¾" "kvùli"
           "leda" "leda¾e" "leè" "mezitímco" "mimoto" "naèe¾" "neb" "neboli"
           "nebo»" "nejen" "nejen¾e" "ne¾" "ne¾li" "neøkuli" "nicménì" "nýbr¾"
           "odkdy" "odkud" "pak" "pakli" "pakli¾e" "podle" "podmínky" "pokud"
@@ -776,7 +774,7 @@
 (define (czech-pos utt)
   (mapcar
    (lambda (w)
-     (let ((name (item.name w))
+     (let ((name (czech-downcase (item.name w)))
            (token (item.parent (item.relation w 'Token))))
        (cond
         ;; Feature already assigned
@@ -785,14 +783,14 @@
         ;; Word followed by a punctuation
         ((and (czech-item.has_feat token 'punctype)
               (string-matches name (string-append "^[^" czech-chars "0-9]+$")))
-         (item.set_feat w "pos" (item.feat token 'punctype)))
+         (item.set_feat w 'pos (item.feat token 'punctype)))
         ;; Punctuation
         ((member name '("\"" "'" "`" "-" "." "," ":" ";" "!" "?" "(" ")"))
-         (item.set_feat w "pos" "punc"))
+         (item.set_feat w 'pos 'punc))
         ;; Single letter, not in the role of a word
         ((and (eq? (string-length name) 1)
               (czech-pos-last-in-phrase? w))
-         (item.set_feat w "pos" "sym"))
+         (item.set_feat w 'pos 'sym))
         ;; Word "se", not in the role of a preposition
         ((and (string-equal name "se")  ; the word "se"
               (item.prev w)             ; not the first word
@@ -800,13 +798,17 @@
                   (czech-word-pos? (item.next w) '(prep0 prep))
                                         ; followed by a preposition
                   ))
-         (item.set_feat w "pos" "se"))
+         (item.set_feat w 'pos 'se))
+        ;; Question words with the `pak' suffix
+        ((and (string-matches name ".*pak")
+              (member (substring name 0 (- (length name) 3))
+                      (cdr (assoc 'question czech-guess-pos))))
+         (item.set_feat w 'pos 'question))
         ;; Nothing special: check the czech-guess-pos tree
         (t
-         (let ((pos-sets czech-guess-pos)
-               (word (czech-downcase (item.name w))))
+         (let ((pos-sets czech-guess-pos))
            (while pos-sets
-             (if (member word (cdar pos-sets))
+             (if (member name (cdar pos-sets))
                  (begin
                    (item.set_feat w 'pos (caar pos-sets))
                    (set! pos-sets nil))
@@ -1217,12 +1219,14 @@
     ((B 1) (-0.01 0.02) (-0.02 0.04) (-0.02 0.05))
     ((C 1) (-0.04 -0.10) (0.02 -0.16) (-0.02 -0.12) (-0.02 -0.14))
     ((D 1) (-0.14 0.16) (-0.14 0.20))
-    ((F 1) (0.02 -0.04) (0 0) (-0.02 0.04) (-0.02 0.05))
+    ((FA 1) (0.02 -0.04) (0 0))
+    ((FB 1) (-0.02 0.04) (-0.02 0.05))
     ((A 2) (0.02 -0.05) (0.04 -0.08) (-0.03 0))
     ((B 2) (-0.04 0.06) (-0.02 0.04) (-0.02 0.07))
     ((C 2) (0 -0.10) (-0.04 -0.10) (-0.02 -0.12) (0.02 -0.16))
     ((D 2) (-0.06 0.08) (-0.10 0.14))
-    ((F 2) (0.04 -0.08) (-0.03 0) (-0.02 0.04) (-0.02 0.07))
+    ((FA 2) (0.04 -0.08) (-0.03 0))
+    ((FB 2) (-0.02 0.04) (-0.02 0.07))
     ((A 3) (0.02 -0.02 -0.04) (0.02 -0.04 -0.02) (0.04 -0.04 -0.04)
            (0 0 -0.02) (0 -0.04 0) (-0.04 0.08 -0.10) (-0.04 0.04 -0.04)
            (-0.02 -0.01 0))
@@ -1232,16 +1236,16 @@
     ((C 3) (0 -0.05 -0.05) (-0.04 -0.02 -0.08) (-0.06 -0.04 -0.04)
            (-0.06 -0.10 -0.02))
     ((D 3) (-0.06 -0.01 0.09) (-0.06 0.08 -0.01))
-    ((F 3) (-0.04 0.04 -0.04) (-0.02 -0.01 0) (-0.06 0 0.06)
-           (-0.06 0.02 0.04) (-0.04 0.04 -0.04))
+    ((FA 3) (-0.04 0.08 -0.10) (-0.04 0.04 -0.04) (-0.02 -0.01 0))
+    ((FB 3) (-0.06 0 0.06) (-0.06 0.02 0.04) (-0.04 0.04 -0.04))
     ((A 4) (0 0 -0.02 -0.01) (-0.02 0 -0.03 0) (-0.03 0.03 -0.02 -0.01)
            (0 0 -0.01 0))
     ((B 4) (0 -0.03 0.01 0.02) (-0.02 0 0.02 0.02) (0 -0.03 0.03 0.02))
     ((C 4) (-0.04 -0.06 -0.02 -0.02) (-0.02 -0.02 -0.04 -0.06)
            (-0.02 -0.08 -0.04 -0.02))
     ((D 4) (-0.06 0 -0.01 0.12) (-0.06 0.12 0 -0.03))
-    ((F 4) (-0.03 0.03 -0.02 -0.01) (0 0 -0.01 0) (-0.02 0 0.02 0.02)
-           (0 -0.03 0.03 0.02))
+    ((FA 4) (-0.03 0.03 -0.02 -0.01) (0 0 -0.01 0))
+    ((FB 4) (-0.02 0 0.02 0.02) (0 -0.03 0.03 0.02))
     ((A 5) (-0.02 0.02 -0.02 -0.01 0) (-0.03 0.03 0 0 -0.03)
            (-0.02 0.02 0 0 -0.02))
     ((B 5) (0 -0.03 0.01 0.02 0.01) (0.01 -0.02 0 0 0.02)
@@ -1249,28 +1253,30 @@
     ((C 5) (-0.02 0 -0.02 -0.04 -0.06) (-0.02 -0.08 -0.02 -0.02 -0.02)
            (-0.02 -0.02 -0.08 -0.02 -0.02))
     ((D 5) (-0.06 0 -0.01 -0.01 0.13) (-0.06 0.13 0 -0.04 -0.04))
-    ((F 5) (-0.02 0.02 0 0 -0.02) (-0.02 0 0.02 0.02 0))
+    ((FA 5) (-0.02 0.02 0 0 -0.02))
+    ((FB 5)  (-0.02 0 0.02 0.02 0))
     ((A 6) (-0.02 0.02 -0.01 0 (0) -0.02 -0.01))
     ((B 6) (0 -0.01 0 0 (0) 0.01 0.01) (0 -0.02 0.01 0.01 (0) 0.01 0.02))
     ((C 6) (-0.02 0 -0.02 -0.04 -0.06 0 (0))
            (-0.02 -0.08 -0.02 -0.02 -0.02 (0))
            (-0.02 -0.02 -0.08 -0.02 -0.02 -0.02 (0)))
     ((D 6) (-0.06 0 -0.01 -0.01 0 (0) 0.13) (0.13 0 -0.02 0 (0) -0.04 -0.04))
-    ((F 6) (-0.02 0.02 -0.01 0 (0) -0.02 -0.01))
+    ((FA 6) (-0.02 0.02 -0.01 0 (0) -0.02 -0.01))
+    ((FB 6) (0 -0.02 0.01 0.01 (0) 0.01 0.02))
     ))
 
 (defvar czech-int-contour-tree
-  ;; Contourtype set: A, B, C, D, F (for F position)
+  ;; Contourtype set: A, B, C, D, FA and FB (for F and F-1 positions)
   '((position is I)
-    ((preelement is 1)
+    ((preelement > 0)
      ((B))
      ((A)))
     ((position is M)
-     ((p.countourtype is B)
+     ((p.contourtype is B)
       ((A))
       ((B)))
-     ((position is F-1) ((B))
-      ((position is F) ((F))
+     ((position is F-1) ((FB))
+      ((position is F) ((FA))
        ((position is FF-KKL-1) ((A))
         ((position is FF-KKL) ((C))
          ((position is FF-IT-1) ((B))
@@ -1279,50 +1285,53 @@
 
 (define (czech-int-select-contours utt)
   (let ((unit (utt.relation utt 'StressUnit))
-        (m-count-odd nil))
+        (last-contour nil))
     (while unit
       (let ((position (item.feat unit 'position)))
         ;; Determine appropriate contour type
         (let ((contourtype (wagon_predict unit czech-int-contour-tree)))
           (item.set_feat unit "contourtype" contourtype)
           ;; Find particular contour
-          (if (not (eq? contourtype 'P))
-              (let ((nsyls (czech-unit-syllable-count unit)))
-                (let ((contour (czech-random-choice
-                                (cdr (assoc (list contourtype
-                                                  (if (<= nsyls 6) nsyls 6))
-                                            czech-int-contours)))))
-                  ;; Adjust the first syllables of final contours
-                  (if (string-matches (item.feat unit "p.R:IntUnit.position")
-                                      ".*-1$")
-                      (let ((adjust-contour (lambda (c adj)
-                                              (cons (+ (car c) adj) (cdr c)))))
-                        (cond
-                         ((string-equal position "F")
-                          (set! contour (adjust-contour contour -0.02)))
-                         ((string-equal position "FF-KKL")
-                          (set! contour (adjust-contour contour 0.02)))
-                         ((string-equal position "FF-IT")
-                          (set! contour (adjust-contour contour -0.02))))))
-                  ;; Set contour values for preelements
-                  (if (czech-item.feat? unit 'preelement 1)
-                      (set! contour (cons (- (car contour) 0.02) contour)))
-                  ;; Finalize contours of long units
-                  (let ((n (- nsyls 6)))
-                    (if (>= n 0)
-                        (let ((prefix '())
-                              (contour* contour))
-                          (while (not (consp (car contour*)))
-                            (set! prefix (cons (car contour*) prefix))
-                            (set! contour* (cdr contour*)))
-                          (let ((val (caar contour*)))
-                            (set! contour* (cdr contour*))
-                            (while (> n 0)
-                              (set! contour* (cons val contour*))
-                              (set! n (- n 1)))
-                            (set! contour (append (reverse prefix)
-                                                  contour*))))))
-                  (item.set_feat unit "contour" contour))))))
+          (let ((nsyls (czech-unit-syllable-count unit)))
+            (let ((contour (czech-random-choice
+                            (cdr (assoc (list contourtype
+                                              (if (<= nsyls 6) nsyls 6))
+                                        czech-int-contours)))))
+              ;; Adjust the first syllables of final contours
+              (if (or (string-equal position "F")
+                      (string-matches position "FF.*[A-Z]"))
+                  (let ((adjust-contour
+                         (lambda (c adj)
+                           (if last-contour
+                               (cons (+ (car (last last-contour)) adj) (cdr c))
+                               c))))
+                    (cond
+                     ((string-equal position "F")
+                      (set! contour (adjust-contour contour -0.02)))
+                     ((string-equal position "FF-KKL")
+                      (set! contour (adjust-contour contour 0.02)))
+                     ((string-equal position "FF-IT")
+                      (set! contour (adjust-contour contour -0.02))))))
+              ;; Set contour values for preelements
+              (if (czech-item.feat? unit 'preelement 1)
+                  (set! contour (cons (- (car contour) 0.02) contour)))
+              ;; Finalize contours of long units
+              (let ((n (- nsyls 6)))
+                (if (>= n 0)
+                    (let ((prefix '())
+                          (contour* contour))
+                      (while (not (consp (car contour*)))
+                        (set! prefix (cons (car contour*) prefix))
+                        (set! contour* (cdr contour*)))
+                      (let ((val (caar contour*)))
+                        (set! contour* (cdr contour*))
+                        (while (> n 0)
+                          (set! contour* (cons val contour*))
+                          (set! n (- n 1)))
+                        (set! contour (append (reverse prefix)
+                                              contour*))))))
+              (set! last-contour contour)
+              (item.set_feat unit "contour" contour)))))
       (set! unit (item.next unit)))
     ;; Spread the contours on sylwords
     (set! unit (utt.relation utt 'StressUnit))

@@ -1,3 +1,26 @@
+2004-03-18  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int-select-contours): First syllable adjustment
+	of final contours fixed.
+
+2004-03-18  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int-contour-tree): New contourtypes FA and FB.
+	(czech-int-contours): Likewise; one missing FA/3 contour added.
+
+2004-03-18  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-int-select-contours): Redundant code removed.
+	(czech-int-contour-tree): Typo in M contour determination fixed;
+	test for preelement fixed.
+
+2004-03-18  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-guess-pos): "jak" and derivatives added to
+	`question'; "*pak" question words added; question words removed
+	from `misc'.
+	(czech-pos): Handle "*pak" question words; cosmetic changes.
+
 2004-03-17  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-identify-stress-units): Invalid counting in
