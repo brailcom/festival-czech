@@ -73,6 +73,7 @@
    )
   (
    (#   0 0 0 0 0 0 0 0 0)
+   (##  0 0 0 0 0 0 0 0 0)
    (a   + 1 3 - 0 0 0 0 0)
    (a:  + 2 3 - 0 0 0 0 0)
    (b   - 0 0 0 + - 0 1 l)
@@ -112,7 +113,7 @@
    (z~  - 0 0 0 + - - 3 s)
   )
 )
-(PhoneSet.silences '(#))
+(PhoneSet.silences '(# ##))
 
 ;;; Text to phones
 
@@ -673,6 +674,25 @@
 	  ((BB))
 	  ((NB))))))
 
+;;; Pauses
+
+(define (czech-pause_method utt)
+  (Classic_Pauses utt)
+  (let ((silence (list '##)))
+    (mapcar (lambda (w)
+              (let ((syl (item.relation.daughter1 w 'SylStructure)))
+                (let ((seg (and syl
+                                (item.relation.daughter1 syl 'SylStructure))))
+                  (if (and seg
+                           (string-matches (item.name seg) "[aeiou]:?")
+                           (or (not (item.relation.prev seg 'Segment))
+                               (not (equal? (item.name (item.relation.prev
+                                                        seg 'Segment))
+                                            "#"))))
+                      (item.relation.insert seg 'Segment silence 'before)))))
+            (utt.relation.items utt 'Word)))
+  utt)
+
 ;;; Intonation
 
 (set! czech-accent_cart_tree
@@ -689,6 +709,7 @@
 (set! czech-phoneme_durations
       '(
 	(# 0.25)
+        (## 0.05)
 	(a 0.05)
 	(a: 0.125)
 	(b 0.0752)
@@ -732,13 +753,18 @@
 
 (define (czech-phone-adjustment utt)
   (if (eq? (Parameter.get 'Language) 'czech)
-      (let ((table (czech-parameter 'phoneset-translation)))
-        (if table
-            (mapcar (lambda (item)
-                      (let ((tr (assoc (item.name item) table)))
-                        (if tr
-                            (item.set_name item (cadr tr)))))
-                    (utt.relation.items utt 'Segment))))))
+      (begin
+        (mapcar (lambda (item)
+                  (if (equal? (item.name item) "##")
+                      (item.set_name item "#")))
+                (utt.relation.items utt 'Segment))
+        (let ((table (czech-parameter 'phoneset-translation)))
+          (if table
+              (mapcar (lambda (item)
+                        (let ((tr (assoc (item.name item) table)))
+                          (if tr
+                              (item.set_name item (cadr tr)))))
+                      (utt.relation.items utt 'Segment)))))))
 
 ;; Finally, the language definition itself
 
@@ -763,6 +789,8 @@
   (set! pos_supported nil)
   (set! phrase_cart_tree czech-phrase_cart_tree)
   (Parameter.set 'Phrase_Method 'cart_tree)
+  ;; Pauses
+  (Parameter.set 'Pause_Method czech-pause_method)
   ;; Accent prediction and intonation
   (set! int_accent_cart_tree czech-accent_cart_tree)
   (Parameter.set 'Int_Method Intonation_Tree)
