@@ -1,3 +1,11 @@
+2004-03-11  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech-lexicon.scm (lex.add.entry): Pronounciation of angle
+	brackets unified with czech-multiword-abbrevs.
+
+	* czech.scm (czech-token_to_words): Look into lexicon only after
+	punctuation is processed; handle punctuation-only tokens.
+
 2004-03-10  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-token_to_words): Assign `sym' pos to single

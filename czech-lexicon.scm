@@ -113,12 +113,14 @@
 (lex.add.entry '("\"" punc ()))
 (lex.add.entry '("("  punc ()))
 (lex.add.entry '(")"  punc ()))
+;; These are multiword entries, but there's not another easy way to handle the
+;; punctuation
 (lex.add.entry '("["  punc (((l e v a:) 0) ((h r a n a t a:) 0))))
 (lex.add.entry '("]"  punc (((p r a v a:) 0) ((h r a n a t a:) 0))))
 (lex.add.entry '("{"  punc (((l e v a:) 0) ((s l o z~ e n a:) 0))))
 (lex.add.entry '("}"  punc (((p r a v a:) 0) ((s l o z~ e n a:) 0))))
-(lex.add.entry '("<"  punc (((l e v a:) 0) ((l o m e n a:) 0))))
-(lex.add.entry '(">"  punc (((p r a v a:) 0) ((l o m e n a:) 0))))
+(lex.add.entry '("<"  punc (((m e n s~ i:) 0) ((n e z~) 0))))
+(lex.add.entry '(">"  punc (((v j e t s~ i:) 0) ((n e z~) 0))))
 
 (lex.add.entry '("."  nil (((t e c~ k a) 0))))
 (lex.add.entry '(":"  nil (((d v o j t e c~ k a) 0))))

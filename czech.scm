@@ -633,9 +633,6 @@
     (append (czech-number (string-before name ":"))
             '("ku")
             (czech-number (string-after name ":"))))
-   ;; Lexicon words
-   ((lex.lookup_all name)
-    (list name))
    ;; Numeric ranges (might be minus as well, but that's rare)
    ((string-matches name "[0-9]+[.,]*[0-9]*-[0-9]+[.,]*[0-9]*$")
     ;; we don't include signs here not to break phone numbers and such a
@@ -650,9 +647,22 @@
    ((string-matches name (string-append "^" czech-char-regexp "+$"))
     (list name))
    ((string-matches name (string-append "^[^" czech-chars "0-9]+$"))
-    (if (> (length name) 10)
-        (list czech-token.garbage_word_name)
-        (symbolexplode name)))
+    (cond
+     ((> (length name) 10)
+      (list czech-token.garbage_word_name))
+     ((and (eqv? (length name) 1)
+           (string-equal (item.name token) name)
+           (or (not (string-matches (item.feat token 'prepunctuation) "0?"))
+               (not (string-matches (item.feat token 'punctuation) "0?"))))
+      ;; This handles the case when the whole token consists of two or more
+      ;; punctuation characters.  In such a case Festival picks one of the
+      ;; characters as the name, while the other characters are treated as
+      ;; punctuation.  We want all the character being handled as punctuation.
+      `(((name ,name) (pos punc))))
+     ((assoc_string name czech-multiword-abbrevs)
+      (cadr (assoc_string name czech-multiword-abbrevs)))
+     (t
+      (symbolexplode name))))
    ;; Hyphens
    ((string-matches name (string-append "^" czech-char-regexp "+-$"))
     (czech-token_to_words token (string-before name "-")))
@@ -662,6 +672,9 @@
      (czech-token_to_words token (string-before name "-"))
      '(((name "-") (pos punc)))       ; necessary for punctuation reading modes
      (czech-token_to_words token (string-after name "-"))))
+   ;; Lexicon words
+   ((lex.lookup_all name)
+    (list name))
    ;; TODO: roman numerals
    ;; Heterogenous tokens -- mixed alpha, numeric and non-alphanumeric
    ;; characters
