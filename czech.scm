@@ -1422,7 +1422,6 @@
                                czech-duration-random-factor))))))
       (set! word (item.next word))))
   ;; Set general duration factors
-  (set! u utt)
   (let ((sunit (utt.relation.first utt 'StressUnit)))
     (while sunit
       (let ((nsyls (czech-unit-syllable-count sunit)))
