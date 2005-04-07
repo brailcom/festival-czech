@@ -39,6 +39,11 @@ dosáhnout pomìrnì slu¹ného výsledku, na druhou stranu v¹ak mù¾e zajít na úbytì.
 Proto je vítána ka¾dá pomoc -- jazykovìdná, programátorská, finanèní nebo
 jakákoliv jiná.
 
+Projekt èeské festivalové syntézy je realizován spoleèností Brailcom, o.p.s.
+Finanènì na nìj pøispìl Nadaèní fond Èeského rozhlasu.  Odbornou pomoc poskytl
+Fonetický ústav Filozofické fakulty Univerzity Karlovy v èele
+s prof. PhDr. Zdenou Palkovou, CSc.
+
 S pøípadnými dotazy, námìty a pomocí se lze obracet na moji e-mailovou adresu.
 
 -- Milan Zamazal <pdm@freebsoft.org>
