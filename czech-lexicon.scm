@@ -177,7 +177,7 @@
 ("emacsovýma" nil (((i: m e k s o v i: m a) 0)))
 ("emacsovými" nil (((i: m e k s o v i: m i) 0)))
 ("escape" nil (((i s k e j p) 0)))
-("foundation" nil (((f au n d e j s~ n) 0)))
+("foundation" nil (((f a u n d e j s~ n) 0)))
 ("freeware" nil (((f r i: v e: r e) 0)))
 ("freewarech" nil (((f r i: v e: r e ch) 0)))
 ("freewarem" nil (((f r i: v e: r e m) 0)))
