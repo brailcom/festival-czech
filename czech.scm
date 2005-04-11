@@ -890,7 +890,9 @@
      (czech-token-to-words token (string-after (substring name 1 1000) "-"))))
    ;; Homogenous tokens
    ((string-matches name (string-append "^" czech-char-regexp "+$"))
-    (list name))
+    (if (string-equal name "ø")         ; Festival bug workaround
+        (list "eø")
+        (list name)))
    ((string-matches name (string-append "^[^" czech-chars "0-9]+$"))
     (cond
      ((> (length name) 10)
