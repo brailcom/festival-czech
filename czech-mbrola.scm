@@ -139,7 +139,7 @@
 (defvar czech-mbrola_database nil)
 
 (czech-proclaim-voice
- mbrola_cz2
+ (mbrola_cz2 (gender male))
  "Czech voice provided by the Mbrola cz2 database."
  (set! czech-phoneset-translation* czech-mbrola-translations)
  (set! czech-phoneme-durations* czech-mbrola-phoneme-durations)
