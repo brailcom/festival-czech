@@ -108,57 +108,59 @@
    (vc + - 0)
    ;; vowel length: short long
    (vlng s l 0)
-   ;; consonant type: nasal, sonorant, stop, affricate, fricative
-   (ctype n l s a f 0)
-   ;; consonant voicing: yes no
-   (cvox + - 0)
+   ;; consonant voicing: yes no nasal
+   (cvox + - n 0)
    ;; can create a syllable: yes no
    (syl + - 0)
+   ;; can make previous consonant nasal: yes no
+   (postnas + - 0)
+   ;; voiced/unvoiced counterpart: phone
+   (partner b c c~ ch d d~ dz dz~ f g h k p s s~ t t~ v z z~ 0)
    )
   (
-   ;;   c l t v s
-   (#   0 0 0 0 0)                      ; pause
-   (_   0 0 0 0 -)                      ; vowel-vowel stroke
-   (a   + s 0 0 +)
-   (a:  + l 0 0 +)
-   (b   - 0 s + -)
-   (c   - 0 a - -)
-   (ch  - 0 f - -)
-   (ch* - 0 f - -)                      ; similar to h, before voiced cons.
-   (c~  - 0 a - -)
-   (d   - 0 s + -)
-   (d~  - 0 s + -)
-   (dz  - 0 a + -)
-   (dz~ - 0 a + -)
-   (e   + s 0 0 +)
-   (e:  + l 0 0 +)
-   (f   - 0 f - -)
-   (g   - 0 s + -)
-   (h   - 0 f + -)
-   (i   + s 0 0 +)
-   (i:  + l 0 0 +)
-   (j   - 0 l 0 -)
-   (k   - 0 s - -)
-   (l   - 0 l 0 +)
-   (m   - 0 n + -)
-   (n   - 0 n + -)
-   (n*  - 0 n + -)                      ; n before k or g
-   (n~  - 0 n + -)
-   (o   + s 0 0 +)
-   (o:  + l 0 0 +)
-   (p   - 0 s - -)
-   (r   - 0 l 0 +)
-   (r~  - 0 f + -)
-   (r~* - 0 f - -)                      ; neighbor of an unvoiced consonant
-   (s   - 0 f - -)
-   (s~  - 0 f - -)
-   (t   - 0 s - -)
-   (t~  - 0 s - -)
-   (u   + s 0 0 +)
-   (u:  + l 0 0 +)
-   (v   - 0 f + -)
-   (z   - 0 f + -)
-   (z~  - 0 f + -)
+   ;;   c l v s n p
+   (#   0 0 0 0 0 0)                    ; pause
+   (_   0 0 0 - 0 0)                    ; vowel-vowel stroke
+   (a   + s 0 + - 0)
+   (a:  + l 0 + - 0)
+   (b   - 0 + - - p)
+   (c   - 0 - - - d)
+   (c~  - 0 - - - dz~)
+   (ch  - 0 - - - 0)
+   (ch* - 0 + - - 0)                    ; similar to h, before voiced cons.
+   (d   - 0 + - - t)
+   (d~  - 0 + - - t~)
+   (dz  - 0 + - - c)
+   (dz~ - 0 + - - c~)
+   (e   + s 0 + - 0)
+   (e:  + l 0 + - 0)
+   (f   - 0 - - - v)
+   (g   - 0 + - + k)
+   (h   - 0 + - - ch)
+   (i   + s 0 + - 0)
+   (i:  + l 0 + - 0)
+   (j   - 0 0 - - 0)
+   (k   - 0 - - + g)
+   (l   - 0 0 + - 0)
+   (m   - 0 n - - 0)
+   (n   - 0 n - - 0)
+   (n*  - 0 n - - 0)                    ; n before k or g
+   (n~  - 0 n - - 0)
+   (o   + s 0 + - 0)
+   (o:  + l 0 + - 0)
+   (p   - 0 - - - b)
+   (r   - 0 0 + - 0)
+   (r~  - 0 + - - 0)
+   (r~* - 0 - - - 0)                    ; neighbor of an unvoiced consonant
+   (s   - 0 - - - z)
+   (s~  - 0 - - - z~)
+   (t   - 0 - - - d)
+   (t~  - 0 - - - d~)
+   (u   + s 0 + - 0)
+   (u:  + l 0 + - 0)
+   (v   - 0 + - - f)
+   (z   - 0 + - - s)
+   (z~  - 0 + - - s~)
   )
 )
 (PhoneSet.silences '(#))
@@ -426,95 +428,6 @@
   ( [ ¾ ] = z~ )
   ))
 
-(lts.ruleset
- czech-diphones
- ;; adjusts the phonetic form, maps non-existent diphones to existent ones
- ;; This rule set must be applied repeatedly until no change occurs.
- (
-  (GK g k)
-  (Voiced-Cons--V b d d~ dz dz~ g h r~ z z~)
-  (Voiced-Cons b ch* d d~ dz dz~ g h r~ v z z~)
-  (Non-Voiced-Cons c c~ ch f k p r~* s s~ t t~)
-  (Non-Voiced-Cons+# c c~ ch f k p r~* s s~ t t~ # _)
-  (Pre-Nasal-Phoneme a a: e e: i i: l o o: r u u:)
-  (#_ # _)
-  )
- (
-  ;; n*
-  ( Pre-Nasal-Phoneme [ n ] GK = n* )
-  ;; ch*
-  ( [ ch ] Voiced-Cons = ch* )
-  ( [ ch* ] Voiced-Cons = ch* )
-  ( [ ch* ] = ch )
-  ;; r~*
-  ( [ r~ ] Non-Voiced-Cons+# = r~* )
-  ( ch [ r~ ] = r~ )
-  ( Non-Voiced-Cons [ r~ ] = r~* )
-  ;; voiced consonant -> unvoiced consonant
-  ( [ b ] Non-Voiced-Cons+# = p )
-  ( [ d ] Non-Voiced-Cons+# = t )
-  ( [ d~ ] Non-Voiced-Cons+# = t~ )
-  ( [ dz ] Non-Voiced-Cons+# = c )
-  ( [ dz~ ] Non-Voiced-Cons+# = c~ )
-  ( [ g ] Non-Voiced-Cons+# = k )
-  ( [ h ] Non-Voiced-Cons+# = ch )
-  ( [ v ] Non-Voiced-Cons+# = f )
-  ( [ z ] Non-Voiced-Cons+# = s )
-  ( [ z~ ] Non-Voiced-Cons+# = s~ )
-  ;; unvoiced consonant -> voiced consonant
-  ( [ c ] Voiced-Cons--V = dz )
-  ( [ c~ ] Voiced-Cons--V = dz~ )
-  ( [ f ] Voiced-Cons--V = v )
-  ( [ k ] Voiced-Cons--V = g )
-  ( [ p ] Voiced-Cons--V = b )
-  ( [ s ] Voiced-Cons--V = s )
-  ( [ s~ ] Voiced-Cons--V = s~ )
-  ( [ t ] Voiced-Cons--V = t )
-  ( [ t~ ] Voiced-Cons--V = t~ )
-  ;; if no special rule applies, rewrite to itself
-  ( [ # ] = # )
-  ( [ _ ] = _ )
-  ( [ a ] = a )
-  ( [ a: ] = a: )
-  ( [ b ] = b )
-  ( [ c ] = c )
-  ( [ c~ ] = c~ )
-  ( [ ch ] = ch )
-  ( [ ch* ] = ch* )
-  ( [ d ] = d )
-  ( [ d~ ] = d~ )
-  ( [ dz ] = dz )
-  ( [ dz~ ] = dz~ )
-  ( [ e ] = e )
-  ( [ e: ] = e: )
-  ( [ f ] = f )
-  ( [ g ] = g )
-  ( [ h ] = h )
-  ( [ i ] = i )
-  ( [ i: ] = i: )
-  ( [ j ] = j )
-  ( [ k ] = k )
-  ( [ l ] = l )
-  ( [ m ] = m )
-  ( [ n ] = n )
-  ( [ n* ] = n* )
-  ( [ n~ ] = n~ )
-  ( [ o ] = o )
-  ( [ o: ] = o: )
-  ( [ p ] = p )
-  ( [ r ] = r )
-  ( [ r~ ] = r~ )
-  ( [ r~* ] = r~* )
-  ( [ s ] = s )
-  ( [ s~ ] = s~ )
-  ( [ t ] = t )
-  ( [ t~ ] = t~ )
-  ( [ u ] = u )
-  ( [ u: ] = u: )
-  ( [ v ] = v )
-  ( [ z ] = z )
-  ( [ z~ ] = z~ )
-  ))
 
 ;; -- missing diphones: n-f n-g n-k #-ch*
 ;; -- special diphones: a-a: a-e: a-o: a-u: a:-a a:-a: a:-e a:-e: a:-o a:-o:
@@ -534,10 +447,6 @@
                          'czech-normalize)
                         'czech-orthography))
         phonetic-form*)
-    (while (not (equal? (set! phonetic-form*
-                              (lts.apply phonetic-form 'czech-diphones))
-                        phonetic-form))
-      (set! phonetic-form phonetic-form*))
     phonetic-form))
 
 (define (czech-syllabify-phstress phones)
@@ -1206,6 +1115,56 @@
 
 ;;; Segmentation
 
+(define (czech-adjust-segments segments)
+  (if (not (null? segments))
+      (let ((item1 (nth 0 segments))
+            (item2 (nth 1 segments))
+            (item3 (nth 2 segments)))
+        (let ((name1 (and item1 (item.name item1)))
+              (name2 (and item2 (item.name item2)))
+              (name3 (and item3 (item.name item3))))
+          ;; nasals
+          (if (and (string-equal name2 "n")
+                   (czech-item.feat? item1 "ph_syl" '+)
+                   (czech-item.feat? item3 "ph_postnas" '+))
+              (item.set_name item2 "n*"))
+          ;; ch
+          (if (or (string-equal name1 "ch")
+                  (string-equal name1 "ch*"))
+              (item.set_name item1 (if (czech-item.feat? item2 "ph_cvox" '+)
+                                       "ch*"
+                                       "ch")))
+          ;; r~
+          (if (and (string-equal name1 "r~")
+                   (or (not item2)
+                       (czech-item.feat? item2 "ph_cvox" '+)))
+              (item.set_name item1 "r~*"))
+          (if (and (string-equal name2 "r~")
+                   (czech-item.feat? item1 "ph_cvox" '-))
+              (item.set_name item2 "r~*"))
+          ;; voiced-unvoiced
+          (if (and (czech-item.feat? item1 "ph_cvox" '+)
+                   (not (czech-item.feat? item1 "ph_partner" 0))
+                   (or (not item2)
+                       (czech-item.feat? item2 "ph_cvox" '-)))
+              (item.set_name item1 (item.feat item1 "ph_partner")))
+          ;; unvoiced-voiced
+          (if (and (czech-item.feat? item1 "ph_cvox" '-)
+                   (not (czech-item.feat? item1 "ph_partner" 0))
+                   (czech-item.feat? item2 "ph_cvox" '+))
+              (item.set_name item1 (item.feat item1 "ph_partner"))))
+        (czech-adjust-segments (cdr segments)))))
+
+(define (czech-adjust-phonetic-form utt)
+  (let ((items (utt.relation.items utt 'Segment)))
+    (let ((names (mapcar item.name items))
+          (old-names '()))
+      (while (not (equal? old-names names))
+        (czech-adjust-segments items)
+        (set! old-names names)
+        (set! names (mapcar item.name (utt.relation.items utt 'Segment))))))
+  utt)
+
 (define (czech-intonation-units utt)
   ;; Mark syllables before phrase breaks
   (let ((token (utt.relation utt 'Token)))
@@ -1522,6 +1481,7 @@
 
 (define (czech-word utt)
   (Classic_Word utt)
+  (czech-adjust-phonetic-form utt)
   (czech-intonation-units utt)
   (czech-stress-units utt)
   (czech-adjust-phrase-breaks utt)
