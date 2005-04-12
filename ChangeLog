@@ -1,3 +1,36 @@
+2005-04-11  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech-lexicon.scm: Another diphtong removed.
+
+2005-04-11  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech-mbrola.scm (mbrola_cz2): Set the `gender' voice property.
+    
+2005-04-11  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-token-to-words): Handle r-caron in a special way, to
+	work around a Festival bug.
+    
+2005-04-07  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm: Phoneme durations changed, taken from voice-czech-ph.
+
+2005-04-07  Milan Zamazal  <pdm@brailcom.org>
+
+	* README.cs: Some credits added.
+
+2005-04-06  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-diphones): r~+# -> r~*+#.
+
+2005-04-06  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech-lexicon.scm: Don't use the `ou' phone.
+
+2005-03-14  Milan Zamazal  <pdm@brailcom.org>
+
+        * New diphone set.
+
 2005-02-17  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (czech-next-punc, czech-prev-punc): Ensure that nil is
