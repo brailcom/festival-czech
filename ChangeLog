@@ -1,3 +1,7 @@
+2005-04-12  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-orthography): Handle Y in a similar way as I.
+
 2005-04-11  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech-lexicon.scm: Another diphtong removed.
