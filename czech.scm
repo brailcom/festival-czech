@@ -361,7 +361,7 @@
   ;; `i' handling
   ( # m e z [ i ] Vowel = i _ )
   ( #_ [ IY ] #_ = i )
-  ( Vowel+# [ IY ] Vowel+# = z )
+  ( Vowel+# [ IY ] Vowel+# = j )
   ( Vowel [ ÍÝ ] Vowel = j i: j )
   ( [ IY ] Vowel = i j )
   ( [ ÍÝ ] Vowel = i: j )
