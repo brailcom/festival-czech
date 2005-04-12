@@ -1,5 +1,13 @@
 2005-04-12  Milan Zamazal  <pdm@brailcom.org>
 
+	* czech.scm (czech-adjust-segments): Don't modify unvoiced-voiced
+	if the voiced consonant is V; test for pauses properly.
+	(czech-orthography): Missing declarations of #_ and Vowel+# added.
+	(czech-word): Don't call check-adjust-phonetic-form.
+	(czech-pause): Call check-adjust-phonetic-form.
+
+2005-04-12  Milan Zamazal  <pdm@brailcom.org>
+
 	* czech.scm (czech-diphones): Removed.
 	(czech-basic-lts): Don't apply czech-diphones rule set.
 	(czech-adjust-phonetic-form): New function.

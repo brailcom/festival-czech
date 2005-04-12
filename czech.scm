@@ -286,7 +286,9 @@
   (ÌI ì i í)
   (IY i y)
   (ÍÝ í ý)
+  (#_ # _)
   (Vowel a á e é ì i í o ó u ú ù y ý)
+  (Vowel+# a á e é ì i í o ó u ú ù y ý #)
   (SZ s z))
  (
   ;; Special rules
@@ -359,7 +361,7 @@
   ;; `i' handling
   ( # m e z [ i ] Vowel = i _ )
   ( #_ [ IY ] #_ = i )
-  ( Vowel+# [ IY ] Vowel+# = j )
+  ( Vowel+# [ IY ] Vowel+# = z )
   ( Vowel [ ÍÝ ] Vowel = j i: j )
   ( [ IY ] Vowel = i j )
   ( [ ÍÝ ] Vowel = i: j )
@@ -1137,6 +1139,7 @@
           ;; r~
           (if (and (string-equal name1 "r~")
                    (or (not item2)
+                       (string-equal item2 "#")
                        (czech-item.feat? item2 "ph_cvox" '+)))
               (item.set_name item1 "r~*"))
           (if (and (string-equal name2 "r~")
@@ -1146,12 +1149,14 @@
           (if (and (czech-item.feat? item1 "ph_cvox" '+)
                    (not (czech-item.feat? item1 "ph_partner" 0))
                    (or (not item2)
+                       (string-equal name2 "#")
                        (czech-item.feat? item2 "ph_cvox" '-)))
               (item.set_name item1 (item.feat item1 "ph_partner")))
           ;; unvoiced-voiced
           (if (and (czech-item.feat? item1 "ph_cvox" '-)
                    (not (czech-item.feat? item1 "ph_partner" 0))
-                   (czech-item.feat? item2 "ph_cvox" '+))
+                   (czech-item.feat? item2 "ph_cvox" '+)
+                   (not (string-equal name2 "v")))
               (item.set_name item1 (item.feat item1 "ph_partner"))))
         (czech-adjust-segments (cdr segments)))))
 
@@ -1481,7 +1486,6 @@
 
 (define (czech-word utt)
   (Classic_Word utt)
-  (czech-adjust-phonetic-form utt)
   (czech-intonation-units utt)
   (czech-stress-units utt)
   (czech-adjust-phrase-breaks utt)
@@ -1521,6 +1525,7 @@
 
 (define (czech-pause utt)
   (czech-pause-breaks utt)
+  (czech-adjust-phonetic-form utt)
   (czech-add-strokes utt)
   utt)
 
