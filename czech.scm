@@ -124,10 +124,10 @@
    (a   + s 0 + - 0)
    (a:  + l 0 + - 0)
    (b   - 0 + - - p)
-   (c   - 0 - - - d)
+   (c   - 0 - - - dz)
    (c~  - 0 - - - dz~)
    (ch  - 0 - - - 0)
-   (ch* - 0 + - - 0)                    ; similar to h, before voiced cons.
+   (ch* - 0 - - - 0)                    ; similar to h, before voiced cons.
    (d   - 0 + - - t)
    (d~  - 0 + - - t~)
    (dz  - 0 + - - c)
@@ -1139,7 +1139,7 @@
           ;; r~
           (if (and (string-equal name1 "r~")
                    (or (not item2)
-                       (string-equal item2 "#")
+                       (string-equal name2 "#")
                        (czech-item.feat? item2 "ph_cvox" '+)))
               (item.set_name item1 "r~*"))
           (if (and (string-equal name2 "r~")
