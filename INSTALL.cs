@@ -17,13 +17,14 @@ Jak se balík pou¾ívá:
 
     (set! load-path (cons ".../festival-czech" load-path))
     (require 'czech)
-    
-- Balík je momentálnì pou¾itelný pouze se syntetizérem Mbrola.  Není to stav,
-  se kterým bychom byli spokojeni, a proto pracujeme na jeho nápravì.
-  S ohledem na na¹e omezené zdroje v¹ak zatím není databáze difonù pro
-  festivalový syntetizér k dispozici.
 
-  Chcete-li èe¹tinu pou¾ívat se syntézou systému Mbrola, musíte:
+- Chcete-li podpoøit vznik kvalitního svobodného èeského hlasu, vyzkou¹ejte
+  hlas voice-czech-ph dostupný
+  z http://www.freebsoft.org/festival-czech-diphone-database.
+    
+- Proto¾e hlas voice-czech-ph je¹tì není hotový, je podporována i syntéza
+  prostøednictvím proprietárního syntetizéru Mbrola.  Chcete-li jej pou¾ívat,
+  musíte:
 
   * Nastavit promìnnou czech-mbrola_database:
 

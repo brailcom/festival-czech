@@ -20,7 +20,8 @@ festival-czech øe¹í dvì úlohy:
 1. Pøevod textu do fonetického popisu, nezávislý na modulu provádìjícím
    koneènou syntézu zvuku.
 
-2. Difonovou databázi pro festivalový syntetizér.
+2. Difonovou databázi pro festivalový syntetizér.  Tato èást se nachází
+   samostatnì v podprojektu voice-czech-ph.
 
 Struèný návod k pou¾ití naleznete v souboru INSTALL.cs.
 
@@ -30,10 +31,17 @@ distribuované na ftp://ftp.vslib.cz/pub/unix/ispell/czech pod GPL (díky Petru
 Koláøovi za tuto úctyhodnou aktivitu!).  Ze stejného zdroje byl pøevzat soubor
 `munch'.
 
-Momentální stav festival-czech je experimentální.  Pøevod textu do fonetického
-popisu má zatím vytvoøeny pouze technické základy a musí být naplnìn jazykovými
-pravidly a odladìn.  V oblasti difonové databáze se pracuje na postupech
-zpracování namluvených vzorkù, hotová databáze zatím není k dispozici.
+festival-czech je nyní ve stavu rozpracovanosti.  Máme funkèní jazykový modul
+pro èe¹tinu a funkèní èeský difonový hlas.  Jazykový modul se skládá z nìkolika
+èástí: fonémová a difonová sada (z vìt¹í èásti hotovo), základní pravidla pro
+pøevod psaného textu do hláskové podoby (ta musí být je¹tì doplnìna a ladìna),
+výslovnostní slovník (jeho obsah je zatím zcela minimální, je v¹ak definován
+framework pro jeho tvorbu), minimální jazyková analýza (¹iroké pole pro budoucí
+vylep¹ování interpretace psaného textu), prozodická pravidla (ta jsou víceménì
+kompletní, ale mohou v nich být je¹tì chyby).  Difonový hlas, vytvoøený v rámci
+podprojektu voice-czech-ph, je nyní v provozuschopném stavu, ale zatím
+neprobìhlo ladìní kvality jeho výstupu.
+
 Výsledek projektu závisí na dostupných zdrojích, na jednu stranu má potenciál
 dosáhnout pomìrnì slu¹ného výsledku, na druhou stranu v¹ak mù¾e zajít na úbytì.
 Proto je vítána ka¾dá pomoc -- jazykovìdná, programátorská, finanèní nebo
@@ -44,6 +52,7 @@ Finanènì na nìj pøispìl Nadaèní fond Èeského rozhlasu.  Odbornou pomoc poskytl
 Fonetický ústav Filozofické fakulty Univerzity Karlovy v èele
 s prof. PhDr. Zdenou Palkovou, CSc.
 
-S pøípadnými dotazy, námìty a pomocí se lze obracet na moji e-mailovou adresu.
+S pøípadnými dotazy, námìty a nabídkami pomoci se lze obracet na moji
+e-mailovou adresu.
 
 -- Milan Zamazal <pdm@freebsoft.org>
