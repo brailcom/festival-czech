@@ -47,6 +47,8 @@
 
 (defvar czech-rand-range nil)
 
+(defvar czech-moravian t)
+
 (defvar czech-insert-filling-vowels t)
 
 (define (czech-rand)
@@ -108,14 +110,14 @@
    (vc + - 0)
    ;; vowel length: short long
    (vlng s l 0)
-   ;; consonant voicing: yes no nasal
-   (cvox + - n 0)
+   ;; consonant voicing: yes no unique
+   (cvox + - u 0)
    ;; can create a syllable: yes no
    (syl + - 0)
    ;; can make previous consonant nasal: yes no
    (postnas + - 0)
    ;; voiced/unvoiced counterpart: phone
-   (partner b c c~ ch d d~ dz dz~ f g h k p s s~ t t~ v z z~ 0)
+   (partner b c c~ ch d d~ dz dz~ f g h k p r~* s s~ t t~ v z z~ 0)
    )
   (
    ;;   c l v s n p
@@ -127,7 +129,6 @@
    (c   - 0 - - - dz)
    (c~  - 0 - - - dz~)
    (ch  - 0 - - - 0)
-   (ch* - 0 - - - 0)                    ; similar to h, before voiced cons.
    (d   - 0 + - - t)
    (d~  - 0 + - - t~)
    (dz  - 0 + - - c)
@@ -139,19 +140,19 @@
    (h   - 0 + - - ch)
    (i   + s 0 + - 0)
    (i:  + l 0 + - 0)
-   (j   - 0 0 - - 0)
+   (j   - 0 u - - 0)
    (k   - 0 - - + g)
-   (l   - 0 0 + - 0)
-   (m   - 0 n - - 0)
-   (n   - 0 n - - 0)
-   (n*  - 0 n - - 0)                    ; n before k or g
-   (n~  - 0 n - - 0)
+   (l   - 0 u + - 0)
+   (m   - 0 u - - 0)
+   (n   - 0 u - - 0)
+   (n*  - 0 u - - 0)                    ; n before k or g
+   (n~  - 0 u - - 0)
    (o   + s 0 + - 0)
    (o:  + l 0 + - 0)
    (p   - 0 - - - b)
-   (r   - 0 0 + - 0)
-   (r~  - 0 + - - 0)
-   (r~* - 0 - - - 0)                    ; neighbor of an unvoiced consonant
+   (r   - 0 u + - 0)
+   (r~  - 0 + - - r~*)                  ; (default) voiced r~, may change to r~*
+   (r~* - 0 - - - 0)                    ; unvoiced r~, can't change back to r~
    (s   - 0 - - - z)
    (s~  - 0 - - - z~)
    (t   - 0 - - - d)
@@ -165,8 +166,7 @@
 )
 (PhoneSet.silences '(#))
 
-(defvar czech-phoneset-translation
-  '(("_" "#")))
+(defvar czech-phoneset-translation '())
 (defvar czech-phoneset-translation* nil)
 
 ;;; Text to phones
@@ -431,7 +431,7 @@
   ))
 
 
-;; -- missing diphones: n-f n-g n-k #-ch*
+;; -- missing diphones: n-f n-g n-k
 ;; -- special diphones: a-a: a-e: a-o: a-u: a:-a a:-a: a:-e a:-e: a:-o a:-o:
 ;;                      a:-u a:-u: e-a: e-e: e-o: e-u: e:-a e:-a: atd.
 ;;;;
@@ -1121,42 +1121,55 @@
   (if (not (null? segments))
       (let ((item1 (nth 0 segments))
             (item2 (nth 1 segments))
-            (item3 (nth 2 segments)))
+            (item3 (nth 2 segments))
+            (item-word (lambda (i)
+                         (item.parent
+                          (item.parent
+                           (item.relation i 'SylStructure))))))
         (let ((name1 (and item1 (item.name item1)))
               (name2 (and item2 (item.name item2)))
-              (name3 (and item3 (item.name item3))))
+              (name3 (and item3 (item.name item3)))
+              (same-word? (lambda (i1 i2)
+                            (equal? (item-word i1) (item-word i2)))))
           ;; nasals
-          (if (and (string-equal name2 "n")
-                   (czech-item.feat? item1 "ph_syl" '+)
-                   (czech-item.feat? item3 "ph_postnas" '+))
-              (item.set_name item2 "n*"))
-          ;; ch
-          (if (or (string-equal name1 "ch")
-                  (string-equal name1 "ch*"))
-              (item.set_name item1 (if (czech-item.feat? item2 "ph_cvox" '+)
-                                       "ch*"
-                                       "ch")))
-          ;; r~
-          (if (and (string-equal name1 "r~")
-                   (or (not item2)
-                       (string-equal name2 "#")
-                       (czech-item.feat? item2 "ph_cvox" '+)))
-              (item.set_name item1 "r~*"))
+          (if (and (string-equal name1 "n")
+                   (czech-item.feat? item2 "ph_postnas" '+)
+                   (same-word? item1 item2))
+              (item.set_name item1 "n*"))
+          ;; sh
+          (if (and (string-equal name1 "s")
+                   (string-equal name2 "h")
+                   (same-word? item1 item2))
+              (if czech-moravian
+                  (item.set_name item1 "z")
+                  (item.set_name item2 "ch")))
+          ;; unvoiced-r~
           (if (and (string-equal name2 "r~")
-                   (czech-item.feat? item1 "ph_cvox" '-))
+                   (czech-item.feat? item1 "ph_cvox" '-)
+                   (same-word? item1 item2))
               (item.set_name item2 "r~*"))
           ;; voiced-unvoiced
           (if (and (czech-item.feat? item1 "ph_cvox" '+)
                    (not (czech-item.feat? item1 "ph_partner" 0))
-                   (or (not item2)
-                       (string-equal name2 "#")
-                       (czech-item.feat? item2 "ph_cvox" '-)))
+                   item2
+                   (or (string-equal name2 "#")
+                       (string-equal name2 "_")
+                       (czech-item.feat? item2 "ph_cvox" '-)
+                       (and (czech-item.feat? item2 "ph_cvox" 'u)
+                            (not (same-word? item1 item2))
+                            (not (member
+                                  (item.name (item-word item1))
+                                  (append
+                                   (list "v" "z")
+                                   czech-proper-single-syl-prepositions))))))
               (item.set_name item1 (item.feat item1 "ph_partner")))
           ;; unvoiced-voiced
           (if (and (czech-item.feat? item1 "ph_cvox" '-)
                    (not (czech-item.feat? item1 "ph_partner" 0))
+                   item2
                    (czech-item.feat? item2 "ph_cvox" '+)
-                   (not (string-equal name2 "v")))
+                   (not (string-equal name2 "v"))
+                   (not (string-equal name2 "r~")))
               (item.set_name item1 (item.feat item1 "ph_partner"))))
         (czech-adjust-segments (cdr segments)))))
 
@@ -1497,17 +1510,11 @@
   (let ((stroke '(_ (("name" _))))
         (i (utt.relation.first utt 'SylStructure)))
     (while i
-      (if (or
-           ;; Insert _ between vowels on word boundaries
-           (and (czech-item.feat? i "daughter1.daughter1.ph_vc" '+)
-                (czech-item.feat? i "p.daughtern.daughtern.ph_vc" '+)
-                (not (czech-item.feat? i "daughter1.daughter1.R:Segment.p.name"
-                                       '#)))
-           ;; Insert _ between a non-syllabic preposition and a vowel
-           (and (czech-item.feat? i "p.pos" 'prep0)
-                (czech-item.feat? i "daughter1.daughter1.ph_vc" '+)
-                (not (czech-item.feat? i "daughter1.daughter1.R:Segment.p.name"
-                                       '#))))
+      ;; Insert _ before vowels at the beginning of word boundaries
+      (if (and (czech-item.feat? i "daughter1.daughter1.ph_vc" '+)
+               (item.prev i)
+               (not (czech-item.feat? i "daughter1.daughter1.R:Segment.p.name"
+                                      '#)))
           (item.insert
            (item.relation (item.daughter1 (item.daughter1 i)) 'Segment)
            stroke 'before))
@@ -1525,8 +1532,8 @@
 
 (define (czech-pause utt)
   (czech-pause-breaks utt)
-  (czech-adjust-phonetic-form utt)
   (czech-add-strokes utt)
+  (czech-adjust-phonetic-form utt)
   utt)
 
 ;;; Accents
@@ -1744,7 +1751,6 @@
     (b   0.067)
     (c   0.102)
     (ch  0.087)
-    (ch* 0.078)
     (c~  0.099)
     (d   0.062)
     (dz  0.108)
