@@ -1980,6 +1980,7 @@
   ;; Final voice adjustment
   (set! after_synth_hooks (list czech-adjust-volume))
   ;; Set current voice
+  (set! current_voice_reset nil)
   (set! current-voice 'czech))
 
 (defmac (czech-proclaim-voice form)
