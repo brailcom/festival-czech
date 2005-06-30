@@ -441,15 +441,16 @@
 (defvar czech-lts-extra-rules '())
 
 (define (czech-basic-lts word)
-  (let ((phonetic-form (lts.apply
-                        (lts.apply
-                         (if (lts.in.alphabet word 'czech-normalize)
-                             word
-                             czech-unknown-symbol-word)
-                         'czech-normalize)
-                        'czech-orthography))
-        phonetic-form*)
-    phonetic-form))
+  (let ((word (if (lts.in.alphabet word 'czech-normalize)
+                  word
+                  czech-unknown-symbol-word)))
+    (if (string-equal word "")
+        nil
+        (let ((phonetic-form (lts.apply
+                              (lts.apply word 'czech-normalize)
+                              'czech-orthography))
+              phonetic-form*)
+          phonetic-form))))
 
 (define (czech-syllabify-phstress phones)
   (if (null? phones)
@@ -459,15 +460,16 @@
 (define (czech-lts word features)
   (list word
         nil
-        (if (string-equal word "")
-            '()
-            (czech-syllabify-phstress
-              (let ((transformed (czech-basic-lts word))
-                    (rules czech-lts-extra-rules*))
-                (while rules
-                  (set! transformed (lts.apply transformed (car rules)))
-                  (set! rules (cdr rules)))
-                transformed)))))
+        (let ((transformed (and (not (string-equal word ""))
+                                (czech-basic-lts word))))
+          (if transformed
+              (czech-syllabify-phstress
+               (let ((rules czech-lts-extra-rules*))
+                 (while rules
+                   (set! transformed (lts.apply transformed (car rules)))
+                   (set! rules (cdr rules)))
+                 transformed))
+              '()))))
 
 (define (czech-downcase word)
   (if (lts.in.alphabet word 'czech-normalize)

@@ -1,3 +1,11 @@
+2005-06-30  Milan Zamazal  <pdm@brailcom.org>
+
+	* czech.scm (czech-basic-lts): If the word is empty or it contains
+	non-readable characters and czech-unknown-symbol-word is empty,
+	return nil.
+	(czech-lts): If the word or its transformation is empty, don't
+	syllabify it.
+
 2005-04-13  Milan Zamazal  <pdm@brailcom.org>
 
 	* czech.scm (phoneSet): Typo in C's partner fixed; make CH* unvoiced.
