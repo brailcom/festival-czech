@@ -1,0 +1,8 @@
+Q: How to change intonation of a voice?
+
+A: Set the czech-int-simple-params variable, e.g.:
+
+     (set! czech-int-simple-params '((f0_mean 102) (f0_std 30)))
+
+   f0_mean sets the base frequency, f0_std determines how much expressive
+   intonation should be.
