@@ -750,6 +750,7 @@
            (not (string-matches (item.feat token "p.name") capitals))
            (not (string-matches (item.feat token "p.next") capitals))
            (<= (length name) 3) ; longer pronouncable acronyms are not spelled
+           (not (string-equal name "Ø")) ; Festival bug workaround
            ))
     (mapcar (lambda (phoneme) `((name ,phoneme) (pos sym)))
             (lts.apply name 'czech-normalize)))
@@ -805,7 +806,7 @@
      (czech-token-to-words token (string-after (substring name 1 1000) "-"))))
    ;; Homogenous tokens
    ((string-matches name (string-append "^" czech-char-regexp "+$"))
-    (if (string-equal name "ø")         ; Festival bug workaround
+    (if (string-equal (czech-downcase name) "ø") ; Festival bug workaround
         (list "eø")
         (list name)))
    ((string-matches name (string-append "^[^" czech-chars "0-9]+$"))
