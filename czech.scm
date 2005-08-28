@@ -1662,12 +1662,12 @@
                         (set! contour (append (reverse prefix)
                                               contour*))))))
               (set! last-contour contour)
-              (item.set_feat unit "contour" contour)))))
+              (item.set_feat unit 'contour contour)))))
       (set! unit (item.next unit)))
     ;; Spread the contours on sylwords
     (set! unit (utt.relation utt 'StressUnit))
     (while unit
-      (let ((contour (item.feat unit "contour"))
+      (let ((contour (item.feat unit 'contour))
             (kernels (czech-syllable-kernels
                       (czech-stress-unit-phonemes unit))))
         (if (eqv? (length kernels) 1)
@@ -1677,16 +1677,18 @@
                   (contour-1 (car contour))
                   (contour-2 (cadr contour)))
               (let ((k* (reverse k))
-                    (last-k (car (last k))))
+                    (last-k (car (last k)))
+                    (contour-list (list (list 0.1 contour-1)
+                                        (list 0.9 contour-2))))
                 (if (eqv? (length k) 1)
                     ;; Single phone in kernel -- put both values on it
-                    (item.set_feat (car k) 'contourval contour)
+                    (item.set_feat (car k) 'contourval contour-list)
                     ;; Multiple phones -- spread the values over true kernel
                     (begin
                       (while (czech-item.feat? (cadr k*) 'ph_vc '+)
                         (set! k* (cdr k*)))
                       (if (eq? (car k*) last-k)
-                          (item.set_feat last-k 'contourval contour)
+                          (item.set_feat last-k 'contourval contour-list)
                           (begin
                             (item.set_feat (car k*) 'contourval contour-1)
                             (item.set_feat last-k 'contourval contour-2)))))
@@ -1703,7 +1705,7 @@
             (while kernels
               (let ((contourval (car contour)))
                 (mapcar (lambda (seg)
-                          (item.set_feat seg "contourval" contourval))
+                          (item.set_feat seg 'contourval contourval))
                         (car kernels)))
               (set! kernels (cdr kernels))
               (set! contour (cdr contour)))))
@@ -1727,14 +1729,14 @@
                 (seg-end (item.feat s 'end)))
             (cond
              ((consp contourval)
-              (let ((tlen (- seg-end last-seg-end))
-                    (place 0.1))
+              (let ((tlen (- seg-end last-seg-end)))
                 (set! times-values
                       (append
-                       (list (list (+ last-seg-end (* (- 1.0 place) tlen))
-                                   (f0-value (cadr contourval)))
-                             (list (+ last-seg-end (* place tlen))
-                                   (f0-value (car contourval))))
+                       (mapcar (lambda (v)
+                                 (list (+ last-seg-end
+                                          (* (read-from-string (car v)) tlen))
+                                       (f0-value (cadr v))))
+                               (reverse contourval))
                        times-values))))
              (contourval
               (let ((time (/ (+ last-seg-end seg-end) 2.0))
