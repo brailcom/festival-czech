@@ -1,6 +1,6 @@
 # Makefile for festival-czech
 #
-# Copyright (C) 2004 Brailcom, o.p.s.
+# Copyright (C) 2004, 2005 Brailcom, o.p.s.
 #
 # Author: Milan Zamazal <pdm@brailcom.org>
 #
@@ -28,9 +28,6 @@ all: czech-lexicon.out
 
 %.out: %.scm
 	festival --batch '(lex.compile "$<" "$@")'
-
-czech-words-all: czech-words
-	./gen-all-words.sh
 
 install:
 
