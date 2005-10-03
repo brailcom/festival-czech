@@ -51,33 +51,6 @@ pøesnì tìch slov, která nejsou a ani rozumnì být nemohou pokryta LTS pravidly
 nebo pro která by nesprávnì probìhl pøevod z tokenu na slovo (napøíklad
 v pøípadì slova _pst_, které by bylo hláskováno).
 
-Pro doplòování LTS pravidel a lexikonu je nezbytný seznam v¹ech èeských slov a
-mù¾e být u¾iteèná funkce dump-pronounciation.
-
-** Vygenerování seznamu v¹ech èeských slov
-
-Vygenerování seznamu v¹ech èeských slov vèetnì jejich tvarù lze provést
-s pomocí èeského ispellu (viz [koláø]).  Seznam slov v základním tvaru je
-vygenerován ze zdrojových souborù èeského ispellu a nachází se v souboru
-czech-words.  Seznam v¹ech tvarù tìchto slov není pro svou rozsáhlost
-distribuován.  Máte-li instalován èeský ispell, mù¾ete tento seznam vygenerovat
-pøíkazem `make czech-words-all'.
-
-** Funkce dump-pronounciation
-
-Funkce dump-pronounciation, obsa¾ená v pøilo¾eném souboru
-dump-pronounciation.scm, slou¾í k pøevodu psané formy slova na výslovnost.
-Lze ji typicky vyu¾ít pro testování LTS pravidel a usnadnìní pøidávání
-nových slov do lexikonu.  Funkce pou¾ívá výhradnì LTS pravidla, nepou¾ívá
-lexikon.
-
-Funkce dump-pronunciation má dva argumenty.  Prvním je jméno souboru
-obsahujícího slova, která mají být pøevedena, druhým je jméno souboru, do
-kterého má být zapsán výstup.  Ve vstupním souboru je oèekáváno právì jedno
-slovo na ka¾dém øádku souboru.  Doporuèuje se, aby slova byla uzavøena
-v uvozovkách, jinak pøi vìt¹ím mno¾ství slov narazíte na výkonnostní potí¾e
-Festivalu.
-
 ** Jak postupovat pøi nalezení nesprávné výslovnosti slova
 
 Pokud je slovo obsa¾eno v lexikonu, pøíslu¹ný záznam se jednodu¹e opraví.
@@ -88,12 +61,7 @@ pravidla.
 Jedná-li se spí¹e o výjimku, kterou nemá smysl zohledòovat v LTS pravidlech,
 pøidá se do lexikonu.  Jde-li o slovo ohebné, mìly by být pøidány v¹echny jeho
 tvary, jsou-li vyslovovány chybnì té¾.  Je dobré zamyslet se i nad formami
-vytvoøenými pøidáním nebo odebráním pøedpon.  Pøi generování v¹ech tvarù lze
-pro usnadnìní práce vyu¾ít èeský ispell (viz [koláø]) a funkci
-dump-pronounciation.scm.  Pøidáváte-li do lexikonu slovo, jeho¾ základní tvar
-není uveden v souboru czech-words, pøidejte jej tam (a pokud mo¾no jej té¾
-oznamte autorovi èeského ispellu).  Zachovejte pøitom abecední poøadí slov
-v souboru (pøi nastavení locales na cs_CZ.iso8859-2).
+vytvoøenými pøidáním nebo odebráním pøedpon.
 
 Pokud dojde na pøidání nového LTS pravidla, je zapotøebí provìøit, jaké zmìny
 zpùsobí.  Optimální by bylo nechat vygenerovat výslovnost v¹ech èeských slov
@@ -204,7 +172,6 @@ explicitnì generovat zmìnou dynamiky.  Pøízvuk je modelován intonaèní køivkou.
 [palková:04]
   Zdena Palková: Soubor fonetických pravidel jako podklad pro prozodický
   komponent automatické syntézy TTS v èe¹tinì
-  <<doplnit pøesnou citaci>>
 
 [palková-ptáèek:97]
   Zdena Palková, Miroslav Ptáèek: Modelling Prosody in TTS Diphone Synthesis in
@@ -216,12 +183,8 @@ explicitnì generovat zmìnou dynamiky.  Pøízvuk je modelován intonaèní køivkou.
   (ed.) pp.32-34
   + interní materiál Z. Palková, Závìreèná zpráva grantu GAÈR 405/96/0301
 
-[koláø]
-  Petr Koláø: ispell-czech -- èeská kontrola pravopisu
-  viz ftp://ftp.vslib.cz/pub/unix/ispell/
 
-
--- Milan Zamazal <pdm@freebsoft.org>
+-- Milan Zamazal
 
 Local variables:
 mode: outline

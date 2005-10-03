@@ -25,22 +25,15 @@ festival-czech øe¹í dvì úlohy:
 
 Struèný návod k pou¾ití naleznete v souboru INSTALL.cs.
 
-Soubor czech-words je seznam èeských slov v základních tvarech spolu s pravidly
-pro ispell.  Seznam slov byl poøízen z dat velmi kvalitní ispellové èe¹tiny
-distribuované na ftp://ftp.vslib.cz/pub/unix/ispell/czech pod GPL (díky Petru
-Koláøovi za tuto úctyhodnou aktivitu!).  Ze stejného zdroje byl pøevzat soubor
-`munch'.
-
 festival-czech je nyní ve stavu rozpracovanosti.  Máme funkèní jazykový modul
 pro èe¹tinu a funkèní èeský difonový hlas.  Jazykový modul se skládá z nìkolika
 èástí: fonémová a difonová sada (z vìt¹í èásti hotovo), základní pravidla pro
 pøevod psaného textu do hláskové podoby (ta musí být je¹tì doplnìna a ladìna),
-výslovnostní slovník (jeho obsah je zatím zcela minimální, je v¹ak definován
-framework pro jeho tvorbu), minimální jazyková analýza (¹iroké pole pro budoucí
-vylep¹ování interpretace psaného textu), prozodická pravidla (ta jsou víceménì
-kompletní, ale mohou v nich být je¹tì chyby).  Difonový hlas, vytvoøený v rámci
-podprojektu voice-czech-ph, je nyní v provozuschopném stavu, ale zatím
-neprobìhlo ladìní kvality jeho výstupu.
+výslovnostní slovník (jeho obsah je zatím zcela minimální), minimální jazyková
+analýza (¹iroké pole pro budoucí vylep¹ování interpretace psaného textu),
+prozodická pravidla (ta jsou víceménì kompletní, ale mohou v nich být je¹tì
+chyby).  Difonový hlas, vytvoøený v rámci podprojektu voice-czech-ph, je nyní
+v provozuschopném stavu, ale zatím neprobìhlo ladìní kvality jeho výstupu.
 
 Výsledek projektu závisí na dostupných zdrojích, na jednu stranu má potenciál
 dosáhnout pomìrnì slu¹ného výsledku, na druhou stranu v¹ak mù¾e zajít na úbytì.
@@ -52,7 +45,7 @@ Finanènì na nìj pøispìl Nadaèní fond Èeského rozhlasu.  Odbornou pomoc poskytl
 Fonetický ústav Filozofické fakulty Univerzity Karlovy v èele
 s prof. PhDr. Zdenou Palkovou, CSc.
 
-S pøípadnými dotazy, námìty a nabídkami pomoci se lze obracet na moji
-e-mailovou adresu.
+S pøípadnými dotazy, námìty a nabídkami pomoci se lze obracet na adresu
+festival-czech@freebsoft.org .
 
--- Milan Zamazal <pdm@freebsoft.org>
+-- Milan Zamazal

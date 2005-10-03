@@ -208,4 +208,4 @@ Docstringy umí vypsat funkce `doc'.
 Readline umí doplòovat jména funkcí, co¾ je èasto u¾iteèné.
 
 
--- Milan Zamazal <pdm@freebsoft.org>
+-- Milan Zamazal
