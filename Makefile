@@ -21,6 +21,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 
 
+package := festival-czech
+version := 0.1
+
+
 .PHONY: all install install-strip uninstall clean distclean mostlyclean \
 	maintainer-clean TAGS info dvi dist check
 
@@ -41,6 +45,7 @@ mostlyclean:
 clean: mostlyclean
 
 distclean: clean
+	rm -rf $(package)-$(version) *.tar *.tar.gz
 
 maintainer-clean: distclean
 	rm -f *.out
@@ -51,7 +56,14 @@ info:
 
 dvi:
 
-dist:
+dist: distclean
+	mkdir $(package)-$(version)
+	cp *.scm COPYING ChangeLog FAQ INSTALL* Makefile README* $(package)-$(version)/
+	make -C $(package)-$(version) all
+	chmod 755 $(package)-$(version)
+	chmod 644 $(package)-$(version)/*
+	tar cf $(package)-$(version).tar $(package)-$(version)
+	gzip -9 $(package)-$(version).tar
 
 check:
 
