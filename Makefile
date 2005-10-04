@@ -24,6 +24,8 @@
 package := festival-czech
 version := 0.1
 
+festival_path = /usr/share/festival
+
 
 .PHONY: all install install-strip uninstall clean distclean mostlyclean \
 	maintainer-clean TAGS info dvi dist check
@@ -34,11 +36,13 @@ all: czech-lexicon.out
 	festival --batch '(lex.compile "$<" "$@")'
 
 install:
+	$(INSTALL_PROGRAM) -m 644 *.scm $(festival_path)/
 
 install-strip:
 	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
 
 uninstall:
+	for f in *.scm; do rm $(festival_path)/$$f; done
 
 mostlyclean:
 
