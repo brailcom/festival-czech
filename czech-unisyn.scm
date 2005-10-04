@@ -1,6 +1,6 @@
 ;;; Czech UniSyn based voice example definition
 
-;; Copyright (C) 2003, 2004 Brailcom, o.p.s.
+;; Copyright (C) 2003, 2004, 2005 Brailcom, o.p.s.
 
 ;; Author: Milan Zamazal <pdm@brailcom.org>
 
@@ -46,6 +46,14 @@
                 (list 'sig_ext ".res")
                 (list 'default_diphone "#-#"))))))
 
+(define (czech-unisyn-group-db-init name group-file)
+  (if (not (member name (us_list_dbs)))
+      (us_diphone_init
+        (list (list 'name name)
+              (list 'index_file group-file)
+              (list 'grouped "true")
+              (list 'default_diphone "#-#")))))
+
 (define (czech-unisyn-param-init)
   (set! us_abs_offset 0.0)
   (set! window_factor 1.0)
@@ -54,7 +62,10 @@
   (Parameter.set 'us_sigpr 'lpc))
   
 (define (czech-unisyn-init name index-file)
-  (czech-unisyn-db-init name index-file)
+  ((if (string-matches index-file ".*\.group$")
+       czech-unisyn-group-db-init
+       czech-unisyn-db-init)
+   name index-file)
   (czech-unisyn-param-init)
   (us_db_select name))
 
