@@ -26,6 +26,9 @@ version := 0.1
 
 festival_path = /usr/share/festival
 
+INSTALL_PROGRAM = install
+
+distfiles := *.scm *.out
 
 .PHONY: all install install-strip uninstall clean distclean mostlyclean \
 	maintainer-clean TAGS info dvi dist check
@@ -35,14 +38,14 @@ all: czech-lexicon.out
 %.out: %.scm
 	festival --batch '(lex.compile "$<" "$@")'
 
-install:
-	$(INSTALL_PROGRAM) -m 644 *.scm $(festival_path)/
+install: all
+	$(INSTALL_PROGRAM) -m 644 $(distfiles) $(festival_path)/
 
 install-strip:
 	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
 
-uninstall:
-	for f in *.scm; do rm $(festival_path)/$$f; done
+uninstall: all
+	for f in $(distfiles); do rm $(festival_path)/$$f; done
 
 mostlyclean:
 
@@ -60,9 +63,9 @@ info:
 
 dvi:
 
-dist: distclean
+dist: all distclean
 	mkdir $(package)-$(version)
-	cp *.scm COPYING ChangeLog FAQ INSTALL* Makefile README* $(package)-$(version)/
+	cp $(distfiles) COPYING ChangeLog FAQ INSTALL* Makefile README* $(package)-$(version)/
 	make -C $(package)-$(version) all
 	chmod 755 $(package)-$(version)
 	chmod 644 $(package)-$(version)/*
