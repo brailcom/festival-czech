@@ -41,11 +41,12 @@ Proto je vítána ka¾dá pomoc -- jazykovìdná, programátorská, finanèní nebo
 jakákoliv jiná.
 
 Projekt èeské festivalové syntézy je realizován spoleèností Brailcom, o.p.s.
-Finanènì na nìj pøispìl Nadaèní fond Èeského rozhlasu.  Odbornou pomoc poskytl
-Fonetický ústav Filozofické fakulty Univerzity Karlovy v èele
-s prof. PhDr. Zdenou Palkovou, CSc.
+Finanènì na nìj pøispìly Nadaèní fond Èeského rozhlasu, spoleènost Seznam.cz a
+Evropská komise (v rámci programu Leonardo da Vinci).
+Odbornou pomoc poskytl Fonetický ústav Filozofické fakulty Univerzity Karlovy
+v èele s prof. PhDr. Zdenou Palkovou, CSc.
 
 S pøípadnými dotazy, námìty a nabídkami pomoci se lze obracet na adresu
-festival-czech@freebsoft.org .
+festival-czech@lists.freebsoft.org .
 
 -- Milan Zamazal
