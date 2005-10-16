@@ -752,8 +752,20 @@
            (<= (length name) 3) ; longer pronouncable acronyms are not spelled
            (not (string-equal name "Ø")) ; Festival bug workaround
            ))
-    (mapcar (lambda (phoneme) `((name ,phoneme) (pos sym)))
-            (lts.apply name 'czech-normalize)))
+    (let ((words ()))
+      (mapcar
+       (lambda (phoneme)
+         (let ((expansion (cadr (assoc_string (czech-downcase phoneme)
+                                              czech-multiword-abbrevs))))
+           (if expansion
+               (set! words (append words
+                                   (mapcar (lambda (w)
+                                             `((name ,w) (pos sym)))
+                                           expansion)))
+               (set! words (append words
+                                   (list `((name ,phoneme) (pos sym))))))))
+       (lts.apply name 'czech-normalize))
+      words))
    ;; Abbreviations and other unpronouncable words
    ((and (string-matches
           name
