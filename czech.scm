@@ -842,7 +842,7 @@
    ((string-matches name (string-append "^" czech-char-regexp "+-$"))
     (czech-token-to-words token (string-before name "-")))
    ((string-matches name
-      (string-append "^" czech-char-regexp "+-[-" czech-chars "]+$"))
+      (string-append "^[" czech-chars "0-9]+-[-" czech-chars "0-9]+$"))
     (append
      (czech-token-to-words token (string-before name "-"))
      '(((name "-") (pos punc)))       ; necessary for punctuation reading modes
