@@ -43,6 +43,9 @@
       (and (string-equal (car lst) (cadr lst))
            (czech-all-same (cdr lst)))))
 
+(define (czech-suffix string i)
+  (substring string i (- (string-length string) i)))
+
 (defvar czech-randomize t)
 
 (defvar czech-rand-range nil)
@@ -50,6 +53,8 @@
 (defvar czech-moravian t)
 
 (defvar czech-insert-filling-vowels t)
+
+(defvar czech-group-digits 3)
 
 (define (czech-rand)
   (if czech-randomize
@@ -526,7 +531,7 @@
   (cond
    ((string-matches name "^[-+].*")
     (cons (substring name 0 1)
-          (czech-number (substring name 1 (- (length name) 1)))))
+          (czech-number (czech-suffix name 1))))
    ((string-matches name ".*[,.].*")
     (let ((comma (if (string-matches name ".*,.*") "," ".")))
       (append (czech-number (string-before name comma))
@@ -534,9 +539,28 @@
               (czech-number (string-after name comma)))))
    ((string-equal name "0")
     (list "nula"))
+   ((string-matches name "^0..*")
+    (cons "nula" (czech-number (czech-suffix name 1))))
    (t
     (czech-number-from-digits (czech-remove (car (symbolexplode " "))
                                             (symbolexplode name))))))
+
+(define (czech-digits-1 digits)
+  (if czech-group-digits
+      (let ((n (string-length digits)))
+        (while (> (- n czech-group-digits) 0)
+          (set! n (- n czech-group-digits)))
+        (append (czech-number (substring digits 0 n))
+                (if (> (length digits) czech-group-digits)
+                    (czech-digits (czech-suffix digits n))
+                    nil)))
+      (czech-number digits)))
+
+(define (czech-digits digits)
+  (if (string-matches digits "^0.*")
+      (append (czech-number "0")
+              (czech-digits (czech-suffix digits 1)))
+      (czech-digits-1 digits)))
 
 (define (czech-prepend-numprefix token name)
   (if (czech-item.has-feat token 'numprefix)
@@ -683,8 +707,7 @@
                   nil)
               (list (substring string i 1))
               (czech-tokenize-on-nonalphas
-               (substring string (+ i 1)
-                          (- (length string) (+ i 1)))))))))
+               (czech-suffix string (+ i 1))))))))
 
 (define (czech-token-to-words token name)
   (cond
@@ -719,7 +742,7 @@
    ;; Numbers beginning with the zero digit
    ((and (string-matches name "^0[0-9]*$")
          (not (czech-item.has-feat token 'numprefix)))
-    (apply append (mapcar czech-number (symbolexplode name))))
+    (czech-digits name))
    ;; Any other numbers
    ((let ((nname (czech-prepend-numprefix token name)))
       (or (string-matches nname "^[-+]?[0-9]+$")
@@ -844,9 +867,30 @@
    ((string-matches name
       (string-append "^[" czech-chars "0-9]+-[-" czech-chars "0-9]+$"))
     (append
-     (czech-token-to-words token (string-before name "-"))
+     (czech-digits (string-before name "-"))
      '(((name "-") (pos punc)))       ; necessary for punctuation reading modes
      (czech-token-to-words token (string-after name "-"))))
+   ;; Starting with digits
+   ((string-matches name "^[0-9].*")
+    (let ((i 0))
+      (while (member (substring name i 1)
+                     '("0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))
+        (set! i (+ i 1)))
+      (append (czech-digits (substring name 0 i))
+              (czech-token-to-words token (czech-suffix name i)))))
+   ;; Digits inside
+   ((string-matches name "^.*[0-9].*")
+    (let ((i 0)
+          j
+          (digits '("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")))
+      (while (not (member (substring name i 1) digits))
+        (set! i (+ i 1)))
+      (set! j (+ i 1))
+      (while (member (substring name j 1) digits)
+        (set! j (+ j 1)))
+      (append (czech-token-to-words token (substring name 0 i))
+              (czech-digits (substring name i (- j i)))
+              (czech-token-to-words token (czech-suffix name j)))))
    ;; Lexicon words
    ((lex.lookup_all name)
     (list name))
