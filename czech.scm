@@ -682,7 +682,9 @@
 	      (list (car (cdr (cdr (cdr words))))))))
 	   (czech-number-from-digits tail-digits)))))
      (t
-      (apply append (mapcar czech-number digits))))))
+      (if czech-group-digits
+          (czech-digits (apply string-append digits))
+          (apply append (mapcar czech-number digits)))))))
 
 (define (czech-tokenize-on-nonalphas string)
   (cond
