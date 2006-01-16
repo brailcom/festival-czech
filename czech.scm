@@ -1,6 +1,6 @@
 ;;; Czech support for Festival
 
-;; Copyright (C) 2003, 2004, 2005 Brailcom, o.p.s.
+;; Copyright (C) 2003, 2004, 2005, 2006 Brailcom, o.p.s.
 
 ;; Author: Milan Zamazal <pdm@brailcom.org>
 
@@ -557,10 +557,13 @@
       (czech-number digits)))
 
 (define (czech-digits digits)
-  (if (string-matches digits "^0.*")
-      (append (czech-number "0")
-              (czech-digits (czech-suffix digits 1)))
-      (czech-digits-1 digits)))
+  (cond
+   ((string-equal digits "")
+    '())
+   ((string-matches digits "^0.*")
+    (append (czech-number "0") (czech-digits (czech-suffix digits 1))))
+   (t
+    (czech-digits-1 digits))))
 
 (define (czech-prepend-numprefix token name)
   (if (czech-item.has-feat token 'numprefix)
