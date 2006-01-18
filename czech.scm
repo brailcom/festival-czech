@@ -872,7 +872,7 @@
    ((string-matches name
       (string-append "^[" czech-chars "0-9]+-[-" czech-chars "0-9]+$"))
     (append
-     (czech-digits (string-before name "-"))
+     (czech-token-to-words token (string-before name "-"))
      '(((name "-") (pos punc)))       ; necessary for punctuation reading modes
      (czech-token-to-words token (string-after name "-"))))
    ;; Starting with digits
