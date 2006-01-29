@@ -1872,8 +1872,7 @@
 
 (defvar czech-duration-random-factor 0.2)
 
-(define (czech-duration utt)
-  ;; Distinguish silence lengths
+(define (czech-duration-pauses utt)
   (let ((word (utt.relation.first utt 'Word)))
     (while word
       
@@ -1888,8 +1887,9 @@
                    (item.next (item.relation seg 'Segment))
                    'dur_factor
                    (* 10 (+ min (* (- max min) (czech-rand)))))))))
-      (set! word (item.next word))))
-  ;; Set general duration factors
+      (set! word (item.next word)))))
+
+(define (czech-duration-factors utt)
   (let ((sunit (utt.relation.first utt 'StressUnit)))
     (while sunit
       (let ((nphones (length (czech-stress-unit-phonemes sunit))))
@@ -1923,8 +1923,9 @@
           (let ((durfact (cadr (assoc (czech-min (length phonemes) 12)
                                       czech-stress-duration-factors))))
             (mapcar (lambda (ph) (item.set_feat ph 'dur_factor durfact))
-                    phonemes)))))
-  ;; Compute durations
+                    phonemes))))))
+
+(define (czech-duration-compute utt)
   (mapcar
    (lambda (seg)
      (let ((factor (* (item.feat seg "dur_factor")
@@ -1934,7 +1935,12 @@
                          (* (if (<= factor 0) 1 factor)
                             (cadr (assoc_string (item.name seg)
                                                 czech-phoneme-durations*)))))))
-   (utt.relation.items utt 'Segment))
+   (utt.relation.items utt 'Segment)))
+
+(define (czech-duration utt)
+  (czech-duration-pauses utt)
+  (czech-duration-factors utt)
+  (czech-duration-compute utt)
   utt)
 
 ;;; Volume
