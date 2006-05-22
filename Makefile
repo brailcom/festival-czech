@@ -65,7 +65,7 @@ dvi:
 
 dist: all distclean
 	mkdir $(package)-$(version)
-	cp $(distfiles) COPYING ChangeLog FAQ INSTALL* Makefile README* $(package)-$(version)/
+	cp $(distfiles) COPYING ChangeLog FAQ INSTALL* Makefile NEWS* README* $(package)-$(version)/
 	make -C $(package)-$(version) all
 	chmod 755 $(package)-$(version)
 	chmod 644 $(package)-$(version)/*
