@@ -1,6 +1,6 @@
 # Makefile for festival-czech
 #
-# Copyright (C) 2004, 2005 Brailcom, o.p.s.
+# Copyright (C) 2004, 2005, 2006 Brailcom, o.p.s.
 #
 # Author: Milan Zamazal <pdm@brailcom.org>
 #
@@ -22,7 +22,7 @@
 
 
 package := festival-czech
-version := 0.1
+version := 0.2
 
 festival_path = /usr/share/festival
 
