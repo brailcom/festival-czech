@@ -1809,9 +1809,11 @@
             (set! segments (cdr segments))))))
     ;; Festival apparently decreases F0 at the end of the utterance, prevent it
     (if (not (null? times-values))
-        (let ((last-value (cadr (car times-values)))
+        (let ((last-time (car (car times-values)))
+              (last-value (cadr (car times-values)))
               (last-seg (item.relation.daughtern syl 'SylStructure)))
-          (set! times-values (cons (list (- (item.feat last-seg 'end) 0.01)
+          (set! times-values (cons (list (max (- (item.feat last-seg 'end) 0.01)
+                                              (+ last-time 0.001))
                                          last-value)
                                    times-values))))
     (reverse times-values)))
