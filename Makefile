@@ -22,7 +22,7 @@
 
 
 package := festival-czech
-version := 0.2
+version := 0.2.1
 
 festival_path = /usr/share/festival
 
