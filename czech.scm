@@ -1358,9 +1358,9 @@
 (define (czech-identify-stress-units sylwords)
   (let ((units (mapcar list sylwords))
         (unit-word (lambda (unit)
-                     (and (eqv? (length unit) 1)
+                     (and (not (null? unit))
                           (item.parent
-                           (item.relation (car unit) 'SylStructure)))))
+                           (item.relation (car (last unit)) 'SylStructure)))))
         (unit-word-name (lambda (unit)
                           (and (eqv? (length unit) 1)
                                (item.feat (car unit)
@@ -1377,13 +1377,13 @@
             (while units*
               (let ((w (unit-word (car units*))))
                 (if (or ;; Join non-syllabic prepositions
-                     (czech-item.feat? w 'pos 'prep0)
-                     ;; Join proper single-syllabic prepositions
-                     (and (member (czech-downcase (item.name w))
-                                  czech-proper-single-syl-prepositions)
-                          (not (czech-item.feat? w "pos" "se"))))
-                    (merge units*)))
-              (set! units* (cdr units*))))
+                        (czech-item.feat? w 'pos 'prep0)
+                        ;; Join proper single-syllabic prepositions
+                        (and (member (czech-downcase (item.name w))
+                                     czech-proper-single-syl-prepositions)
+                             (not (czech-item.feat? w "pos" "se"))))
+                    (merge units*)
+                    (set! units* (cdr units*))))))
           ;; At most 1 word now?
           (if (<= (length units) 1)
               units
