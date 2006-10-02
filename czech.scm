@@ -1374,7 +1374,7 @@
         (begin
           ;; Basic joining    
           (let ((units* units))
-            (while units*
+            (while (cdr units*)
               (let ((w (unit-word (car units*))))
                 (if (or ;; Join non-syllabic prepositions
                         (czech-item.feat? w 'pos 'prep0)
