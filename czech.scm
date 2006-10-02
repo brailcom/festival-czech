@@ -1688,7 +1688,13 @@
           (let ((nsyls (czech-unit-syllable-count unit)))
             (let ((contour (czech-random-choice
                             (cdr (assoc (list contourtype
-                                              (if (<= nsyls 6) nsyls 6))
+                                              (cond
+                                               ((< nsyls 1)
+                                                1)
+                                               ((> nsyls 6)
+                                                6)
+                                               (t
+                                                nsyls)))
                                         czech-int-contours)))))
               ;; Adjust the first syllables of final contours
               (if (or (string-equal position "F")
