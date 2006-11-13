@@ -1,6 +1,6 @@
 ;;; Czech lexicon
 
-;; Copyright (C) 2003, 2004, 2005 Brailcom, o.p.s.
+;; Copyright (C) 2003, 2004, 2005, 2006 Brailcom, o.p.s.
 
 ;; Author: Milan Zamazal <pdm@brailcom.org>
 
@@ -25,6 +25,7 @@
 
 ("a"  sym (((a:) 0)))
 ("a"  nil (((a) 0)))
+("ä"  nil (((p r~ e h l a s o v a n e:) 0) ((a:) 0)))
 ("b"  nil (((b e:) 0)))
 ("c"  nil (((c e:) 0)))
 ("è"  nil (((c~ e:) 0)))
@@ -45,6 +46,7 @@
 ("ò"  nil (((e n~) 0)))
 ("o"  sym (((o:) 0)))
 ("o"  nil (((o) 0)))
+("ö"  nil (((p r~ e h l a s o v a n e:) 0) ((o:) 0)))
 ("p"  nil (((p e:) 0)))
 ("q"  nil (((k v e:) 0)))
 ("r"  nil (((e r) 0)))
@@ -52,10 +54,12 @@
 ("s"  sym (((e s) 0)))
 ("s"  nil (((s) 0)))
 ("¹"  nil (((e s~) 0)))
+("ß"  nil (((o s t r e:) 0) ((e s) 0)))
 ("t"  nil (((t e:) 0)))
 ("»"  nil (((t~ e:) 0)))
 ("u"  sym (((u:) 0)))
 ("u"  nil (((u) 0)))
+("ü"  nil (((p r~ e h l a s o v a n e:) 0) ((u:) 0)))
 ("v"  sym (((v e:) 0)))
 ("v"  nil (((v) 0)))
 ("x"  nil (((i k s) 0)))

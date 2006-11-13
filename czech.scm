@@ -492,7 +492,7 @@
 
 ;;; Token to words processing
 
-(defvar czech-chars "a-zA-Záäèïéìíòóöø¹»úùüı¾ÁÄÈÏÉÌÍÒÓÖØ©«ÚÙÜİ®")
+(defvar czech-chars "a-zA-Záäèïéìíòóöø¹ß»úùüı¾ÁÄÈÏÉÌÍÒÓÖØ©«ÚÙÜİ®")
 (defvar czech-char-regexp (string-append "[" czech-chars "]"))
 
 (defvar czech-multiword-abbrevs
@@ -797,7 +797,7 @@
    ;; Abbreviations and other unpronouncable words
    ((and (string-matches
           name
-          "^[bcdfghjklmnpqrstvwxzBCDFGHJKLMNPQSTVWXZèïòø¹»¾ÈÏÒØ©«®][bcdfghjkmnpqstvwxzBCDFGHJKMNPQSTVWXZèïòø¹»¾ÈÏÒØ©«®]+$")
+          "^[bcdfghjklmnpqrstvwxzBCDFGHJKLMNPQSTVWXZèïòø¹ß»¾ÈÏÒØ©«®][bcdfghjkmnpqstvwxzBCDFGHJKMNPQSTVWXZèïòø¹ß»¾ÈÏÒØ©«®]+$")
          (not (lex.lookup_all name)))
     (mapcar (lambda (phoneme) `((name ,phoneme) (pos sym)))
             (lts.apply name 'czech-normalize)))
