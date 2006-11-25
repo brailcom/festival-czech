@@ -740,6 +740,7 @@
          (czech-item.feat? token 'punc ".")
          (item.next token)
          (not (string-matches (item.feat token "n.whitespace") "  +")))
+    (item.set_feat token 'punc "")
     (if (not (czech-item.has-feat token 'punctype))
         (item.set_feat token 'punctype 'num))
     (append (czech-number* token name)
