@@ -1,6 +1,6 @@
 ;;; Czech lexicon
 
-;; Copyright (C) 2003, 2004, 2005, 2006 Brailcom, o.p.s.
+;; Copyright (C) 2003, 2004, 2005, 2006, 2007 Brailcom, o.p.s.
 
 ;; Author: Milan Zamazal <pdm@brailcom.org>
 
@@ -267,3 +267,5 @@
 ("softwary" nil (((s o f t v e: r i) 0)))
 ("softwarù" nil (((s o f t v e: r u:) 0)))
 ("softwarùm" nil (((s o f t v e: r u: m) 0)))
+("syntetizér" nil (((s i n t e t i z e: r) 0)))
+("syntetizérùm" nil (((s i n t e t i z e: r u: m) 0)))
