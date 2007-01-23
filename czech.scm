@@ -1,6 +1,6 @@
 ;;; Czech support for Festival
 
-;; Copyright (C) 2003, 2004, 2005, 2006 Brailcom, o.p.s.
+;; Copyright (C) 2003, 2004, 2005, 2006, 2007 Brailcom, o.p.s.
 
 ;; Author: Milan Zamazal <pdm@brailcom.org>
 
@@ -496,10 +496,8 @@
 (defvar czech-char-regexp (string-append "[" czech-chars "]"))
 
 (defvar czech-multiword-abbrevs
-  '(("á" ("dlouhé" "a"))
-    ("é" ("dlouhé" "e"))
+  '(("é" ("dlouhé" "e"))
     ("í" ("dlouhé" "i"))
-    ("ó" ("dlouhé" "o"))
     ("ú" ("dlouhé" "u"))
     ("ù" ("u" "s" "krou¾kem"))
     ("w" ("dvojité" "v"))
