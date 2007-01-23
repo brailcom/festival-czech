@@ -496,13 +496,7 @@
 (defvar czech-char-regexp (string-append "[" czech-chars "]"))
 
 (defvar czech-multiword-abbrevs
-  '(("é" ("dlouhé" "e"))
-    ("í" ("dlouhé" "i"))
-    ("ú" ("dlouhé" "u"))
-    ("ù" ("u" "s" "krou¾kem"))
-    ("w" ("dvojité" "v"))
-    ("ý" ("dlouhé" "y"))
-    ("`" ("obrácený" "apostrof"))
+  '(("`" ("obrácený" "apostrof"))
     ("\\" ("zpìtné" "lomítko"))
     (">" ("vìt¹í" "ne¾"))
     ("<" ("men¹í" "ne¾"))
@@ -983,6 +977,9 @@
       (set! w (item.prev w)))
     result))
 
+(define (czech-pos-first-in-phrase? word)
+  (<= (czech-pos-in-phrase-from word) 1))
+
 (define (czech-pos-in-phrase-to word)
   (let ((result 1)
         (w word))
@@ -1022,6 +1019,10 @@
                    1)
              (item.set_feat w 'pos nil)
              (item.set_feat w 'pos 'punc)))
+        ;; Special interjections
+        ((and (member name '("á" "ó"))
+              (czech-pos-first-in-phrase? w))
+         (item.set_feat w 'pos 'int))
         ;; Single letter, not in the role of a word
         ((and (eq? (string-length name) 1)
               (czech-pos-last-in-phrase? w))
