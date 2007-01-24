@@ -1020,9 +1020,8 @@
              (item.set_feat w 'pos nil)
              (item.set_feat w 'pos 'punc)))
         ;; Special interjections
-        ((and (member name '("á" "ó"))
-              (czech-pos-first-in-phrase? w))
-         (item.set_feat w 'pos 'int))
+        ((member name '("á" "ó"))
+         (item.set_feat w 'pos (if (czech-pos-first-in-phrase? w) 'int 'sym)))
         ;; Single letter, not in the role of a word
         ((and (eq? (string-length name) 1)
               (czech-pos-last-in-phrase? w))
