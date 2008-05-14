@@ -370,6 +370,7 @@
   ( Vowel [ ÍÝ ] Vowel = j i: j )
   ( [ IY ] Vowel = i j )
   ( [ ÍÝ ] Vowel = i: j )
+  ( IY [ IY ] = i )
   ( Vowel [ IY ] = j )
   ( Vowel [ ÍÝ ] = j i: )
   ;; Some vowel-vowel pairs
